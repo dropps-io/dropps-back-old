@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 
 
-export async function rootController (fastify: FastifyInstance) {
+export async function universalProfilesController (fastify: FastifyInstance) {
     fastify.route({
       method: 'POST',
       url: '/',

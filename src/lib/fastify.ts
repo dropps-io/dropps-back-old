@@ -1,7 +1,7 @@
 import fastifyFactory from 'fastify'
-import {rootController} from "../controllers/rootController";
+import {universalProfilesController} from "../controllers/universalProfilesController";
 
 export const fastify = fastifyFactory({ logger: false })
 
-  .register(rootController, { prefix: '/' })
+  .register(universalProfilesController, { prefix: '/universal-profiles' })
 
