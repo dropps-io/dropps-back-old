@@ -1,10 +1,11 @@
 import * as mysql from 'mysql';
-import {DB_HOST, DB_PASSWORD, DB_USERNAME} from "../environment/endpoints";
+import {DB_HOST, DB_NAME, DB_PASSWORD, DB_USERNAME} from "../environment/endpoints";
 
 let con = mysql.createConnection({
   host: DB_HOST,
   user: DB_USERNAME,
-  password: DB_PASSWORD
+  password: DB_PASSWORD,
+  database: DB_NAME
 });
 
 con.connect(function(err) {
