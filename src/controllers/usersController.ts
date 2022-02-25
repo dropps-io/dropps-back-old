@@ -1,5 +1,6 @@
 import { FastifyInstance } from 'fastify';
-import {queryUser} from "../db/mysql";
+import {isAddress} from "../services/utils/validators";
+import {queryUser} from "../db/users";
 
 
 export async function usersController (fastify: FastifyInstance) {
@@ -10,6 +11,7 @@ export async function usersController (fastify: FastifyInstance) {
       handler: async (request, reply) => {
         try {
           const {address} = request.params as { address: string };
+          if (!isAddress(address)) return reply.code(400).send('Invalid address');
           const user = await queryUser(address);
           await reply.code(200).send(user);
         } catch (e: any) {
