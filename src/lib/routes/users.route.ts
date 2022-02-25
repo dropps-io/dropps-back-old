@@ -1,19 +1,19 @@
 import { FastifyInstance } from 'fastify';
-import {isAddress} from "../services/utils/validators";
-import {insertUser, queryUser, updateUser} from "../db/users.table";
+import {isAddress} from "../../bin/utils/validators";
+import {insertUser, queryUser, updateUser} from "../../bin/db/users.table";
 
 import * as userSchema from '../models/json/user.json';
 import {User} from "../models/types/user";
-import {getPermissions} from "../services/universal-profiles";
+import {getPermissions} from "../../bin/u-profiles";
 import {
   ADR_INVALID,
   ADR_NOT_EQUAL_PARAM_BODY,
   INTERNAL,
   UP_NO_PERMISSIONS, USER_EXISTS,
   USER_NOT_FOUND
-} from "../services/utils/error-messages";
+} from "../../bin/utils/error-messages";
 
-export async function usersController (fastify: FastifyInstance) {
+export async function usersRoute (fastify: FastifyInstance) {
 
     fastify.route({
       method: 'POST',

@@ -1,5 +1,5 @@
 import * as mysql from 'mysql';
-import {DB_HOST, DB_NAME, DB_PASSWORD, DB_USER} from "../environment/endpoints";
+import {DB_HOST, DB_NAME, DB_PASSWORD, DB_USER} from "../../environment/endpoints";
 
 export const DB = mysql.createConnection({
   host: DB_HOST,

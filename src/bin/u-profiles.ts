@@ -1,6 +1,6 @@
 import {getErc725YValues} from "./erc725Y-reader";
 import {generateAddressPermissionsKey} from "./utils/keys-generator";
-import {Permissions} from "../models/types/permissions";
+import {Permissions} from "../lib/models/types/permissions";
 import { ERC725 } from '@erc725/erc725.js';
 import {createContractObject} from "./web3/contract";
 

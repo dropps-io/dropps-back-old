@@ -1,6 +1,6 @@
-import {User} from "../models/types/user";
+import {User} from "../../lib/models/types/user";
 import {DB} from "./mysql";
-import {USER_NOT_FOUND} from "../services/utils/error-messages";
+import {USER_NOT_FOUND} from "../utils/error-messages";
 
 export async function queryUser(address: string): Promise<User> {
   return new Promise((resolve, reject) => {
