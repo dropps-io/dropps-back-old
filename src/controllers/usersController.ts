@@ -4,6 +4,7 @@ import {insertUser, queryUser} from "../db/users";
 
 import * as userSchema from '../models/json/user.json';
 import {User} from "../models/types/user";
+import {getPermissions} from "../services/universal-profiles";
 
 export async function usersController (fastify: FastifyInstance) {
 
@@ -18,6 +19,7 @@ export async function usersController (fastify: FastifyInstance) {
         try {
           const user = request.body as User;
           if (await queryUser(user.address)) return reply.code(400).send('User already exists');
+          if (!await getPermissions(user.selectedProfile, user.address)) return reply.code(403).send('User do not have permissions on this universal profile');
           await insertUser(user.address, user.selectedProfile);
           return reply.code(200).send(user);
         } catch (e: any) {

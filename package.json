@@ -34,8 +34,10 @@
     "typescript": "^4.3.2"
   },
   "dependencies": {
+    "@erc725/erc725.js": "^0.9.1",
     "dotenv": "^16.0.0",
     "fastify": "^3.27.1",
-    "mysql": "^2.18.1"
+    "mysql": "^2.18.1",
+    "web3": "^1.7.0"
   }
 }
