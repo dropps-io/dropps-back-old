@@ -16,8 +16,5 @@ CREATE TABLE `universal_profiles` (
   PRIMARY KEY (`address`),
   UNIQUE INDEX `address_UNIQUE` (`address` ASC) VISIBLE);
 
-ALTER TABLE `users`
-ADD FOREIGN KEY (selectedProfile) REFERENCES `universal_profiles`(address);
-
 ALTER TABLE `universal_profiles`
 ADD FOREIGN KEY (userAddress) REFERENCES `users`(address);
