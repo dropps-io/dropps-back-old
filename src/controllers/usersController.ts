@@ -18,11 +18,12 @@ export async function usersController (fastify: FastifyInstance) {
       handler: async (request, reply) => {
         try {
           const user = request.body as User;
-          if (await queryUser(user.address)) return reply.code(400).send('User already exists');
           if (!await getPermissions(user.selectedProfile, user.address)) return reply.code(403).send('User do not have permissions on this universal profile');
           await insertUser(user.address, user.selectedProfile);
           return reply.code(200).send(user);
         } catch (e: any) {
+          console.error(e);
+          if (e.sqlState === '23000') return reply.code(422).send('User already exists');
           return reply.code(500).send('Internal Error');
         }
       }
@@ -43,5 +44,4 @@ export async function usersController (fastify: FastifyInstance) {
         }
       }
     });
-
 }

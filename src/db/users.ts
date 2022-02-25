@@ -17,7 +17,7 @@ export async function insertUser(address: string, selectedProfile: string): Prom
 
     DB.query("INSERT INTO users VALUES ('" + address +"', '" + selectedProfile + "');", (err, res) => {
       if (err) reject(err);
-      resolve(res[0] as User);
+      else resolve(res[0] as User);
     });
 
   });
