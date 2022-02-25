@@ -1,25 +1,16 @@
 import * as mysql from 'mysql';
 import {DB_HOST, DB_NAME, DB_PASSWORD, DB_USER} from "../environment/endpoints";
-import {User} from "../models/types/user";
 
-let con = mysql.createConnection({
+export const DB = mysql.createConnection({
   host: DB_HOST,
   user: DB_USER,
   password: DB_PASSWORD,
   database: DB_NAME
 });
 
-con.connect(function(err) {
+DB.connect(function(err) {
   if (err) throw err;
   console.log("Connected!");
 });
 
-//TODO Be aware and fix SQL injection breach
-export async function queryUser(address: string): Promise<User> {
-  return new Promise((resolve, reject) => {
-    con.query("SELECT * FROM users WHERE address = '" + address +"';", (err, res) => {
-      if (err) reject(err);
-      resolve(res[0] as User);
-    });
-  });
-}
+
