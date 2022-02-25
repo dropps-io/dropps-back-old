@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import {isAddress} from "../services/utils/validators";
-import {insertUser, queryUser, updateUser} from "../db/users";
+import {insertUser, queryUser, updateUser} from "../db/users.table";
 
 import * as userSchema from '../models/json/user.json';
 import {User} from "../models/types/user";
