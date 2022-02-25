@@ -1,13 +1,21 @@
 import { FastifyInstance } from 'fastify';
+import {queryUser} from "../db/mysql";
 
 
 export async function usersController (fastify: FastifyInstance) {
+
     fastify.route({
       method: 'GET',
-      url: '/',
+      url: '/:address',
       handler: async (request, reply) => {
-        return reply.code(200).send('Hello World');
+        try {
+          const {address} = request.params as { address: string };
+          const user = await queryUser(address);
+          await reply.code(200).send(user);
+        } catch (e: any) {
+          return reply.code(500).send('Internal Error');
+        }
       }
     });
 
-  }
+}
