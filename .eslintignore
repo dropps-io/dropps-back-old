@@ -1,0 +1,9 @@
+*.test.ts
+*.html
+*.scss
+*.css
+*.svg
+*.jpg
+*.png
+*.json
+*.sql
