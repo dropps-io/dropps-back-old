@@ -1,0 +1,23 @@
+{
+  "$id": "user-profile-reference.json",
+  "$schema": "http://json-schema.org/schema",
+  "type": "object",
+  "required": [
+    "address",
+    "userAddress",
+    "position"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "profileAddress": {
+      "type": "string",
+      "pattern": "^0x[a-fA-F0-9]{40}$",
+      "description": "Address of the Universal Profile"
+    },
+    "userAddress": {
+      "type": "string",
+      "pattern": "^0x[a-fA-F0-9]{40}$",
+      "description": "Address of the user using this profile"
+    }
+  }
+}

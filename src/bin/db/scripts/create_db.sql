@@ -9,11 +9,11 @@ CREATE TABLE `users` (
   UNIQUE KEY `address_UNIQUE` (`address`)
 );
 
-CREATE TABLE `universal_profiles` (
-  `address` VARCHAR(42) NOT NULL,
+CREATE TABLE `user_profile_relations` (
+  `profileAddress` VARCHAR(42) NOT NULL,
   `userAddress` VARCHAR(42) NOT NULL);
 
 
-ALTER TABLE `universal_profiles`
+ALTER TABLE `user_profile_relations`
 ADD FOREIGN KEY (userAddress) REFERENCES `users`(address);
 
