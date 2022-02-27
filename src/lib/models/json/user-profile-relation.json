@@ -1,11 +1,10 @@
 {
-  "$id": "user-profile-reference.json",
+  "$id": "user-profile-relation.json",
   "$schema": "http://json-schema.org/schema",
   "type": "object",
   "required": [
-    "address",
-    "userAddress",
-    "position"
+    "profileAddress",
+    "userAddress"
   ],
   "additionalProperties": false,
   "properties": {
