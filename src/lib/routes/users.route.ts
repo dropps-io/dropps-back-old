@@ -27,6 +27,9 @@ export async function usersRoute (fastify: FastifyInstance) {
 		method: 'POST',
 		url: '/',
 		schema: {
+			description: 'Create a new user using his address and his selected profile address.',
+			tags: ['users'],
+			summary: 'Create a new user',
 			body: userSchema,
 			response: {200: userSchema}
 		},
@@ -48,6 +51,11 @@ export async function usersRoute (fastify: FastifyInstance) {
 	fastify.route({
 		method: 'GET',
 		url: '/:userAddress',
+		schema: {
+			description: 'Get information about a specific user.',
+			tags: ['users'],
+			summary: 'Get a user',
+		},
 		handler: async (request, reply) => {
 			try {
 				const {userAddress} = request.params as { userAddress: string };
@@ -67,6 +75,9 @@ export async function usersRoute (fastify: FastifyInstance) {
 		method: 'PUT',
 		url: '/:userAddress',
 		schema: {
+			description: 'Update the selected profile about a specific user.',
+			tags: ['users'],
+			summary: 'Update a user',
 			body: userSchema,
 			response: {200: userSchema}
 		},
@@ -93,6 +104,11 @@ export async function usersRoute (fastify: FastifyInstance) {
 	fastify.route({
 		method: 'GET',
 		url: '/:userAddress/profiles',
+		schema: {
+			description: 'Get all saved profile addresses of a specific user.',
+			tags: ['users'],
+			summary: 'Get profiles of a user',
+		},
 		handler: async (request, reply) => {
 			try {
 				const {userAddress} = request.params as { userAddress: string };
@@ -111,6 +127,9 @@ export async function usersRoute (fastify: FastifyInstance) {
 		method: 'POST',
 		url: '/:userAddress/profiles',
 		schema: {
+			description: 'Create a new user-profile relation row in the DB, adding the address of the user and the address of the profile.',
+			tags: ['users'],
+			summary: 'Add a profile to a user',
 			body: userProfileRelationSchema,
 			response: {200: userProfileRelationSchema}
 		},
@@ -137,6 +156,11 @@ export async function usersRoute (fastify: FastifyInstance) {
 	fastify.route({
 		method: 'DELETE',
 		url: '/:userAddress/profiles/:profileAddress',
+		schema: {
+			description: 'Delete a user-profile relation row.',
+			tags: ['users'],
+			summary: 'Delete a user'
+		},
 		handler: async (request, reply) => {
 			try {
 				const {userAddress, profileAddress} = request.params as { userAddress: string, profileAddress: string };

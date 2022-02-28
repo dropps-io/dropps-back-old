@@ -8,6 +8,11 @@ export async function profilesRoute (fastify: FastifyInstance) {
   fastify.route({
     method: 'GET',
     url: '/:profileAddress/users',
+    schema: {
+      description: 'Get all saved users addresses of a specific profile.',
+      tags: ['profiles'],
+      summary: 'Get users of a profile',
+    },
     handler: async (request, reply) => {
       try {
         const {profileAddress} = request.params as { profileAddress: string };
