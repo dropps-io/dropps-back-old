@@ -16,10 +16,11 @@ import {
 import {
 	deleteUserProfileRelation,
 	insertUserProfileRelation,
-	queryProfilesOfUser, queryUserProfileRelation
+	queryProfilesOfUser, queryUserProfileRelation, updateUserProfileRelation
 } from "../../bin/db/user-profile-relations.table";
 import {UserProfileRelation} from "../models/types/user-profile-relation";
 import {throwError} from "../../bin/utils/throw-error";
+import {UserProfile} from "../models/types/user-profile";
 
 export async function usersRoute (fastify: FastifyInstance) {
 
@@ -113,7 +114,7 @@ export async function usersRoute (fastify: FastifyInstance) {
 			try {
 				const {userAddress} = request.params as { userAddress: string };
 				if (!isAddress(userAddress)) return reply.code(400).send(ADR_INVALID);
-				const profiles: string[] = await queryProfilesOfUser(userAddress);
+				const profiles: UserProfile[] = await queryProfilesOfUser(userAddress);
 				return  reply.code(200).send(profiles);
 				/* eslint-disable */
 			} catch (e: any) {
@@ -143,11 +144,44 @@ export async function usersRoute (fastify: FastifyInstance) {
 				if (!await throwError(queryUserProfileRelation(userProfileRelation.profileAddress, userAddress))) return reply.code(422).send(USER_PROFILE_RELATION_EXISTS);
 				if (!await getPermissions(userProfileRelation.profileAddress, userProfileRelation.userAddress)) return reply.code(403).send(UP_NO_PERMISSIONS);
 
-				await insertUserProfileRelation(userProfileRelation.profileAddress, userProfileRelation.userAddress);
+				await insertUserProfileRelation(userProfileRelation.profileAddress, userProfileRelation.userAddress, userProfileRelation.archived);
 				return  reply.code(200).send(userProfileRelation);
 				/* eslint-disable */
 			} catch (e: any) {
 				console.error(e);
+				return reply.code(500).send(INTERNAL);
+			}
+		}
+	});
+
+	fastify.route({
+		method: 'PUT',
+		url: '/:userAddress/profiles/:profileAddress',
+		schema: {
+			description: 'Set the archived status of a user-profile relation row to true or false.',
+			tags: ['users'],
+			summary: 'Update a user profile',
+			body: {
+				type: 'object',
+				required: ['archived'],
+				properties: {
+					projectId: { type: 'boolean', description: 'Is the profile archived by the user?' }
+				}
+			},
+			response: {200: userProfileRelationSchema}
+		},
+		handler: async (request, reply) => {
+			try {
+				const {userAddress, profileAddress} = request.params as { userAddress: string, profileAddress: string };
+				const {archived} = request.body as { archived: boolean };
+
+				if (!isAddress(userAddress) || !isAddress(profileAddress)) return reply.code(400).send(ADR_INVALID);
+				await updateUserProfileRelation(profileAddress, userAddress, archived);
+				return  reply.code(200).send({userAddress, profileAddress, archived});
+				/* eslint-disable */
+			} catch (e: any) {
+				console.error(e);
+				if (e === USER_PROFILE_RELATION_NOT_FOUND) reply.code(404).send(USER_PROFILE_RELATION_NOT_FOUND);
 				return reply.code(500).send(INTERNAL);
 			}
 		}
@@ -159,7 +193,7 @@ export async function usersRoute (fastify: FastifyInstance) {
 		schema: {
 			description: 'Delete a user-profile relation row.',
 			tags: ['users'],
-			summary: 'Delete a user'
+			summary: 'Delete a user profile'
 		},
 		handler: async (request, reply) => {
 			try {
