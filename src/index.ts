@@ -9,6 +9,7 @@ if (NODE_ENV === 'production') config({ path: path.resolve(process.cwd(), '.env.
 config();
 
 import { fastify } from './lib/fastify';
+import {HOST} from "./environment/endpoints";
 
-fastify.listen(process.env.PORT ?? 3030).catch(console.error);
+fastify.listen(process.env.PORT ?? 3030, HOST).catch(console.error);
 
