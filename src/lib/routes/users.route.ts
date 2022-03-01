@@ -8,7 +8,7 @@ import {User} from '../models/types/user';
 import {getPermissions} from '../../bin/u-profiles';
 import {
 	ADR_INVALID,
-	ADR_NOT_EQUAL_PARAM_BODY,
+	ADR_NOT_EQUAL_PARAM_BODY, error,
 	INTERNAL,
 	UP_NO_PERMISSIONS, USER_EXISTS,
 	USER_NOT_FOUND, USER_PROFILE_RELATION_EXISTS, USER_PROFILE_RELATION_NOT_FOUND
@@ -139,17 +139,17 @@ export async function usersRoute (fastify: FastifyInstance) {
 				const {userAddress} = request.params as { userAddress: string };
 				const userProfileRelation = request.body as UserProfileRelation;
 
-				if (!isAddress(userAddress)) return reply.code(400).send(ADR_INVALID);
-				if (userAddress.toUpperCase() !== userProfileRelation.userAddress.toUpperCase()) return reply.code(400).send(ADR_NOT_EQUAL_PARAM_BODY);
-				if (!await throwError(queryUserProfileRelation(userProfileRelation.profileAddress, userAddress))) return reply.code(422).send(USER_PROFILE_RELATION_EXISTS);
-				if (!await getPermissions(userProfileRelation.profileAddress, userProfileRelation.userAddress)) return reply.code(403).send(UP_NO_PERMISSIONS);
+				if (!isAddress(userAddress)) return reply.code(400).send(error(400, ADR_INVALID));
+				if (userAddress.toUpperCase() !== userProfileRelation.userAddress.toUpperCase()) return reply.code(400).send(error(400, ADR_NOT_EQUAL_PARAM_BODY));
+				if (!await throwError(queryUserProfileRelation(userProfileRelation.profileAddress, userAddress))) return reply.code(422).send(error(422, USER_PROFILE_RELATION_EXISTS));
+				if (!await getPermissions(userProfileRelation.profileAddress, userProfileRelation.userAddress)) return reply.code(403).send(error(403, UP_NO_PERMISSIONS));
 
 				await insertUserProfileRelation(userProfileRelation.profileAddress, userProfileRelation.userAddress, userProfileRelation.archived);
 				return  reply.code(200).send(userProfileRelation);
 				/* eslint-disable */
 			} catch (e: any) {
 				console.error(e);
-				return reply.code(500).send(INTERNAL);
+				return reply.code(500).send(error(500, INTERNAL));
 			}
 		}
 	});
@@ -175,14 +175,14 @@ export async function usersRoute (fastify: FastifyInstance) {
 				const {userAddress, profileAddress} = request.params as { userAddress: string, profileAddress: string };
 				const {archived} = request.body as { archived: boolean };
 
-				if (!isAddress(userAddress) || !isAddress(profileAddress)) return reply.code(400).send(ADR_INVALID);
+				if (!isAddress(userAddress) || !isAddress(profileAddress)) return reply.code(400).send(error(400, ADR_INVALID));
 				await updateUserProfileRelation(profileAddress, userAddress, archived);
 				return  reply.code(200).send({userAddress, profileAddress, archived});
 				/* eslint-disable */
 			} catch (e: any) {
 				console.error(e);
-				if (e === USER_PROFILE_RELATION_NOT_FOUND) reply.code(404).send(USER_PROFILE_RELATION_NOT_FOUND);
-				return reply.code(500).send(INTERNAL);
+				if (e === USER_PROFILE_RELATION_NOT_FOUND) reply.code(404).send(error(404, USER_PROFILE_RELATION_NOT_FOUND));
+				return reply.code(500).send(error(500, INTERNAL));
 			}
 		}
 	});
@@ -205,8 +205,8 @@ export async function usersRoute (fastify: FastifyInstance) {
 				/* eslint-disable */
 			} catch (e: any) {
 				console.error(e);
-				if (e === USER_PROFILE_RELATION_NOT_FOUND) reply.code(404).send(USER_PROFILE_RELATION_NOT_FOUND);
-				return reply.code(500).send(INTERNAL);
+				if (e === USER_PROFILE_RELATION_NOT_FOUND) reply.code(404).send(error(400, USER_PROFILE_RELATION_NOT_FOUND));
+				return reply.code(500).send(error(500, INTERNAL));
 			}
 		}
 	});

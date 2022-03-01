@@ -1,5 +1,5 @@
 import {isAddress} from "../../bin/utils/validators";
-import {ADR_INVALID, INTERNAL} from "../../bin/utils/error-messages";
+import {ADR_INVALID, error, INTERNAL} from "../../bin/utils/error-messages";
 import {queryUsersOfProfile} from "../../bin/db/user-profile-relations.table";
 import {FastifyInstance} from "fastify";
 
@@ -22,7 +22,7 @@ export async function profilesRoute (fastify: FastifyInstance) {
         /* eslint-disable */
       } catch (e: any) {
         console.error(e);
-        return reply.code(500).send(INTERNAL);
+        return reply.code(500).send(error(500, INTERNAL));
       }
     }
   });
