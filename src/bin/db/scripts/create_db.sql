@@ -10,10 +10,10 @@ CREATE TABLE `users` (
 );
 
 CREATE TABLE `user_profile_relations` (
-  `profileAddress` VARCHAR(42) NOT NULL,
-  `userAddress` VARCHAR(42) NOT NULL);
+  `profileAddress` varchar(42) NOT NULL,
+  `userAddress` varchar(42) NOT NULL,
+  `archived` tinyint NOT NULL,
+  CONSTRAINT FOREIGN KEY (`userAddress`) REFERENCES `users` (`address`)
+);
 
-
-ALTER TABLE `user_profile_relations`
-ADD FOREIGN KEY (userAddress) REFERENCES `users`(address);
 
