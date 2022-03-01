@@ -20,6 +20,7 @@ import {
 } from "../../bin/db/user-profile-relations.table";
 import {UserProfileRelation} from "../models/types/user-profile-relation";
 import {throwError} from "../../bin/utils/throw-error";
+import {UserProfile} from "../models/types/user-profile";
 
 export async function usersRoute (fastify: FastifyInstance) {
 
@@ -113,7 +114,8 @@ export async function usersRoute (fastify: FastifyInstance) {
 			try {
 				const {userAddress} = request.params as { userAddress: string };
 				if (!isAddress(userAddress)) return reply.code(400).send(ADR_INVALID);
-				const profiles: string[] = await queryProfilesOfUser(userAddress);
+				const profiles: UserProfile[] = await queryProfilesOfUser(userAddress);
+				console.log(profiles);
 				return  reply.code(200).send(profiles);
 				/* eslint-disable */
 			} catch (e: any) {
@@ -143,7 +145,7 @@ export async function usersRoute (fastify: FastifyInstance) {
 				if (!await throwError(queryUserProfileRelation(userProfileRelation.profileAddress, userAddress))) return reply.code(422).send(USER_PROFILE_RELATION_EXISTS);
 				if (!await getPermissions(userProfileRelation.profileAddress, userProfileRelation.userAddress)) return reply.code(403).send(UP_NO_PERMISSIONS);
 
-				await insertUserProfileRelation(userProfileRelation.profileAddress, userProfileRelation.userAddress);
+				await insertUserProfileRelation(userProfileRelation.profileAddress, userProfileRelation.userAddress, userProfileRelation.archived);
 				return  reply.code(200).send(userProfileRelation);
 				/* eslint-disable */
 			} catch (e: any) {
