@@ -4,7 +4,8 @@
   "type": "object",
   "required": [
     "profileAddress",
-    "userAddress"
+    "userAddress",
+    "archived"
   ],
   "additionalProperties": false,
   "properties": {
@@ -17,6 +18,10 @@
       "type": "string",
       "pattern": "^0x[a-fA-F0-9]{40}$",
       "description": "Address of the user using this profile"
+    },
+    "archived": {
+      "type": "boolean",
+      "description": "Is the profile archived by the user?"
     }
   }
 }
