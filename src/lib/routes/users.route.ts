@@ -16,7 +16,7 @@ import {
 import {
 	deleteUserProfileRelation,
 	insertUserProfileRelation,
-	queryProfilesOfUser, queryUserProfileRelation
+	queryProfilesOfUser, queryUserProfileRelation, updateUserProfileRelation
 } from "../../bin/db/user-profile-relations.table";
 import {UserProfileRelation} from "../models/types/user-profile-relation";
 import {throwError} from "../../bin/utils/throw-error";
@@ -115,7 +115,6 @@ export async function usersRoute (fastify: FastifyInstance) {
 				const {userAddress} = request.params as { userAddress: string };
 				if (!isAddress(userAddress)) return reply.code(400).send(ADR_INVALID);
 				const profiles: UserProfile[] = await queryProfilesOfUser(userAddress);
-				console.log(profiles);
 				return  reply.code(200).send(profiles);
 				/* eslint-disable */
 			} catch (e: any) {
@@ -156,12 +155,45 @@ export async function usersRoute (fastify: FastifyInstance) {
 	});
 
 	fastify.route({
+		method: 'PUT',
+		url: '/:userAddress/profiles/:profileAddress',
+		schema: {
+			description: 'Set the archived status of a user-profile relation row to true or false.',
+			tags: ['users'],
+			summary: 'Update a user profile',
+			body: {
+				type: 'object',
+				required: ['archived'],
+				properties: {
+					projectId: { type: 'boolean', description: 'Is the profile archived by the user?' }
+				}
+			},
+			response: {200: userProfileRelationSchema}
+		},
+		handler: async (request, reply) => {
+			try {
+				const {userAddress, profileAddress} = request.params as { userAddress: string, profileAddress: string };
+				const {archived} = request.body as { archived: boolean };
+
+				if (!isAddress(userAddress) || !isAddress(profileAddress)) return reply.code(400).send(ADR_INVALID);
+				await updateUserProfileRelation(profileAddress, userAddress, archived);
+				return  reply.code(200).send({userAddress, profileAddress, archived});
+				/* eslint-disable */
+			} catch (e: any) {
+				console.error(e);
+				if (e === USER_PROFILE_RELATION_NOT_FOUND) reply.code(404).send(USER_PROFILE_RELATION_NOT_FOUND);
+				return reply.code(500).send(INTERNAL);
+			}
+		}
+	});
+
+	fastify.route({
 		method: 'DELETE',
 		url: '/:userAddress/profiles/:profileAddress',
 		schema: {
 			description: 'Delete a user-profile relation row.',
 			tags: ['users'],
-			summary: 'Delete a user'
+			summary: 'Delete a user profile'
 		},
 		handler: async (request, reply) => {
 			try {

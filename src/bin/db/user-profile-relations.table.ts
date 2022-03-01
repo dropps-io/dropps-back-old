@@ -57,11 +57,24 @@ export async function insertUserProfileRelation(profileAddress: string, userAddr
   });
 }
 
+export async function updateUserProfileRelation(profileAddress: string, userAddress: string, archived: boolean): Promise<void> {
+  return new Promise((resolve, reject) => {
+
+    DB.query('UPDATE user_profile_relations SET archived = ' + archived + ' WHERE userAddress = \'' + userAddress + '\' && profileAddress = \'' + profileAddress + '\';',
+      (err, res) => {
+      if (err) reject(err);
+      if (res.affectedRows === 0) reject(USER_PROFILE_RELATION_NOT_FOUND);
+      else resolve();
+    });
+
+  });
+}
+
 export async function deleteUserProfileRelation(profileAddress: string, userAddress: string): Promise<void> {
   return new Promise((resolve, reject) => {
 
-    DB.query('DELETE FROM user_profile_relations WHERE userAddress = \'' + userAddress + '\' && profileAddress = \'' + profileAddress + '\';'
-      , (err, res) => {
+    DB.query('DELETE FROM user_profile_relations WHERE userAddress = \'' + userAddress + '\' && profileAddress = \'' + profileAddress + '\';',
+      (err, res) => {
         if (err) reject(err);
         console.log(res);
         if (res.affectedRows === 0) reject(USER_PROFILE_RELATION_NOT_FOUND);
