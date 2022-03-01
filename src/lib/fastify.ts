@@ -6,11 +6,12 @@ import {profilesRoute} from "./routes/profiles.route";
 
 import * as userSchema from '../lib/models/json/user.json';
 import * as userProfileRelation from '../lib/models/json/user-profile-relation.json';
+import {HOST} from "../environment/endpoints";
 
 
-export const fastify = fastifyFactory({ logger: false })
+export const fastify = fastifyFactory()
 	.register(fastifySwagger, {
-		routePrefix: '/documentation',
+		prefix: '/documentation',
 		swagger: {
 			info: {
 				title: 'Dropps Backend',
@@ -21,7 +22,7 @@ export const fastify = fastifyFactory({ logger: false })
 				url: 'https://github.com/dropps-nft/dropps-back',
 				description: 'Link to the Github repository'
 			},
-			host: 'localhost:3030',
+			host: HOST,
 			schemes: ['http'],
 			consumes: ['application/json'],
 			produces: ['application/json'],
