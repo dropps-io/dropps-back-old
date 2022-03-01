@@ -12,7 +12,7 @@ CREATE TABLE `users` (
 CREATE TABLE `user_profile_relations` (
   `profileAddress` varchar(42) NOT NULL,
   `userAddress` varchar(42) NOT NULL,
-  `archived` tinyint NOT NULL,
+  `archived` tinyint NOT NULL DEFAULT 0,
   CONSTRAINT FOREIGN KEY (`userAddress`) REFERENCES `users` (`address`)
 );
 
