@@ -16,7 +16,7 @@ export async function profilesRoute (fastify: FastifyInstance) {
     handler: async (request, reply) => {
       try {
         const {profileAddress} = request.params as { profileAddress: string };
-        if (!isAddress(profileAddress)) return reply.code(400).send(ADR_INVALID);
+        if (!isAddress(profileAddress)) return reply.code(400).send(error(400, ADR_INVALID));
         const users: string[] = await queryUsersOfProfile(profileAddress);
         return reply.code(200).send(users);
         /* eslint-disable */
