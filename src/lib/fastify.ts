@@ -11,7 +11,7 @@ import {HOST} from "../environment/endpoints";
 
 export const fastify = fastifyFactory()
 	.register(fastifySwagger, {
-		routePrefix: '/',
+		prefix: '/documentation',
 		swagger: {
 			info: {
 				title: 'Dropps Backend',
