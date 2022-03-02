@@ -8,8 +8,8 @@ import {User} from '../models/types/user';
 import {getPermissions} from '../../bin/u-profiles';
 import {
 	ADR_INVALID,
-	ADR_NOT_EQUAL_PARAM_BODY, error,
-	INTERNAL,
+	ADR_NOT_EQUAL_PARAM_BODY, error, INCORRECT_SIGNED_NONCE,
+	INTERNAL, INVALID_SIGNATURE,
 	UP_NO_PERMISSIONS, USER_EXISTS,
 	USER_NOT_FOUND, USER_PROFILE_RELATION_EXISTS, USER_PROFILE_RELATION_NOT_FOUND
 } from '../../bin/utils/error-messages';
@@ -21,7 +21,9 @@ import {
 import {UserProfileRelation} from "../models/types/user-profile-relation";
 import {throwError} from "../../bin/utils/throw-error";
 import {UserProfile} from "../models/types/user-profile";
-import {insertNonce, queryNonce} from "../../bin/db/nonces.table";
+import {insertNonce, queryNonce, updateNonce} from "../../bin/db/nonces.table";
+import {generateAddressWithSignature} from "../../bin/web3/auth";
+import {generateJWT} from "../../bin/json-web-token";
 
 export async function usersRoute (fastify: FastifyInstance) {
 
@@ -115,13 +117,59 @@ export async function usersRoute (fastify: FastifyInstance) {
 			try {
 				const {userAddress} = request.params as { userAddress: string };
 				if (!isAddress(userAddress)) return reply.code(400).send(error(400, ADR_INVALID));
-				let res: { nonce: string } = await queryNonce(userAddress);
-				if (!res) res = await insertNonce(userAddress);
-				return  reply.code(200).send(res);
+				let nonce: string  = await queryNonce(userAddress);
+				if (!nonce) nonce = await insertNonce(userAddress);
+				return  reply.code(200).send({nonce});
 				/* eslint-disable */
 			} catch (e: any) {
 				console.error(e);
 				return reply.code(500).send(error(500, INTERNAL));
+			}
+		}
+	});
+
+	fastify.route({
+		method: 'POST',
+		url: '/:userAddress/signature',
+		schema: {
+			description: 'Request a JWT by sending a signed nonce.',
+			tags: ['users'],
+			summary: 'Request for JWT',
+			body: {
+				type: 'object',
+				required: ['signedNonce'],
+				properties: {
+					signedNonce: { type: 'string', description: 'Nonce signed by the user' }
+				}
+			}
+		},
+		handler: async (request, reply) => {
+			try {
+				const {userAddress} = request.params as { userAddress: string };
+				const {signedNonce} = request.body as { signedNonce: string };
+
+				if (!isAddress(userAddress)) return reply.code(400).send(error(400, ADR_INVALID));
+
+				let nonce: string = await queryNonce(userAddress);
+
+				if (generateAddressWithSignature(nonce, signedNonce).toUpperCase() === userAddress.toUpperCase()) {
+					// User is auth
+					await updateNonce(userAddress);
+
+					return  reply.code(200).send({
+						token: generateJWT(userAddress),
+						userAddress: userAddress,
+						message: 'Token valid for 6h'
+					});
+				} else {
+					// User is not auth
+					reply.code(403).send(error(403, INCORRECT_SIGNED_NONCE));
+				}
+				/* eslint-disable */
+			} catch (e: any) {
+				console.error(JSON.stringify(e));
+				if (e.message.includes('Invalid signature')) return reply.code(400).send(error(400, INVALID_SIGNATURE));
+				else return reply.code(500).send(error(500, INTERNAL));
 			}
 		}
 	});
