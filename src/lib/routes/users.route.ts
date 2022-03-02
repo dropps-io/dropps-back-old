@@ -3,10 +3,10 @@ import {isAddress} from '../../bin/utils/validators';
 import {insertUser, queryUser, updateUser} from '../../bin/db/users.table';
 import {User} from '../models/types/user';
 import {getPermissions} from '../../bin/u-profiles';
-import {UserProfileRelation} from "../models/types/user-profile-relation";
-import {throwError} from "../../bin/utils/throw-error";
-import {UserProfile} from "../models/types/user-profile";
-import {verifyJWT} from "../../bin/json-web-token";
+import {UserProfileRelation} from '../models/types/user-profile-relation';
+import {throwError} from '../../bin/utils/throw-error';
+import {UserProfile} from '../models/types/user-profile';
+import {verifyJWT} from '../../bin/json-web-token';
 import * as userSchema from '../models/json/user.json';
 import * as userProfileRelationSchema from '../models/json/user-profile-relation.json';
 import {
@@ -20,7 +20,7 @@ import {
 	deleteUserProfileRelation,
 	insertUserProfileRelation,
 	queryProfilesOfUser, queryUserProfileRelation, updateUserProfileRelation
-} from "../../bin/db/user-profile-relations.table";
+} from '../../bin/db/user-profile-relations.table';
 
 export async function usersRoute (fastify: FastifyInstance) {
 

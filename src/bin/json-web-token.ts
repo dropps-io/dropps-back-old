@@ -1,7 +1,7 @@
 import * as jwt from 'jsonwebtoken';
-import {JWT_SECRET} from "../environment/endpoints";
-import {FastifyReply, FastifyRequest} from "fastify";
-import {error, JWT_EXPIRED, NO_JWT_TOKEN, UNAUTHORIZED} from "./utils/error-messages";
+import {JWT_SECRET} from '../environment/endpoints';
+import {FastifyReply, FastifyRequest} from 'fastify';
+import {error, JWT_EXPIRED, NO_JWT_TOKEN, UNAUTHORIZED} from './utils/error-messages';
 
 interface JWTPayload {
   address: string,
@@ -10,14 +10,14 @@ interface JWTPayload {
 }
 
 export function generateJWT(address: string): string {
-  return jwt.sign({
-    address: address
-  }, JWT_SECRET, {expiresIn: '6h'});
+	return jwt.sign({
+		address: address
+	}, JWT_SECRET, {expiresIn: '6h'});
 }
 
 export function verifyJWT(req: FastifyRequest, res: FastifyReply, userAddress: string) {
-  if (!req.headers.authorization) return res.code(401).send(error(401, NO_JWT_TOKEN));
-  const payload: JWTPayload = jwt.verify(req.headers.authorization?.split(' ')[1], JWT_SECRET) as JWTPayload;
-  if (userAddress !== payload.address) return res.code(403).send(error(403, UNAUTHORIZED));
-  if (payload.exp < parseInt((new Date()).getTime().toString().slice(0, 10))) return res.code(401).send(error(401, JWT_EXPIRED));
+	if (!req.headers.authorization) return res.code(401).send(error(401, NO_JWT_TOKEN));
+	const payload: JWTPayload = jwt.verify(req.headers.authorization?.split(' ')[1], JWT_SECRET) as JWTPayload;
+	if (userAddress !== payload.address) return res.code(403).send(error(403, UNAUTHORIZED));
+	if (payload.exp < parseInt((new Date()).getTime().toString().slice(0, 10))) return res.code(401).send(error(401, JWT_EXPIRED));
 }

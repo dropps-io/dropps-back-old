@@ -18,8 +18,8 @@ export const JWT_EXPIRED = 'The JWT token provided is expired';
 export const UNAUTHORIZED = 'You don\'t have the permission to access this resource';
 
 export function error(code: number, message: string): { code: number, message: string } {
-  return {
-    code,
-    message
-  };
+	return {
+		code,
+		message
+	};
 }

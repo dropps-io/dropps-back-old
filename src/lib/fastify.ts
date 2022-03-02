@@ -1,12 +1,12 @@
 import fastifyFactory from 'fastify';
-import fastifySwagger from "fastify-swagger";
+import fastifySwagger from 'fastify-swagger';
 
 import {usersRoute} from './routes/users.route';
-import {profilesRoute} from "./routes/profiles.route";
+import {profilesRoute} from './routes/profiles.route';
 
 import * as userSchema from '../lib/models/json/user.json';
 import * as userProfileRelation from '../lib/models/json/user-profile-relation.json';
-import {authRoute} from "./routes/auth.route";
+import {authRoute} from './routes/auth.route';
 
 
 export const fastify = fastifyFactory({logger: true})
@@ -22,7 +22,7 @@ export const fastify = fastifyFactory({logger: true})
 				url: 'https://github.com/dropps-nft/dropps-back',
 				description: 'Link to the Github repository'
 			},
-			host: "api.dropps.io",
+			host: 'api.dropps.io',
 			schemes: ['http'],
 			consumes: ['application/json'],
 			produces: ['application/json'],
@@ -43,8 +43,8 @@ export const fastify = fastifyFactory({logger: true})
 			deepLinking: false
 		},
 		uiHooks: {
-			onRequest: function (request, reply, next) { next() },
-			preHandler: function (request, reply, next) { next() }
+			onRequest: function (request, reply, next) { next(); },
+			preHandler: function (request, reply, next) { next(); }
 		},
 		staticCSP: true,
 		transformStaticCSP: (header) => header,
@@ -54,5 +54,5 @@ export const fastify = fastifyFactory({logger: true})
 	.addSchema(userProfileRelation)
 	.register(usersRoute, { prefix: '/users' })
 	.register(profilesRoute, { prefix: '/profiles' })
-	.register(authRoute, { prefix: '/auth' })
+	.register(authRoute, { prefix: '/auth' });
 

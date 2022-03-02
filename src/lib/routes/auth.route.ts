@@ -1,28 +1,28 @@
-import {isAddress} from "../../bin/utils/validators";
-import {ADR_INVALID, error, INCORRECT_SIGNED_NONCE, INTERNAL, INVALID_SIGNATURE} from "../../bin/utils/error-messages";
-import {insertNonce, queryNonce, updateNonce} from "../../bin/db/nonces.table";
-import {generateAddressWithSignature} from "../../bin/web3/auth";
-import {generateJWT} from "../../bin/json-web-token";
-import {FastifyInstance} from "fastify";
+import {isAddress} from '../../bin/utils/validators';
+import {ADR_INVALID, error, INCORRECT_SIGNED_NONCE, INTERNAL, INVALID_SIGNATURE} from '../../bin/utils/error-messages';
+import {insertNonce, queryNonce, updateNonce} from '../../bin/db/nonces.table';
+import {generateAddressWithSignature} from '../../bin/web3/auth';
+import {generateJWT} from '../../bin/json-web-token';
+import {FastifyInstance} from 'fastify';
 
 export async function authRoute (fastify: FastifyInstance) {
 
-  fastify.route({
-    method: 'GET',
-    url: '/:userAddress/nonce',
-    schema: {
-      description: 'Get the current nonce of a specific user.',
-      tags: ['auth'],
-      summary: 'Get a user nonce',
-    },
-    handler: async (request, reply) => {
-      try {
-        const {userAddress} = request.params as { userAddress: string };
-        if (!isAddress(userAddress)) return reply.code(400).send(error(400, ADR_INVALID));
-        let nonce: string = await queryNonce(userAddress);
-        if (!nonce) nonce = await insertNonce(userAddress);
-        return reply.code(200).send({nonce});
-        /* eslint-disable */
+	fastify.route({
+		method: 'GET',
+		url: '/:userAddress/nonce',
+		schema: {
+			description: 'Get the current nonce of a specific user.',
+			tags: ['auth'],
+			summary: 'Get a user nonce',
+		},
+		handler: async (request, reply) => {
+			try {
+				const {userAddress} = request.params as { userAddress: string };
+				if (!isAddress(userAddress)) return reply.code(400).send(error(400, ADR_INVALID));
+				let nonce: string = await queryNonce(userAddress);
+				if (!nonce) nonce = await insertNonce(userAddress);
+				return reply.code(200).send({nonce});
+				/* eslint-disable */
       } catch (e: any) {
         console.error(e);
         return reply.code(500).send(error(500, INTERNAL));
