@@ -6,7 +6,6 @@ import {profilesRoute} from "./routes/profiles.route";
 
 import * as userSchema from '../lib/models/json/user.json';
 import * as userProfileRelation from '../lib/models/json/user-profile-relation.json';
-import {HOST} from "../environment/endpoints";
 
 
 export const fastify = fastifyFactory()
@@ -22,7 +21,7 @@ export const fastify = fastifyFactory()
 				url: 'https://github.com/dropps-nft/dropps-back',
 				description: 'Link to the Github repository'
 			},
-			host: HOST,
+			host: "api.dropps.io",
 			schemes: ['http'],
 			consumes: ['application/json'],
 			produces: ['application/json'],
