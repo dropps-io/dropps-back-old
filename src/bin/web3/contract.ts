@@ -8,6 +8,6 @@ export async function createContractObject(
 	contractAddress: string,
 	contractType: ContractType
 ): Promise<Contract> {
-	const contract = await import('./artifacts/' + contractType + '.json');
+	const contract = await import('./artifacts/ERC725Y.json');
 	return new web3.eth.Contract(contract.abi as AbiItem[], contractAddress);
 }
