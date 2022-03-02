@@ -17,6 +17,6 @@ CREATE TABLE `user_profile_relations` (
 );
 
 CREATE TABLE `nonces` (
-  `address` INT NOT NULL,
-  `nonce` VARCHAR(6) NULL,
-  PRIMARY KEY (`address`));
+  `address` varchar(42) NOT NULL,
+  `nonce` VARCHAR(6) NOT NULL,
+  UNIQUE KEY (`userAddress`));
