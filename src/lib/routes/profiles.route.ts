@@ -1,5 +1,5 @@
 import {isAddress} from '../../bin/utils/validators';
-import {ADR_INVALID, error, INTERNAL} from '../../bin/utils/error-messages';
+import {error, ERROR_ADR_INVALID, ERROR_INTERNAL} from '../../bin/utils/error-messages';
 import {queryUsersOfProfile} from '../../bin/db/user-profile-relations.table';
 import {FastifyInstance} from 'fastify';
 
@@ -16,13 +16,13 @@ export async function profilesRoute (fastify: FastifyInstance) {
 		handler: async (request, reply) => {
 			try {
 				const {profileAddress} = request.params as { profileAddress: string };
-				if (!isAddress(profileAddress)) return reply.code(400).send(error(400, ADR_INVALID));
+				if (!isAddress(profileAddress)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
 				const users: string[] = await queryUsersOfProfile(profileAddress);
 				return reply.code(200).send(users);
 				/* eslint-disable */
       } catch (e: any) {
         console.error(e);
-        return reply.code(500).send(error(500, INTERNAL));
+        return reply.code(500).send(error(500, ERROR_INTERNAL));
       }
     }
   });

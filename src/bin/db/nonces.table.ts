@@ -1,5 +1,5 @@
 import {DB} from './mysql';
-import {USER_NOT_FOUND} from '../utils/error-messages';
+import {ERROR_USER_NOT_FOUND} from '../utils/error-messages';
 import {generateRandomNonce} from '../utils/nonce-generator';
 
 export async function queryNonce(userAddress: string): Promise<string> {
@@ -32,7 +32,7 @@ export async function updateNonce(userAddress: string): Promise<string> {
 		const nonce = generateRandomNonce();
 		DB.query('UPDATE nonces SET nonce =  \'' + nonce +'\' WHERE userAddress = \'' + userAddress +'\';', (err, res) => {
 			if (err) reject(err);
-			if (res.changedRows === 0) reject(USER_NOT_FOUND);
+			if (res.changedRows === 0) reject(ERROR_USER_NOT_FOUND);
 			else resolve(nonce);
 		});
 
