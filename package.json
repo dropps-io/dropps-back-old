@@ -38,7 +38,6 @@
     "@erc725/erc725.js": "^0.9.1",
     "dotenv": "^16.0.0",
     "fastify": "^3.27.1",
-    "fastify-cors": "^6.0.3",
     "fastify-swagger": "^4.15.0",
     "mysql": "^2.18.1",
     "prettier": "^2.5.1",

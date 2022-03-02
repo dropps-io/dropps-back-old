@@ -9,21 +9,6 @@ import * as userProfileRelation from '../lib/models/json/user-profile-relation.j
 
 
 export const fastify = fastifyFactory({logger: true})
-	.register(require('fastify-cors'), (instance) => {
-
-		return (req: { headers: { origin: any; }; }, callback: (arg0: null, arg1: { origin: boolean; }) => void) => {
-			let corsOptions;
-			const origin = req.headers.origin
-			// do not include CORS headers for requests from localhost
-			const hostname = new URL(origin).hostname
-			if(hostname === "localhost"){
-				corsOptions = { origin: false }
-			} else {
-				corsOptions = { origin: true }
-			}
-			callback(null, corsOptions) // callback expects two parameters: error and options
-		}
-	})
 	.register(fastifySwagger, {
 		prefix: '/documentation',
 		swagger: {
