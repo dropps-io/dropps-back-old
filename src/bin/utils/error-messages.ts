@@ -13,6 +13,10 @@ export const USER_PROFILE_RELATION_EXISTS = 'User-profile relation already exist
 export const INCORRECT_SIGNED_NONCE = 'The signed nonce do not correspond to the user';
 export const INVALID_SIGNATURE = 'The signature format is not valid';
 
+export const NO_JWT_TOKEN = 'No JWT token provided with bearer';
+export const JWT_EXPIRED = 'The JWT token provided is expired';
+export const UNAUTHORIZED = 'You don\'t have the permission to access this resource';
+
 export function error(code: number, message: string): { code: number, message: string } {
   return {
     code,

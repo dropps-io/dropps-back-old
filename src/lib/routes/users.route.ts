@@ -1,11 +1,16 @@
 import { FastifyInstance } from 'fastify';
 import {isAddress} from '../../bin/utils/validators';
 import {insertUser, queryUser, updateUser} from '../../bin/db/users.table';
-
-import * as userSchema from '../models/json/user.json';
-import * as userProfileRelationSchema from '../models/json/user-profile-relation.json';
 import {User} from '../models/types/user';
 import {getPermissions} from '../../bin/u-profiles';
+import {UserProfileRelation} from "../models/types/user-profile-relation";
+import {throwError} from "../../bin/utils/throw-error";
+import {UserProfile} from "../models/types/user-profile";
+import {insertNonce, queryNonce, updateNonce} from "../../bin/db/nonces.table";
+import {generateAddressWithSignature} from "../../bin/web3/auth";
+import {generateJWT, verifyJWT} from "../../bin/json-web-token";
+import * as userSchema from '../models/json/user.json';
+import * as userProfileRelationSchema from '../models/json/user-profile-relation.json';
 import {
 	ADR_INVALID,
 	ADR_NOT_EQUAL_PARAM_BODY, error, INCORRECT_SIGNED_NONCE,
@@ -18,12 +23,6 @@ import {
 	insertUserProfileRelation,
 	queryProfilesOfUser, queryUserProfileRelation, updateUserProfileRelation
 } from "../../bin/db/user-profile-relations.table";
-import {UserProfileRelation} from "../models/types/user-profile-relation";
-import {throwError} from "../../bin/utils/throw-error";
-import {UserProfile} from "../models/types/user-profile";
-import {insertNonce, queryNonce, updateNonce} from "../../bin/db/nonces.table";
-import {generateAddressWithSignature} from "../../bin/web3/auth";
-import {generateJWT} from "../../bin/json-web-token";
 
 export async function usersRoute (fastify: FastifyInstance) {
 
@@ -38,8 +37,10 @@ export async function usersRoute (fastify: FastifyInstance) {
 			response: {200: userSchema}
 		},
 		handler: async (request, reply) => {
+			const user = request.body as User;
+			verifyJWT(request, reply, user.address);
+
 			try {
-				const user = request.body as User;
 				if (!await getPermissions(user.selectedProfile, user.address)) return reply.code(403).send(error(403, UP_NO_PERMISSIONS));
 				await insertUser(user.address, user.selectedProfile);
 				return reply.code(200).send(user);
@@ -86,10 +87,11 @@ export async function usersRoute (fastify: FastifyInstance) {
 			response: {200: userSchema}
 		},
 		handler: async (request, reply) => {
-			try {
-				const {userAddress} = request.params as { userAddress: string };
-				const user = request.body as User;
+			const {userAddress} = request.params as { userAddress: string };
+			const user = request.body as User;
+			verifyJWT(request, reply, userAddress);
 
+			try {
 				if (!isAddress(userAddress)) return reply.code(400).send(error(400, ADR_INVALID));
 				if (userAddress.toUpperCase() !== user.address.toUpperCase()) return reply.code(400).send(error(400, ADR_NOT_EQUAL_PARAM_BODY));
 				if (!await getPermissions(user.selectedProfile, user.address)) return reply.code(403).send(error(403, UP_NO_PERMISSIONS));
@@ -144,12 +146,11 @@ export async function usersRoute (fastify: FastifyInstance) {
 			}
 		},
 		handler: async (request, reply) => {
+			const {userAddress} = request.params as { userAddress: string };
+			const {signedNonce} = request.body as { signedNonce: string };
+
 			try {
-				const {userAddress} = request.params as { userAddress: string };
-				const {signedNonce} = request.body as { signedNonce: string };
-
 				if (!isAddress(userAddress)) return reply.code(400).send(error(400, ADR_INVALID));
-
 				let nonce: string = await queryNonce(userAddress);
 
 				if (generateAddressWithSignature(nonce, signedNonce).toUpperCase() === userAddress.toUpperCase()) {
@@ -167,7 +168,7 @@ export async function usersRoute (fastify: FastifyInstance) {
 				}
 				/* eslint-disable */
 			} catch (e: any) {
-				console.error(JSON.stringify(e));
+				console.error(e);
 				if (e.message.includes('Invalid signature')) return reply.code(400).send(error(400, INVALID_SIGNATURE));
 				else return reply.code(500).send(error(500, INTERNAL));
 			}
@@ -207,10 +208,11 @@ export async function usersRoute (fastify: FastifyInstance) {
 			response: {200: userProfileRelationSchema}
 		},
 		handler: async (request, reply) => {
-			try {
-				const {userAddress} = request.params as { userAddress: string };
-				const userProfileRelation = request.body as UserProfileRelation;
+			const {userAddress} = request.params as { userAddress: string };
+			const userProfileRelation = request.body as UserProfileRelation;
+			verifyJWT(request, reply, userAddress);
 
+			try {
 				if (!isAddress(userAddress)) return reply.code(400).send(error(400, ADR_INVALID));
 				if (userAddress.toUpperCase() !== userProfileRelation.userAddress.toUpperCase()) return reply.code(400).send(error(400, ADR_NOT_EQUAL_PARAM_BODY));
 				if (!await throwError(queryUserProfileRelation(userProfileRelation.profileAddress, userAddress))) return reply.code(422).send(error(422, USER_PROFILE_RELATION_EXISTS));
@@ -243,10 +245,11 @@ export async function usersRoute (fastify: FastifyInstance) {
 			response: {200: userProfileRelationSchema}
 		},
 		handler: async (request, reply) => {
-			try {
-				const {userAddress, profileAddress} = request.params as { userAddress: string, profileAddress: string };
-				const {archived} = request.body as { archived: boolean };
+			const {userAddress, profileAddress} = request.params as { userAddress: string, profileAddress: string };
+			const {archived} = request.body as { archived: boolean };
+			verifyJWT(request, reply, userAddress);
 
+			try {
 				if (!isAddress(userAddress) || !isAddress(profileAddress)) return reply.code(400).send(error(400, ADR_INVALID));
 				await updateUserProfileRelation(profileAddress, userAddress, archived);
 				return  reply.code(200).send({userAddress, profileAddress, archived});
@@ -268,9 +271,10 @@ export async function usersRoute (fastify: FastifyInstance) {
 			summary: 'Delete a user profile'
 		},
 		handler: async (request, reply) => {
-			try {
-				const {userAddress, profileAddress} = request.params as { userAddress: string, profileAddress: string };
+			const {userAddress, profileAddress} = request.params as { userAddress: string, profileAddress: string };
+			verifyJWT(request, reply, userAddress);
 
+			try {
 				if (!isAddress(userAddress) || !isAddress(profileAddress)) return reply.code(400).send(error(400, ADR_INVALID));
 				await deleteUserProfileRelation(profileAddress, userAddress);
 				return  reply.code(200).send({message: 'User-profile successfully deleted'});
