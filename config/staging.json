@@ -1,0 +1,4 @@
+{
+  "env": "staging",
+  "jwt_validity_time": 6
+}

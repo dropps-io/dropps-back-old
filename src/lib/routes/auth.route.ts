@@ -9,6 +9,7 @@ import {insertNonce, queryNonce, updateNonce} from '../../bin/db/nonces.table';
 import {generateAddressWithSignature} from '../../bin/web3/auth';
 import {generateJWT} from '../../bin/json-web-token';
 import {FastifyInstance} from 'fastify';
+import {JWT_VALIDITY_TIME} from "../../environment/endpoints";
 
 export async function authRoute (fastify: FastifyInstance) {
 
@@ -65,7 +66,7 @@ export async function authRoute (fastify: FastifyInstance) {
           return reply.code(200).send({
             token: generateJWT(userAddress),
             userAddress: userAddress,
-            message: 'Token valid for 6h'
+            message: 'Token valid for ' + JWT_VALIDITY_TIME + 'h'
           });
         } else {
           // User is not auth

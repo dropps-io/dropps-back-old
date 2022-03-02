@@ -1,5 +1,5 @@
 import * as jwt from 'jsonwebtoken';
-import {JWT_SECRET} from '../environment/endpoints';
+import {JWT_SECRET, JWT_VALIDITY_TIME} from '../environment/endpoints';
 import {FastifyReply, FastifyRequest} from 'fastify';
 import {error, ERROR_JWT_EXPIRED, ERROR_NO_JWT_TOKEN, ERROR_UNAUTHORIZED} from './utils/error-messages';
 
@@ -12,7 +12,7 @@ interface JWTPayload {
 export function generateJWT(address: string): string {
 	return jwt.sign({
 		address: address
-	}, JWT_SECRET, {expiresIn: '6h'});
+	}, JWT_SECRET, {expiresIn: JWT_VALIDITY_TIME + 'h'});
 }
 
 export function verifyJWT(req: FastifyRequest, res: FastifyReply, userAddress: string) {
