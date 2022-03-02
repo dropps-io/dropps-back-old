@@ -16,4 +16,7 @@ CREATE TABLE `user_profile_relations` (
   CONSTRAINT FOREIGN KEY (`userAddress`) REFERENCES `users` (`address`)
 );
 
-
+CREATE TABLE `nonces` (
+  `address` INT NOT NULL,
+  `nonce` VARCHAR(6) NULL,
+  PRIMARY KEY (`address`));
