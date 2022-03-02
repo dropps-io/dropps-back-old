@@ -6,6 +6,7 @@ import {profilesRoute} from "./routes/profiles.route";
 
 import * as userSchema from '../lib/models/json/user.json';
 import * as userProfileRelation from '../lib/models/json/user-profile-relation.json';
+import {authRoute} from "./routes/auth.route";
 
 
 export const fastify = fastifyFactory({logger: true})
@@ -53,4 +54,5 @@ export const fastify = fastifyFactory({logger: true})
 	.addSchema(userProfileRelation)
 	.register(usersRoute, { prefix: '/users' })
 	.register(profilesRoute, { prefix: '/profiles' })
+	.register(authRoute, { prefix: '/auth' })
 
