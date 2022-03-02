@@ -21,6 +21,7 @@ import {
 import {UserProfileRelation} from "../models/types/user-profile-relation";
 import {throwError} from "../../bin/utils/throw-error";
 import {UserProfile} from "../models/types/user-profile";
+import {insertNonce, queryNonce} from "../../bin/db/nonces.table";
 
 export async function usersRoute (fastify: FastifyInstance) {
 
@@ -97,6 +98,29 @@ export async function usersRoute (fastify: FastifyInstance) {
 			} catch (e: any) {
 				console.error(e);
 				if (e === USER_NOT_FOUND) return reply.code(404).send(error(404, USER_NOT_FOUND));
+				return reply.code(500).send(error(500, INTERNAL));
+			}
+		}
+	});
+
+	fastify.route({
+		method: 'GET',
+		url: '/:userAddress/nonce',
+		schema: {
+			description: 'Get the current nonce of a specific user.',
+			tags: ['users'],
+			summary: 'Get a user nonce',
+		},
+		handler: async (request, reply) => {
+			try {
+				const {userAddress} = request.params as { userAddress: string };
+				if (!isAddress(userAddress)) return reply.code(400).send(error(400, ADR_INVALID));
+				let res: { nonce: string } = await queryNonce(userAddress);
+				if (!res) res = await insertNonce(userAddress);
+				return  reply.code(200).send(res);
+				/* eslint-disable */
+			} catch (e: any) {
+				console.error(e);
 				return reply.code(500).send(error(500, INTERNAL));
 			}
 		}
