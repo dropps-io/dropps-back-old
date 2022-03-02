@@ -8,7 +8,7 @@ import * as userSchema from '../lib/models/json/user.json';
 import * as userProfileRelation from '../lib/models/json/user-profile-relation.json';
 
 
-export const fastify = fastifyFactory()
+export const fastify = fastifyFactory({logger: true})
 	.register(fastifySwagger, {
 		prefix: '/documentation',
 		swagger: {
