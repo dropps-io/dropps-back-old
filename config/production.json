@@ -1,0 +1,4 @@
+{
+  "env": "production",
+  "jwt_validity_time": 6
+}

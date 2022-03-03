@@ -1,0 +1,4 @@
+{
+  "env": "test",
+  "jwt_validity_time": 6
+}
