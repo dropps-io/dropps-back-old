@@ -9,7 +9,7 @@ import {insertNonce, queryNonce, updateNonce} from '../../bin/db/nonces.table';
 import {generateAddressWithSignature} from '../../bin/web3/auth';
 import {generateJWT} from '../../bin/json-web-token';
 import {FastifyInstance} from 'fastify';
-import {JWT_VALIDITY_TIME} from "../../environment/endpoints";
+import {JWT_VALIDITY_TIME} from "../../environment/config";
 
 export async function authRoute (fastify: FastifyInstance) {
 

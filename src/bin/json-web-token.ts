@@ -1,7 +1,8 @@
 import * as jwt from 'jsonwebtoken';
-import {JWT_SECRET, JWT_VALIDITY_TIME} from '../environment/endpoints';
+import {JWT_SECRET} from '../environment/endpoints';
 import {FastifyReply, FastifyRequest} from 'fastify';
 import {error, ERROR_JWT_EXPIRED, ERROR_NO_JWT_TOKEN, ERROR_UNAUTHORIZED} from './utils/error-messages';
+import {JWT_VALIDITY_TIME} from "../environment/config";
 
 interface JWTPayload {
   address: string,
