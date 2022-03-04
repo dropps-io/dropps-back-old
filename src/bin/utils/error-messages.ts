@@ -9,3 +9,10 @@ export const INTERNAL = 'Internal Error';
 
 export const USER_PROFILE_RELATION_NOT_FOUND = 'Cannot find user-profile relation'
 export const USER_PROFILE_RELATION_EXISTS = 'User-profile relation already exists'
+
+export function error(code: number, message: string): { code: number, message: string } {
+  return {
+    code,
+    message
+  };
+}

@@ -15,6 +15,20 @@
 ```
 npm install
 ```
+- Create the `.env`, `.env.prod` and `.env.test` files and add the followings values inside:
+```
+DB_HOST="MYDATABASEHOST"
+DB_NAME="MYDATABASENAME"
+DB_USER="MYDATABASEUSER"
+DB_PASSWORD="MYDATABASEPASSWORD"
+HOST="HOSTURL"
+```
+***NOTE: `.env.test` need to contain only local config***
+
+- Compile the typescript
+```
+yarn run build
+```
 
 - Serve the project to run it locally
 
