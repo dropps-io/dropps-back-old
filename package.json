@@ -6,7 +6,7 @@
   "scripts": {
     "build": "npx tsc",
     "watch": "npx tsc --watch",
-    "run dev": "set NODE_ENV=test&& node dist/index.js",
+    "run dev": "set NODE_ENV=development&& node dist/index.js",
     "lint": "eslint src/**/*",
     "lint autofix": "eslint --fix src/**/*",
     "test": "set NODE_ENV=test&&mocha ./dist/test/**/*",
