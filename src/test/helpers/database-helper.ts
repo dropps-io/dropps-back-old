@@ -1,5 +1,4 @@
-import {DB} from "../../bin/db/mysql";
-import {logError} from "../../bin/logger";
+import {executeQuery} from "../../bin/db/mysql";
 
 const clearDBQueries = ['use dropps;',
   'SET SQL_SAFE_UPDATES = 0;',
@@ -18,16 +17,5 @@ export async function clearDB(): Promise<void> {
       await executeQuery(query);
     });
     resolve();
-  });
-}
-
-async function executeQuery(query: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    DB.query(query, () => {
-      resolve();
-    },err => {
-      logError(err);
-      reject(err);
-    });
   });
 }

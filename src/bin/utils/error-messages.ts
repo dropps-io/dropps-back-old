@@ -17,6 +17,8 @@ export const ERROR_NO_JWT_TOKEN = 'No JWT token provided with bearer';
 export const ERROR_JWT_EXPIRED = 'The JWT token provided is expired';
 export const ERROR_UNAUTHORIZED = 'You don\'t have the permission to access this resource';
 
+export const ERROR_PROFILE_NOT_FOUND = 'Cannot find the Universal Profile';
+
 export function error(code: number, message: string): { code: number, message: string } {
 	return {
 		code,
