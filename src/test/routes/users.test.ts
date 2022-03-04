@@ -434,6 +434,122 @@ describe('users routes', () => {
 		});
 	});
 
+	describe('PUT /users/:userAddress/profiles/:profileAddress', () => {
+
+		beforeEach(async () => {
+			await clearDB();
+			await fastify.inject({method: 'POST', url: '/users', payload: {
+					address: EOA1,
+					selectedProfile: UP1_EOA1
+				},
+				headers: {
+					authorization: 'Bearer ' + JWT_EOA1
+				}});
+			await fastify.inject({method: 'POST', url: '/users/' + EOA1 + '/profiles', payload: {
+					userAddress: EOA1,
+					profileAddress: UP1_EOA1,
+					archived: false
+				},
+				headers: {
+					authorization: 'Bearer ' + JWT_EOA1
+				}});
+		});
+
+		it('should return 400 if incorrect param userAddress', async () => {
+			const postRes = await fastify.inject({method: 'PUT', url: '/users/' + EOA1 + 'a/profiles/' + UP1_EOA1, payload: {
+					archived: true
+				},
+				headers: {
+					authorization: 'Bearer ' + JWT_EOA1
+				}
+			});
+
+			expect(postRes.statusCode).to.equal(400);
+		});
+
+		it('should return 400 if incorrect param profileAddress', async () => {
+			const postRes = await fastify.inject({method: 'PUT', url: '/users/' + EOA1 + '/profiles/' + UP1_EOA1 + 'a', payload: {
+					archived: true
+				},
+				headers: {
+					authorization: 'Bearer ' + JWT_EOA1
+				}
+			});
+
+			expect(postRes.statusCode).to.equal(400);
+		});
+
+		it('should return 400 if missing body', async () => {
+			const postRes = await fastify.inject({method: 'PUT', url: '/users/' + EOA1 + '/profiles/' + UP1_EOA1 + 'a',
+				headers: {
+					authorization: 'Bearer ' + JWT_EOA1
+				}
+			});
+
+			expect(postRes.statusCode).to.equal(400);
+		});
+
+
+		it('should return 404 if user do not exists', async () => {
+			const postRes = await fastify.inject({method: 'PUT', url: '/users/' + EOA2 + '/profiles/' + UP1_EOA2, payload: {
+					archived: true
+				},
+				headers: {
+					authorization: 'Bearer ' + JWT_EOA2
+				}
+			});
+
+			expect(postRes.statusCode).to.equal(404);
+		});
+
+		it('should return 200 when correctly formed body', async () => {
+			const postRes = await fastify.inject({method: 'PUT', url: '/users/' + EOA1 + '/profiles/' + UP1_EOA1, payload: {
+					archived: true
+				},
+				headers: {
+					authorization: 'Bearer ' + JWT_EOA1
+				}
+			});
+
+			expect(postRes.statusCode).to.equal(200);
+		});
+
+		it('should successfully change the selectedProfile', async () => {
+			await fastify.inject({method: 'PUT', url: '/users/' + EOA1 + '/profiles/' + UP1_EOA1, payload: {
+					archived: true
+				},
+				headers: {
+					authorization: 'Bearer ' + JWT_EOA1
+				}
+			});
+
+			const body: UserProfile[] = JSON.parse((await fastify.inject({method: 'GET', url: '/users/' + EOA1 + '/profiles'})).body);
+
+			expect(body[0].archived).to.equal(true);
+		});
+
+		it('should return 401 if no jwt auth', async () => {
+			const postRes = await fastify.inject({method: 'PUT', url: '/users/' + EOA1 + '/profiles/' + UP1_EOA1, payload: {
+					archived: true
+				}
+			});
+
+			expect(postRes.statusCode).to.equal(401);
+		});
+
+		it('should return 403 if jwt is for another address', async () => {
+			const postRes = await fastify.inject({method: 'PUT', url: '/users/' + EOA1 + '/profiles/' + UP1_EOA1, payload: {
+					archived: true
+				},
+				headers: {
+					authorization: 'Bearer ' + JWT_EOA2
+				}
+			});
+
+			expect(postRes.statusCode).to.equal(403);
+		});
+	});
+
 });
 
 
