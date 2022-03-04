@@ -180,10 +180,10 @@ export async function usersRoute (fastify: FastifyInstance) {
 		handler: async (request, reply) => {
 			const {userAddress, profileAddress} = request.params as { userAddress: string, profileAddress: string };
 			const {archived} = request.body as { archived: boolean };
+			if (!isAddress(userAddress) || !isAddress(profileAddress)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
 			verifyJWT(request, reply, userAddress);
 
 			try {
-				if (!isAddress(userAddress) || !isAddress(profileAddress)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
 				await updateUserProfileRelation(profileAddress, userAddress, archived);
 				return  reply.code(200).send({userAddress, profileAddress, archived});
 				/* eslint-disable */
