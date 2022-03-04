@@ -60,19 +60,16 @@ export async function authRoute (fastify: FastifyInstance) {
         if (!isAddress(userAddress)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
         let nonce: string = await queryNonce(userAddress);
 
-        if (generateAddressWithSignature(nonce, signedNonce).toUpperCase() === userAddress.toUpperCase()) {
-          // User is auth
-          await updateNonce(userAddress);
+        if (generateAddressWithSignature(nonce, signedNonce).toUpperCase() !== userAddress.toUpperCase()) return reply.code(403).send(error(403, ERROR_INCORRECT_SIGNED_NONCE));
+        // User is auth
 
-          return reply.code(200).send({
-            token: generateJWT(userAddress),
-            userAddress: userAddress,
-            message: 'Token valid for ' + JWT_VALIDITY_TIME + 'h'
-          });
-        } else {
-          // User is not auth
-          reply.code(403).send(error(403, ERROR_INCORRECT_SIGNED_NONCE));
-        }
+        await updateNonce(userAddress);
+
+        return reply.code(200).send({
+          token: generateJWT(userAddress),
+          userAddress: userAddress,
+          message: 'Token valid for ' + JWT_VALIDITY_TIME + 'h'
+        });
         /* eslint-disable */
       } catch (e: any) {
         logError(e);
