@@ -205,10 +205,10 @@ export async function usersRoute (fastify: FastifyInstance) {
 		},
 		handler: async (request, reply) => {
 			const {userAddress, profileAddress} = request.params as { userAddress: string, profileAddress: string };
+			if (!isAddress(userAddress) || !isAddress(profileAddress)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
 			verifyJWT(request, reply, userAddress);
 
 			try {
-				if (!isAddress(userAddress) || !isAddress(profileAddress)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
 				await deleteUserProfileRelation(profileAddress, userAddress);
 				return  reply.code(200).send({message: 'User-profile successfully deleted'});
 				/* eslint-disable */
