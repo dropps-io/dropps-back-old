@@ -15,7 +15,6 @@ describe('users routes', () => {
 	const UP2_EOA1 = '0x36eC763516259D4bE9EDe7cC2969969f201139dd';
 
 	const UP1_EOA2 = '0x63385D6b52530e6b514f6b44713ECf315FfBEf21';
-	const UP2_EOA2 = '0xb348cfeeF05c5AB30033ffD574D60cc57dDE2927';
 
 	let JWT_EOA1: string = generateJWT(EOA1);
 	let JWT_EOA2: string = generateJWT(EOA2);
