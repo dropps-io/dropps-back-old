@@ -3,6 +3,7 @@ import {generateAddressPermissionsKey} from './utils/keys-generator';
 import {Permissions} from '../lib/models/types/permissions';
 import { ERC725 } from '@erc725/erc725.js';
 import {createContractObject} from './web3/contract';
+import {logError} from "./logger";
 
 //TODO Improve by verifying if the owner of the UP is an KeyManager or not
 //Because, if not, we'll only verify the owner of the UP
@@ -18,7 +19,7 @@ export async function getPermissions(
 		if (permissionsKey === '0x') return false;
 		return ERC725.decodePermissions(permissionsKey);
 	} catch (e) {
-		console.error(e);
+		logError(e);
 		throw e;
 	}
 }

@@ -7,9 +7,11 @@ import {profilesRoute} from "./routes/profiles.route";
 import * as userSchema from '../lib/models/json/user.json';
 import * as userProfileRelation from '../lib/models/json/user-profile-relation.json';
 import fastifyCors from "fastify-cors";
+import {authRoute} from './routes/auth.route';
+import {LOGGER} from "../environment/config";
 
 
-export const fastify = fastifyFactory({logger: true})
+export const fastify = fastifyFactory({logger: LOGGER})
 	fastify.register(fastifyCors, {
 		origin: "*",
 		methods: ["POST", "GET", "PUT", "DELETE"]
@@ -58,7 +60,5 @@ export const fastify = fastifyFactory({logger: true})
 	.addSchema(userProfileRelation)
 	.register(usersRoute, { prefix: '/users' })
 	.register(profilesRoute, { prefix: '/profiles' })
-	;
-
-
+	.register(authRoute, { prefix: '/auth' });
 

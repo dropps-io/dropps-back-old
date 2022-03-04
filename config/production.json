@@ -1,0 +1,5 @@
+{
+  "env": "production",
+  "logger": true,
+  "jwt_validity_time": 6
+}

@@ -44,6 +44,27 @@ yarn run "run dev"
 4) Ask for some code review and approvals before accepting the pull request
 5) Delete the branch you created if it's not used anymore
 
+# Environments
+
+### Development
+
+The default environment that you use when you're developing and running the backend locally.
+
+### Test
+
+Local environment to run unit an automated tests.
+
+### Staging
+
+Environment used for our staging app (hosted and used for manual test).
+
+**DO NOT RUN THIS ENVIRONMENT LOCALLY**
+
+### Production
+
+Production environment.
+
+**DO NOT RUN THIS ENVIRONMENT LOCALLY**
 # Release
 
 - Create release branch `release/vX.X.X`
