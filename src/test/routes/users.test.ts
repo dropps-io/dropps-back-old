@@ -28,7 +28,7 @@ describe('users routes', () => {
 		});
 
 		it('should return 400 if incorrect address', async () => {
-			const postRes = await fastify.inject({method: 'POST', url: '/users', payload: {
+			const res = await fastify.inject({method: 'POST', url: '/users', payload: {
 					address: '0xD692Ba892a9810a2EEA41C1D8DcD652D47Ab',
 					selectedProfile: UP1_EOA1
 				},
@@ -37,7 +37,7 @@ describe('users routes', () => {
 				}
 			});
 
-			expect(postRes.statusCode).to.equal(400);
+			expect(res.statusCode).to.equal(400);
 		});
 
 		it('should return 422 if user exists', async () => {
@@ -48,7 +48,7 @@ describe('users routes', () => {
 				headers: {
 					authorization: 'Bearer ' + JWT_EOA1
 				}});
-			const postRes = await fastify.inject({method: 'POST', url: '/users', payload: {
+			const res = await fastify.inject({method: 'POST', url: '/users', payload: {
 					address: EOA1,
 					selectedProfile: UP1_EOA1
 				},
@@ -56,11 +56,11 @@ describe('users routes', () => {
 					authorization: 'Bearer ' + JWT_EOA1
 				}});
 
-			expect(postRes.statusCode).to.equal(422);
+			expect(res.statusCode).to.equal(422);
 		});
 
 		it('should accept correctly formed body', async () => {
-			const postRes = await fastify.inject({method: 'POST', url: '/users', payload: {
+			const res = await fastify.inject({method: 'POST', url: '/users', payload: {
 					address: EOA1,
 					selectedProfile: UP1_EOA1
 				},
@@ -68,21 +68,21 @@ describe('users routes', () => {
 					authorization: 'Bearer ' + JWT_EOA1
 				}});
 
-			expect(postRes.statusCode).to.equal(200);
+			expect(res.statusCode).to.equal(200);
 		});
 
 		it('should return 401 if no jwt auth', async () => {
-			const postRes = await fastify.inject({method: 'POST', url: '/users', payload: {
+			const res = await fastify.inject({method: 'POST', url: '/users', payload: {
 					address: EOA1,
 					selectedProfile: UP1_EOA1
 				}
 			});
 
-			expect(postRes.statusCode).to.equal(401);
+			expect(res.statusCode).to.equal(401);
 		});
 
 		it('should return 403 if jwt is for another address', async () => {
-			const postRes = await fastify.inject({method: 'POST', url: '/users', payload: {
+			const res = await fastify.inject({method: 'POST', url: '/users', payload: {
 					address: EOA2,
 					selectedProfile: UP1_EOA1
 				},
@@ -91,11 +91,11 @@ describe('users routes', () => {
 				}
 			});
 
-			expect(postRes.statusCode).to.equal(403);
+			expect(res.statusCode).to.equal(403);
 		});
 
 		it('should return 403 if no permissions on the profile', async () => {
-			const postRes = await fastify.inject({method: 'POST', url: '/users', payload: {
+			const res = await fastify.inject({method: 'POST', url: '/users', payload: {
 					address: EOA2,
 					selectedProfile: UP1_EOA1
 				},
@@ -104,7 +104,7 @@ describe('users routes', () => {
 				}
 			});
 
-			expect(postRes.statusCode).to.equal(403);
+			expect(res.statusCode).to.equal(403);
 		});
 	});
 
@@ -122,27 +122,27 @@ describe('users routes', () => {
 		});
 
 		it('should return 400 if incorrect address', async () => {
-			const postRes = await fastify.inject({method: 'GET', url: '/users/' + EOA1 + 'a'});
+			const res = await fastify.inject({method: 'GET', url: '/users/' + EOA1 + 'a'});
 
-			expect(postRes.statusCode).to.equal(400);
+			expect(res.statusCode).to.equal(400);
 		});
 
 		it('should return 404 if user do not exist', async () => {
-			const postRes = await fastify.inject({method: 'GET', url: '/users/' + EOA2});
+			const res = await fastify.inject({method: 'GET', url: '/users/' + EOA2});
 
-			expect(postRes.statusCode).to.equal(404);
+			expect(res.statusCode).to.equal(404);
 		});
 
 		it('should return 200 if user exist', async () => {
-			const postRes = await fastify.inject({method: 'GET', url: '/users/' + EOA1});
+			const res = await fastify.inject({method: 'GET', url: '/users/' + EOA1});
 
-			expect(postRes.statusCode).to.equal(200);
+			expect(res.statusCode).to.equal(200);
 		});
 
 		it('should return selectedProfile if user exist', async () => {
-			const postRes = await fastify.inject({method: 'GET', url: '/users/' + EOA1});
+			const res = await fastify.inject({method: 'GET', url: '/users/' + EOA1});
 
-			const body: User = JSON.parse(postRes.body);
+			const body: User = JSON.parse(res.body);
 			expect(body.selectedProfile.toUpperCase()).to.equal(UP1_EOA1.toUpperCase());
 		});
 	});
@@ -161,7 +161,7 @@ describe('users routes', () => {
 		});
 
 		it('should return 400 if incorrect param address', async () => {
-			const postRes = await fastify.inject({method: 'PUT', url: '/users/' + EOA1 + 'a', payload: {
+			const res = await fastify.inject({method: 'PUT', url: '/users/' + EOA1 + 'a', payload: {
 					address: EOA1,
 					selectedProfile: UP2_EOA1
 				},
@@ -170,11 +170,11 @@ describe('users routes', () => {
 				}
 			});
 
-			expect(postRes.statusCode).to.equal(400);
+			expect(res.statusCode).to.equal(400);
 		});
 
 		it('should return 400 if incorrect body address', async () => {
-			const postRes = await fastify.inject({method: 'PUT', url: '/users/' + EOA1, payload: {
+			const res = await fastify.inject({method: 'PUT', url: '/users/' + EOA1, payload: {
 					address: EOA1 + 'a',
 					selectedProfile: UP2_EOA1
 				},
@@ -183,11 +183,11 @@ describe('users routes', () => {
 				}
 			});
 
-			expect(postRes.statusCode).to.equal(400);
+			expect(res.statusCode).to.equal(400);
 		});
 
 		it('should return 400 if body & param address do not match', async () => {
-			const postRes = await fastify.inject({method: 'PUT', url: '/users/' + EOA1, payload: {
+			const res = await fastify.inject({method: 'PUT', url: '/users/' + EOA1, payload: {
 					address: EOA2,
 					selectedProfile: UP2_EOA1
 				},
@@ -196,11 +196,11 @@ describe('users routes', () => {
 				}
 			});
 
-			expect(postRes.statusCode).to.equal(400);
+			expect(res.statusCode).to.equal(400);
 		});
 
 		it('should return 404 if user do not exists', async () => {
-			const postRes = await fastify.inject({method: 'PUT', url: '/users/' + EOA2, payload: {
+			const res = await fastify.inject({method: 'PUT', url: '/users/' + EOA2, payload: {
 					address: EOA2,
 					selectedProfile: UP1_EOA2
 				},
@@ -208,11 +208,11 @@ describe('users routes', () => {
 					authorization: 'Bearer ' + JWT_EOA2
 				}});
 
-			expect(postRes.statusCode).to.equal(404);
+			expect(res.statusCode).to.equal(404);
 		});
 
 		it('should return 200 when correctly formed body', async () => {
-			const postRes = await fastify.inject({method: 'PUT', url: '/users/' + EOA1, payload: {
+			const res = await fastify.inject({method: 'PUT', url: '/users/' + EOA1, payload: {
 					address: EOA1,
 					selectedProfile: UP2_EOA1
 				},
@@ -220,7 +220,7 @@ describe('users routes', () => {
 					authorization: 'Bearer ' + JWT_EOA1
 				}});
 
-			expect(postRes.statusCode).to.equal(200);
+			expect(res.statusCode).to.equal(200);
 		});
 
 		it('should successfully change the selectedProfile', async () => {
@@ -238,17 +238,17 @@ describe('users routes', () => {
 		});
 
 		it('should return 401 if no jwt auth', async () => {
-			const postRes = await fastify.inject({method: 'PUT', url: '/users/' + EOA1, payload: {
+			const res = await fastify.inject({method: 'PUT', url: '/users/' + EOA1, payload: {
 					address: EOA1,
 					selectedProfile: UP2_EOA1
 				}
 			});
 
-			expect(postRes.statusCode).to.equal(401);
+			expect(res.statusCode).to.equal(401);
 		});
 
 		it('should return 403 if jwt is for another address', async () => {
-			const postRes = await fastify.inject({method: 'PUT', url: '/users/' + EOA1, payload: {
+			const res = await fastify.inject({method: 'PUT', url: '/users/' + EOA1, payload: {
 					address: EOA1,
 					selectedProfile: UP2_EOA1
 				},
@@ -257,11 +257,11 @@ describe('users routes', () => {
 				}
 			});
 
-			expect(postRes.statusCode).to.equal(403);
+			expect(res.statusCode).to.equal(403);
 		});
 
 		it('should return 403 if no permissions on the profile', async () => {
-			const postRes = await fastify.inject({method: 'PUT', url: '/users/' + EOA1, payload: {
+			const res = await fastify.inject({method: 'PUT', url: '/users/' + EOA1, payload: {
 					address: EOA1,
 					selectedProfile: UP1_EOA2
 				},
@@ -270,7 +270,7 @@ describe('users routes', () => {
 				}
 			});
 
-			expect(postRes.statusCode).to.equal(403);
+			expect(res.statusCode).to.equal(403);
 		});
 	});
 
@@ -288,7 +288,7 @@ describe('users routes', () => {
 		});
 
 		it('should return 400 if incorrect body address', async () => {
-			const postRes = await fastify.inject({method: 'POST', url: '/users/' + EOA1 + '/profiles', payload: {
+			const res = await fastify.inject({method: 'POST', url: '/users/' + EOA1 + '/profiles', payload: {
 					userAddress: EOA1 + 'a',
 					profileAddress: UP1_EOA1,
 					archived: false
@@ -297,11 +297,11 @@ describe('users routes', () => {
 					authorization: 'Bearer ' + JWT_EOA1
 				}});
 
-			expect(postRes.statusCode).to.equal(400);
+			expect(res.statusCode).to.equal(400);
 		});
 
 		it('should return 400 if body & param address do not match', async () => {
-			const postRes = await fastify.inject({method: 'POST', url: '/users/' + EOA1 + '/profiles', payload: {
+			const res = await fastify.inject({method: 'POST', url: '/users/' + EOA1 + '/profiles', payload: {
 					userAddress: EOA2,
 					profileAddress: UP1_EOA1,
 					archived: false
@@ -310,11 +310,11 @@ describe('users routes', () => {
 					authorization: 'Bearer ' + JWT_EOA1
 				}});
 
-			expect(postRes.statusCode).to.equal(400);
+			expect(res.statusCode).to.equal(400);
 		});
 
 		it('should return 404 if user do not exists', async () => {
-			const postRes = await fastify.inject({method: 'POST', url: '/users/' + EOA2 + '/profiles', payload: {
+			const res = await fastify.inject({method: 'POST', url: '/users/' + EOA2 + '/profiles', payload: {
 					userAddress: EOA2,
 					profileAddress: UP1_EOA2,
 					archived: false
@@ -323,11 +323,11 @@ describe('users routes', () => {
 					authorization: 'Bearer ' + JWT_EOA2
 				}});
 
-			expect(postRes.statusCode).to.equal(404);
+			expect(res.statusCode).to.equal(404);
 		});
 
 		it('should return 200 if correct request', async () => {
-			const postRes = await fastify.inject({method: 'POST', url: '/users/' + EOA1 + '/profiles', payload: {
+			const res = await fastify.inject({method: 'POST', url: '/users/' + EOA1 + '/profiles', payload: {
 					userAddress: EOA1,
 					profileAddress: UP1_EOA1,
 					archived: false
@@ -336,21 +336,21 @@ describe('users routes', () => {
 					authorization: 'Bearer ' + JWT_EOA1
 				}});
 
-			expect(postRes.statusCode).to.equal(200);
+			expect(res.statusCode).to.equal(200);
 		});
 
 		it('should return 401 if no jwt auth', async () => {
-			const postRes = await fastify.inject({method: 'POST', url: '/users/' + EOA1 + '/profiles', payload: {
+			const res = await fastify.inject({method: 'POST', url: '/users/' + EOA1 + '/profiles', payload: {
 					userAddress: EOA1,
 					profileAddress: UP1_EOA1,
 					archived: false
 				}});
 
-			expect(postRes.statusCode).to.equal(401);
+			expect(res.statusCode).to.equal(401);
 		});
 
 		it('should return 403 if jwt is for another address', async () => {
-			const postRes = await fastify.inject({method: 'POST', url: '/users/' + EOA1 + '/profiles', payload: {
+			const res = await fastify.inject({method: 'POST', url: '/users/' + EOA1 + '/profiles', payload: {
 					userAddress: EOA1,
 					profileAddress: UP1_EOA1,
 					archived: false
@@ -359,11 +359,11 @@ describe('users routes', () => {
 					authorization: 'Bearer ' + JWT_EOA2
 				}});
 
-			expect(postRes.statusCode).to.equal(403);
+			expect(res.statusCode).to.equal(403);
 		});
 
 		it('should return 403 if no permissions on the profile', async () => {
-			const postRes = await fastify.inject({method: 'POST', url: '/users/' + EOA1 + '/profiles', payload: {
+			const res = await fastify.inject({method: 'POST', url: '/users/' + EOA1 + '/profiles', payload: {
 					userAddress: EOA1,
 					profileAddress: UP1_EOA2,
 					archived: false
@@ -372,7 +372,7 @@ describe('users routes', () => {
 					authorization: 'Bearer ' + JWT_EOA1
 				}});
 
-			expect(postRes.statusCode).to.equal(403);
+			expect(res.statusCode).to.equal(403);
 		});
 	});
 
@@ -408,27 +408,27 @@ describe('users routes', () => {
 		});
 
 		it('should return 400 if incorrect address', async () => {
-			const postRes = await fastify.inject({method: 'GET', url: '/users/' + EOA1 + 'a' + '/profiles'});
+			const res = await fastify.inject({method: 'GET', url: '/users/' + EOA1 + 'a' + '/profiles'});
 
-			expect(postRes.statusCode).to.equal(400);
+			expect(res.statusCode).to.equal(400);
 		});
 
 		it('should return 404 if user do not exist', async () => {
-			const postRes = await fastify.inject({method: 'GET', url: '/users/' + EOA2 + '/profiles'});
+			const res = await fastify.inject({method: 'GET', url: '/users/' + EOA2 + '/profiles'});
 
-			expect(postRes.statusCode).to.equal(404);
+			expect(res.statusCode).to.equal(404);
 		});
 
 		it('should return 200 if user exist', async () => {
-			const postRes = await fastify.inject({method: 'GET', url: '/users/' + EOA1 + '/profiles'});
+			const res = await fastify.inject({method: 'GET', url: '/users/' + EOA1 + '/profiles'});
 
-			expect(postRes.statusCode).to.equal(200);
+			expect(res.statusCode).to.equal(200);
 		});
 
 		it('should return profiles if user exist', async () => {
-			const postRes = await fastify.inject({method: 'GET', url: '/users/' + EOA1 + '/profiles'});
+			const res = await fastify.inject({method: 'GET', url: '/users/' + EOA1 + '/profiles'});
 
-			const body: UserProfile[] = JSON.parse(postRes.body);
+			const body: UserProfile[] = JSON.parse(res.body);
 			expect(body[0].profileAddress.toUpperCase()).to.equal(UP1_EOA1.toUpperCase());
 			expect(body[1].profileAddress.toUpperCase()).to.equal(UP2_EOA1.toUpperCase());
 		});
@@ -456,7 +456,7 @@ describe('users routes', () => {
 		});
 
 		it('should return 400 if incorrect param userAddress', async () => {
-			const postRes = await fastify.inject({method: 'PUT', url: '/users/' + EOA1 + 'a/profiles/' + UP1_EOA1, payload: {
+			const res = await fastify.inject({method: 'PUT', url: '/users/' + EOA1 + 'a/profiles/' + UP1_EOA1, payload: {
 					archived: true
 				},
 				headers: {
@@ -464,11 +464,11 @@ describe('users routes', () => {
 				}
 			});
 
-			expect(postRes.statusCode).to.equal(400);
+			expect(res.statusCode).to.equal(400);
 		});
 
 		it('should return 400 if incorrect param profileAddress', async () => {
-			const postRes = await fastify.inject({method: 'PUT', url: '/users/' + EOA1 + '/profiles/' + UP1_EOA1 + 'a', payload: {
+			const res = await fastify.inject({method: 'PUT', url: '/users/' + EOA1 + '/profiles/' + UP1_EOA1 + 'a', payload: {
 					archived: true
 				},
 				headers: {
@@ -476,22 +476,22 @@ describe('users routes', () => {
 				}
 			});
 
-			expect(postRes.statusCode).to.equal(400);
+			expect(res.statusCode).to.equal(400);
 		});
 
 		it('should return 400 if missing body', async () => {
-			const postRes = await fastify.inject({method: 'PUT', url: '/users/' + EOA1 + '/profiles/' + UP1_EOA1 + 'a',
+			const res = await fastify.inject({method: 'PUT', url: '/users/' + EOA1 + '/profiles/' + UP1_EOA1 + 'a',
 				headers: {
 					authorization: 'Bearer ' + JWT_EOA1
 				}
 			});
 
-			expect(postRes.statusCode).to.equal(400);
+			expect(res.statusCode).to.equal(400);
 		});
 
 
 		it('should return 404 if user do not exists', async () => {
-			const postRes = await fastify.inject({method: 'PUT', url: '/users/' + EOA2 + '/profiles/' + UP1_EOA2, payload: {
+			const res = await fastify.inject({method: 'PUT', url: '/users/' + EOA2 + '/profiles/' + UP1_EOA2, payload: {
 					archived: true
 				},
 				headers: {
@@ -499,11 +499,11 @@ describe('users routes', () => {
 				}
 			});
 
-			expect(postRes.statusCode).to.equal(404);
+			expect(res.statusCode).to.equal(404);
 		});
 
 		it('should return 200 when correctly formed body', async () => {
-			const postRes = await fastify.inject({method: 'PUT', url: '/users/' + EOA1 + '/profiles/' + UP1_EOA1, payload: {
+			const res = await fastify.inject({method: 'PUT', url: '/users/' + EOA1 + '/profiles/' + UP1_EOA1, payload: {
 					archived: true
 				},
 				headers: {
@@ -511,10 +511,10 @@ describe('users routes', () => {
 				}
 			});
 
-			expect(postRes.statusCode).to.equal(200);
+			expect(res.statusCode).to.equal(200);
 		});
 
-		it('should successfully change the selectedProfile', async () => {
+		it('should successfully change the user profile relation', async () => {
 			await fastify.inject({method: 'PUT', url: '/users/' + EOA1 + '/profiles/' + UP1_EOA1, payload: {
 					archived: true
 				},
@@ -529,16 +529,16 @@ describe('users routes', () => {
 		});
 
 		it('should return 401 if no jwt auth', async () => {
-			const postRes = await fastify.inject({method: 'PUT', url: '/users/' + EOA1 + '/profiles/' + UP1_EOA1, payload: {
+			const res = await fastify.inject({method: 'PUT', url: '/users/' + EOA1 + '/profiles/' + UP1_EOA1, payload: {
 					archived: true
 				}
 			});
 
-			expect(postRes.statusCode).to.equal(401);
+			expect(res.statusCode).to.equal(401);
 		});
 
 		it('should return 403 if jwt is for another address', async () => {
-			const postRes = await fastify.inject({method: 'PUT', url: '/users/' + EOA1 + '/profiles/' + UP1_EOA1, payload: {
+			const res = await fastify.inject({method: 'PUT', url: '/users/' + EOA1 + '/profiles/' + UP1_EOA1, payload: {
 					archived: true
 				},
 				headers: {
@@ -546,7 +546,97 @@ describe('users routes', () => {
 				}
 			});
 
-			expect(postRes.statusCode).to.equal(403);
+			expect(res.statusCode).to.equal(403);
+		});
+	});
+
+	describe('DELETE /users/:userAddress/profiles/:profileAddress', () => {
+
+		beforeEach(async () => {
+			await clearDB();
+			await fastify.inject({method: 'POST', url: '/users', payload: {
+					address: EOA1,
+					selectedProfile: UP1_EOA1
+				},
+				headers: {
+					authorization: 'Bearer ' + JWT_EOA1
+				}});
+			await fastify.inject({method: 'POST', url: '/users/' + EOA1 + '/profiles', payload: {
+					userAddress: EOA1,
+					profileAddress: UP1_EOA1,
+					archived: false
+				},
+				headers: {
+					authorization: 'Bearer ' + JWT_EOA1
+				}});
+		});
+
+		it('should return 400 if incorrect param userAddress', async () => {
+			const res = await fastify.inject({method: 'DELETE', url: '/users/' + EOA1 + 'a/profiles/' + UP1_EOA1,
+				headers: {
+					authorization: 'Bearer ' + JWT_EOA1
+				}
+			});
+
+			expect(res.statusCode).to.equal(400);
+		});
+
+		it('should return 400 if incorrect param profileAddress', async () => {
+			const res = await fastify.inject({method: 'DELETE', url: '/users/' + EOA1 + '/profiles/' + UP1_EOA1 + 'a',
+				headers: {
+					authorization: 'Bearer ' + JWT_EOA1
+				}
+			});
+
+			expect(res.statusCode).to.equal(400);
+		});
+
+		it('should return 404 if user do not exists', async () => {
+			const res = await fastify.inject({method: 'DELETE', url: '/users/' + EOA2 + '/profiles/' + UP1_EOA2,
+				headers: {
+					authorization: 'Bearer ' + JWT_EOA2
+				}
+			});
+
+			expect(res.statusCode).to.equal(404);
+		});
+
+		it('should return 200 when correctly formed body', async () => {
+			const res = await fastify.inject({method: 'DELETE', url: '/users/' + EOA1 + '/profiles/' + UP1_EOA1,
+				headers: {
+					authorization: 'Bearer ' + JWT_EOA1
+				}
+			});
+
+			expect(res.statusCode).to.equal(200);
+		});
+
+		it('should have successfully deleted the user profile relation', async () => {
+			await fastify.inject({method: 'DELETE', url: '/users/' + EOA1 + '/profiles/' + UP1_EOA1,
+				headers: {
+					authorization: 'Bearer ' + JWT_EOA1
+				}
+			});
+
+			const res = await fastify.inject({method: 'GET', url: '/users/' + EOA1 + '/profiles'});
+
+			expect(res.statusCode).to.equal(404);
+		});
+
+		it('should return 401 if no jwt auth', async () => {
+			const res = await fastify.inject({method: 'DELETE', url: '/users/' + EOA1 + '/profiles/' + UP1_EOA1});
+
+			expect(res.statusCode).to.equal(401);
+		});
+
+		it('should return 403 if jwt is for another address', async () => {
+			const res = await fastify.inject({method: 'DELETE', url: '/users/' + EOA1 + '/profiles/' + UP1_EOA1,
+				headers: {
+					authorization: 'Bearer ' + JWT_EOA2
+				}
+			});
+
+			expect(res.statusCode).to.equal(403);
 		});
 	});
 
