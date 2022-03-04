@@ -4,7 +4,7 @@ import {FastifyReply, FastifyRequest} from 'fastify';
 import {error, ERROR_JWT_EXPIRED, ERROR_NO_JWT_TOKEN, ERROR_UNAUTHORIZED} from './utils/error-messages';
 import {JWT_VALIDITY_TIME} from "../environment/config";
 
-interface JWTPayload {
+export interface JWTPayload {
   address: string,
   iat: number,
   exp: number
