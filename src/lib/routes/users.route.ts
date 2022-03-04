@@ -119,6 +119,7 @@ export async function usersRoute (fastify: FastifyInstance) {
 				const {userAddress} = request.params as { userAddress: string };
 				if (!isAddress(userAddress)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
 				const profiles: UserProfile[] = await queryProfilesOfUser(userAddress);
+				if (profiles.length === 0) return reply.code(404).send(error(404, ERROR_USER_NOT_FOUND));
 				return  reply.code(200).send(profiles);
 				/* eslint-disable */
 			} catch (e: any) {
