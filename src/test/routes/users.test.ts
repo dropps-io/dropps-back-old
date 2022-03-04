@@ -4,6 +4,7 @@ import {generateJWT} from "../../bin/json-web-token";
 import {clearDB} from "../helpers/clear-database";
 import {describe} from "mocha";
 import {User} from "../../lib/models/types/user";
+import {UserProfile} from "../../lib/models/types/user-profile";
 
 describe('users routes', () => {
 
@@ -374,6 +375,65 @@ describe('users routes', () => {
 			expect(postRes.statusCode).to.equal(403);
 		});
 	});
+
+	describe('GET /users/:userAddress/profiles', () => {
+
+		before(async () => {
+			await clearDB()
+			await fastify.inject({method: 'POST', url: '/users', payload: {
+					address: EOA1,
+					selectedProfile: UP1_EOA1
+				},
+				headers: {
+					authorization: 'Bearer ' + generateJWT(EOA1)
+				}});
+
+			await fastify.inject({method: 'POST', url: '/users/' + EOA1 + '/profiles', payload: {
+					userAddress: EOA1,
+					profileAddress: UP1_EOA1,
+					archived: false
+				},
+				headers: {
+					authorization: 'Bearer ' + JWT_EOA1
+				}});
+
+			await fastify.inject({method: 'POST', url: '/users/' + EOA1 + '/profiles', payload: {
+					userAddress: EOA1,
+					profileAddress: UP2_EOA1,
+					archived: false
+				},
+				headers: {
+					authorization: 'Bearer ' + JWT_EOA1
+				}});
+		});
+
+		it('should return 400 if incorrect address', async () => {
+			const postRes = await fastify.inject({method: 'GET', url: '/users/' + EOA1 + 'a' + '/profiles'});
+
+			expect(postRes.statusCode).to.equal(400);
+		});
+
+		it('should return 404 if user do not exist', async () => {
+			const postRes = await fastify.inject({method: 'GET', url: '/users/' + EOA2 + '/profiles'});
+
+			expect(postRes.statusCode).to.equal(404);
+		});
+
+		it('should return 200 if user exist', async () => {
+			const postRes = await fastify.inject({method: 'GET', url: '/users/' + EOA1 + '/profiles'});
+
+			expect(postRes.statusCode).to.equal(200);
+		});
+
+		it('should return profiles if user exist', async () => {
+			const postRes = await fastify.inject({method: 'GET', url: '/users/' + EOA1 + '/profiles'});
+
+			const body: UserProfile[] = JSON.parse(postRes.body);
+			expect(body[0].profileAddress.toUpperCase()).to.equal(UP1_EOA1.toUpperCase());
+			expect(body[1].profileAddress.toUpperCase()).to.equal(UP2_EOA1.toUpperCase());
+		});
+	});
+
 });
 
 
