@@ -1,5 +1,5 @@
 import {DB} from "../../bin/db/mysql";
-import {logError, logMessage} from "../../bin/logger";
+import {logError} from "../../bin/logger";
 
 const clearDBQueries = ['use dropps;',
   'SET SQL_SAFE_UPDATES = 0;',
@@ -7,12 +7,12 @@ const clearDBQueries = ['use dropps;',
   'delete from users;',
   'delete from nonces'];
 
-before(async () => {
-  logMessage('CLEAR DATABASE');
-  await clearDB();
-});
+// before(async () => {
+//   logMessage('CLEAR DATABASE');
+//   await clearDB();
+// });
 
-async function clearDB(): Promise<void> {
+export async function clearDB(): Promise<void> {
   return new Promise((resolve) => {
     clearDBQueries.forEach(async query => {
       await executeQuery(query);

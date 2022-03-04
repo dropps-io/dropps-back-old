@@ -88,11 +88,11 @@ export async function usersRoute (fastify: FastifyInstance) {
 		handler: async (request, reply) => {
 			const {userAddress} = request.params as { userAddress: string };
 			const user = request.body as User;
+			if (!isAddress(userAddress)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
+			if (userAddress.toUpperCase() !== user.address.toUpperCase()) return reply.code(400).send(error(400, ERROR_ADR_NOT_EQUAL_PARAM_BODY));
 			verifyJWT(request, reply, userAddress);
 
 			try {
-				if (!isAddress(userAddress)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
-				if (userAddress.toUpperCase() !== user.address.toUpperCase()) return reply.code(400).send(error(400, ERROR_ADR_NOT_EQUAL_PARAM_BODY));
 				if (!await getPermissions(user.selectedProfile, user.address)) return reply.code(403).send(error(403, ERROR_UP_NO_PERMISSIONS));
 
 				await updateUser(user.address, user.selectedProfile);
@@ -154,6 +154,7 @@ export async function usersRoute (fastify: FastifyInstance) {
 				/* eslint-disable */
 			} catch (e: any) {
 				logError(e);
+				if(e.errno === 1452) reply.code(404).send(error(404, ERROR_USER_NOT_FOUND));
 				return reply.code(500).send(error(500, ERROR_INTERNAL));
 			}
 		}
