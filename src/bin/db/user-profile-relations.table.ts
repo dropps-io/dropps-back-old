@@ -76,7 +76,6 @@ export async function deleteUserProfileRelation(profileAddress: string, userAddr
 		DB.query('DELETE FROM user_profile_relations WHERE userAddress = \'' + userAddress + '\' && profileAddress = \'' + profileAddress + '\';',
 			(err, res) => {
 				if (err) reject(err);
-				console.log(res);
 				if (res.affectedRows === 0) reject(ERROR_USER_PROFILE_RELATION_NOT_FOUND);
 				else resolve();
 			});

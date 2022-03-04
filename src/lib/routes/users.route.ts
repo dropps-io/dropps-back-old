@@ -21,6 +21,7 @@ import {
 	insertUserProfileRelation,
 	queryProfilesOfUser, queryUserProfileRelation, updateUserProfileRelation
 } from '../../bin/db/user-profile-relations.table';
+import {logError} from "../../bin/logger";
 
 export async function usersRoute (fastify: FastifyInstance) {
 
@@ -44,7 +45,7 @@ export async function usersRoute (fastify: FastifyInstance) {
 				return reply.code(200).send(user);
 				/* eslint-disable */
 			} catch (e: any) {
-				console.error(e);
+				logError(e);
 				if (e.sqlState === '23000') return reply.code(422).send(error(422, ERROR_USER_EXISTS));
 				return reply.code(500).send(error(500, ERROR_INTERNAL));
 			}
@@ -68,7 +69,7 @@ export async function usersRoute (fastify: FastifyInstance) {
 				return  reply.code(200).send(user);
 				/* eslint-disable */
 			} catch (e: any) {
-				console.error(e);
+				logError(e);
 				return reply.code(500).send(error(500, ERROR_INTERNAL));
 			}
 		}
@@ -98,7 +99,7 @@ export async function usersRoute (fastify: FastifyInstance) {
 				return  reply.code(200).send(user);
 				/* eslint-disable */
 			} catch (e: any) {
-				console.error(e);
+				logError(e);
 				if (e === ERROR_USER_NOT_FOUND) return reply.code(404).send(error(404, ERROR_USER_NOT_FOUND));
 				return reply.code(500).send(error(500, ERROR_INTERNAL));
 			}
@@ -121,7 +122,7 @@ export async function usersRoute (fastify: FastifyInstance) {
 				return  reply.code(200).send(profiles);
 				/* eslint-disable */
 			} catch (e: any) {
-				console.error(e);
+				logError(e);
 				return reply.code(500).send(error(500, ERROR_INTERNAL));
 			}
 		}
@@ -152,7 +153,7 @@ export async function usersRoute (fastify: FastifyInstance) {
 				return  reply.code(200).send(userProfileRelation);
 				/* eslint-disable */
 			} catch (e: any) {
-				console.error(e);
+				logError(e);
 				return reply.code(500).send(error(500, ERROR_INTERNAL));
 			}
 		}
@@ -185,7 +186,7 @@ export async function usersRoute (fastify: FastifyInstance) {
 				return  reply.code(200).send({userAddress, profileAddress, archived});
 				/* eslint-disable */
 			} catch (e: any) {
-				console.error(e);
+				logError(e);
 				if (e === ERROR_USER_PROFILE_RELATION_NOT_FOUND) reply.code(404).send(error(404, ERROR_USER_PROFILE_RELATION_NOT_FOUND));
 				return reply.code(500).send(error(500, ERROR_INTERNAL));
 			}
@@ -210,7 +211,7 @@ export async function usersRoute (fastify: FastifyInstance) {
 				return  reply.code(200).send({message: 'User-profile successfully deleted'});
 				/* eslint-disable */
 			} catch (e: any) {
-				console.error(e);
+				logError(e);
 				if (e === ERROR_USER_PROFILE_RELATION_NOT_FOUND) reply.code(404).send(error(400, ERROR_USER_PROFILE_RELATION_NOT_FOUND));
 				return reply.code(500).send(error(500, ERROR_INTERNAL));
 			}

@@ -10,6 +10,7 @@ import {generateAddressWithSignature} from '../../bin/web3/auth';
 import {generateJWT} from '../../bin/json-web-token';
 import {FastifyInstance} from 'fastify';
 import {JWT_VALIDITY_TIME} from "../../environment/config";
+import {logError} from "../../bin/logger";
 
 export async function authRoute (fastify: FastifyInstance) {
 
@@ -30,7 +31,7 @@ export async function authRoute (fastify: FastifyInstance) {
 				return reply.code(200).send({nonce});
 				/* eslint-disable */
       } catch (e: any) {
-        console.error(e);
+        logError(e);
         return reply.code(500).send(error(500, ERROR_INTERNAL));
       }
     }
@@ -74,7 +75,7 @@ export async function authRoute (fastify: FastifyInstance) {
         }
         /* eslint-disable */
       } catch (e: any) {
-        console.error(e);
+        logError(e);
         if (e.message.includes('Invalid signature')) return reply.code(400).send(error(400, ERROR_INVALID_SIGNATURE));
         else return reply.code(500).send(error(500, ERROR_INTERNAL));
       }

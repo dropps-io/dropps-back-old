@@ -2,6 +2,7 @@ import {isAddress} from '../../bin/utils/validators';
 import {error, ERROR_ADR_INVALID, ERROR_INTERNAL} from '../../bin/utils/error-messages';
 import {queryUsersOfProfile} from '../../bin/db/user-profile-relations.table';
 import {FastifyInstance} from 'fastify';
+import {logError} from "../../bin/logger";
 
 export async function profilesRoute (fastify: FastifyInstance) {
 
@@ -21,7 +22,7 @@ export async function profilesRoute (fastify: FastifyInstance) {
 				return reply.code(200).send(users);
 				/* eslint-disable */
       } catch (e: any) {
-        console.error(e);
+        logError(e);
         return reply.code(500).send(error(500, ERROR_INTERNAL));
       }
     }
