@@ -1,38 +1,18 @@
 import {User} from '../../lib/models/types/user';
-import {DB} from './mysql';
+import {executeQuery} from './mysql';
 import {ERROR_USER_NOT_FOUND} from '../utils/error-messages';
 
 export async function queryUser(address: string): Promise<User> {
-	return new Promise((resolve, reject) => {
-
-		DB.query('SELECT * FROM users WHERE address = \'' + address +'\';', (err, res) => {
-			if (err) reject(err);
-			resolve(res[0] as User);
-		});
-
-	});
+	const res = await executeQuery('SELECT * FROM users WHERE address = ?;', [address]);
+	return res[0] as User;
 }
 
 export async function insertUser(address: string, selectedProfile: string): Promise<User> {
-	return new Promise((resolve, reject) => {
-
-		DB.query('INSERT INTO users VALUES (\'' + address +'\', \'' + selectedProfile + '\');', (err, res) => {
-			if (err) reject(err);
-			else resolve(res[0] as User);
-		});
-
-	});
+	const res = await executeQuery('INSERT INTO users VALUES (?, ?);', [address, selectedProfile]);
+	return res[0] as User;
 }
 
 export async function updateUser(address: string, newSelectedProfile: string): Promise<void> {
-	return new Promise((resolve, reject) => {
-
-		DB.query('UPDATE users SET selectedProfile = \'' + newSelectedProfile + '\' WHERE address = \'' + address + '\';'
-			, (err, res) => {
-				if (err) reject(err);
-				if (res.changedRows === 0) reject(ERROR_USER_NOT_FOUND);
-				else resolve();
-			});
-
-	});
+	const res = await executeQuery('UPDATE users SET selectedProfile = ? WHERE address = ?;', [newSelectedProfile, address]);
+	if (res.changedRows === 0) throw ERROR_USER_NOT_FOUND;
 }
