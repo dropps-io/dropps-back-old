@@ -1,6 +1,6 @@
 import * as mysql from 'mysql';
 import {DB_HOST, DB_NAME, DB_PASSWORD, DB_USER} from '../../environment/endpoints';
-import {logError, logMessage} from "../logger";
+import {logMessage} from "../logger";
 
 export const DB = mysql.createConnection({
 	host: DB_HOST,
@@ -14,13 +14,11 @@ DB.connect(function(err) {
 	logMessage('Connected!');
 });
 
-export async function executeQuery(query: string): Promise<void> {
+export async function executeQuery(query: string, values?: any[]): Promise<any> {
 	return new Promise((resolve, reject) => {
-		DB.query(query, () => {
-			resolve();
-		},err => {
-			logError(err);
-			reject(err);
+		DB.query(query, values, (err, res) => {
+			if (err) reject(err);
+			else resolve(res);
 		});
 	});
 }

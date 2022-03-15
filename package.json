@@ -9,7 +9,8 @@
     "run dev": "set NODE_ENV=development&& node dist/index.js",
     "lint": "eslint src/**/*",
     "lint autofix": "eslint --fix src/**/*",
-    "test": "set NODE_ENV=test&&mocha ./dist/test/**/*",
+    "test": "set NODE_ENV=test&&mocha ./dist/test/**/* --exit",
+    "coverage": "nyc npm run test",
     "release": "standard-version"
   },
   "repository": {
@@ -46,6 +47,7 @@
     "fastify-swagger": "^4.15.0",
     "jsonwebtoken": "^8.5.1",
     "mysql": "^2.18.1",
+    "nyc": "^15.1.0",
     "prettier": "^2.5.1",
     "standard-version": "^9.3.2",
     "web3": "^1.7.0"
