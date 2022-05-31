@@ -25,6 +25,7 @@ import {logError} from "../../bin/logger";
 
 export async function usersRoute (fastify: FastifyInstance) {
 
+	// TODO When create or update user, add a profile_user_relation('
 	fastify.route({
 		method: 'POST',
 		url: '/',

@@ -1,7 +1,7 @@
 import {bufferToHex, ecrecover, fromRpcSig, hashPersonalMessage, publicToAddress, toBuffer} from 'ethereumjs-util';
 
 export function generateAddressWithSignature(msg: string, signedMsg: string): string {
-	// Convert nonce to hex string
+	// Convert nonce to hex string TODO handle error if msg is can't be converted to a Buffer
 	const msgHex = bufferToHex(Buffer.from(msg));
 
 	// Check if signature is valid
