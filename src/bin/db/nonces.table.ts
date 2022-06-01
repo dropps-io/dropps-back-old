@@ -1,4 +1,4 @@
-import {executeQuery} from './mysql';
+import {executeQuery} from './database';
 import {ERROR_USER_NOT_FOUND} from '../utils/error-messages';
 import {generateRandomNonce} from '../utils/nonce-generator';
 

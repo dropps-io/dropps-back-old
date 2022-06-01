@@ -1,4 +1,4 @@
-import {executeQuery} from './mysql';
+import {executeQuery} from './database';
 import {UserProfileRelation} from '../../lib/models/types/user-profile-relation';
 import {ERROR_USER_PROFILE_RELATION_NOT_FOUND} from '../utils/error-messages';
 import {UserProfile} from '../../lib/models/types/user-profile';

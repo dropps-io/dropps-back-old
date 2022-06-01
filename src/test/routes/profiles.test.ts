@@ -3,7 +3,7 @@ import {fastify} from "../../lib/fastify";
 import {generateJWT} from "../../bin/json-web-token";
 import {expect} from "chai";
 import {clearDB} from "../helpers/database-helper";
-import {executeQuery} from "../../bin/db/mysql";
+import {executeQuery} from "../../bin/db/database";
 
 describe('users routes', () => {
 

@@ -2,7 +2,7 @@ import {describe} from "mocha";
 import {fastify} from "../../lib/fastify";
 import {expect} from "chai";
 import {clearDB} from "../helpers/database-helper";
-import {executeQuery} from "../../bin/db/mysql";
+import {executeQuery} from "../../bin/db/database";
 import jwt from 'jsonwebtoken';
 import {JWTPayload} from "../../bin/json-web-token";
 import {JWT_SECRET} from "../../environment/endpoints";

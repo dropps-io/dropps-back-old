@@ -1,4 +1,4 @@
-import {executeQuery} from "../../bin/db/mysql";
+import {executeQuery} from "../../bin/db/database";
 
 const clearDBQueries = ['use dropps;',
   'SET SQL_SAFE_UPDATES = 0;',
