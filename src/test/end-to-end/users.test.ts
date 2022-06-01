@@ -140,8 +140,8 @@ describe('users routes', () => {
 
 		it('should return selectedProfile if user exist', async () => {
 			const res = await fastify.inject({method: 'GET', url: '/users/' + EOA1});
-
 			const body: User = JSON.parse(res.body);
+
 			expect(body.selectedProfile.toUpperCase()).to.equal(UP1_EOA1.toUpperCase());
 		});
 	});

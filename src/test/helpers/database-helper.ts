@@ -1,9 +1,10 @@
 import {executeQuery} from "../../bin/db/database";
+import {DB_NAME} from "../../environment/endpoints";
 
-const clearDBQueries = ['use dropps;',
-  'SET SQL_SAFE_UPDATES = 0;',
-  'delete from user_profile_relations;',
-  'delete from users;',
+const clearDBQueries = ['use ' + DB_NAME,
+  'SET SQL_SAFE_UPDATES = 0',
+  'delete from user_profile_relations',
+  'delete from users',
   'delete from nonces'];
 
 // before(async () => {

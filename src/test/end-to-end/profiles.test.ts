@@ -5,7 +5,7 @@ import {expect} from "chai";
 import {clearDB} from "../helpers/database-helper";
 import {executeQuery} from "../../bin/db/database";
 
-describe('users routes', () => {
+describe('profiles routes', () => {
 
   const EOA1 = '0xD692Ba892a902810a2EE3fA41C1D8DcD652D47Ab';
   const EOA2 = '0x742b9DcaBE38f05CE619002029251a00F5dd0c6d';

@@ -47,7 +47,7 @@ export async function usersRoute (fastify: FastifyInstance) {
 				/* eslint-disable */
 			} catch (e: any) {
 				logError(e);
-				if (e.sqlState === '23000') return reply.code(422).send(error(422, ERROR_USER_EXISTS));
+				if (e.code === '23505') return reply.code(422).send(error(422, ERROR_USER_EXISTS));
 				return reply.code(500).send(error(500, ERROR_INTERNAL));
 			}
 		}
@@ -156,7 +156,7 @@ export async function usersRoute (fastify: FastifyInstance) {
 				/* eslint-disable */
 			} catch (e: any) {
 				logError(e);
-				if(e.errno === 1452) reply.code(404).send(error(404, ERROR_USER_NOT_FOUND));
+				if(e.code === '23503') reply.code(404).send(error(404, ERROR_USER_NOT_FOUND));
 				return reply.code(500).send(error(500, ERROR_INTERNAL));
 			}
 		}
