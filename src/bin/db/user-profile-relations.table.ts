@@ -33,7 +33,7 @@ export async function insertUserProfileRelation(profileAddress: string, userAddr
 }
 
 export async function updateUserProfileRelation(profileAddress: string, userAddress: string, archived: boolean): Promise<void> {
-	const res = await executeQuery('UPDATE "user_profile_relations" SET "archived" = $1 WHERE "userAddress" = $2 AND "profileAddress" = $3', [archived, userAddress, profileAddress])
+	const res = await executeQuery('UPDATE "user_profile_relations" SET "archived" = $1 WHERE "userAddress" = $2 AND "profileAddress" = $3', [archived, userAddress, profileAddress]);
 	if (res.rowCount === 0) throw ERROR_USER_PROFILE_RELATION_NOT_FOUND;
 }
 

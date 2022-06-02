@@ -10,7 +10,7 @@ export async function queryNonce(userAddress: string): Promise<string> {
 
 export async function insertNonce(userAddress: string): Promise<string> {
 	const nonce = generateRandomNonce();
-	await executeQuery('INSERT INTO "nonces" VALUES ($1, $2)', [userAddress, nonce])
+	await executeQuery('INSERT INTO "nonces" VALUES ($1, $2)', [userAddress, nonce]);
 	return nonce;
 }
 

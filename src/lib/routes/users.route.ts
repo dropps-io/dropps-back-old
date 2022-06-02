@@ -21,7 +21,7 @@ import {
 	insertUserProfileRelation,
 	queryProfilesOfUser, queryUserProfileRelation, updateUserProfileRelation
 } from '../../bin/db/user-profile-relations.table';
-import {logError} from "../../bin/logger";
+import {logError} from '../../bin/logger';
 
 export async function usersRoute (fastify: FastifyInstance) {
 
