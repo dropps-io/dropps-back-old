@@ -1,4 +1,4 @@
-import path from "path";
+import path from 'path';
 import { config } from 'dotenv';
 
 export const NODE_ENV = (process.env.NODE_ENV || 'development') as 'test' | 'development' | 'production';

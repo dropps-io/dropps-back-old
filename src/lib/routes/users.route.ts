@@ -21,11 +21,10 @@ import {
 	insertUserProfileRelation,
 	queryProfilesOfUser, queryUserProfileRelation, updateUserProfileRelation
 } from '../../bin/db/user-profile-relations.table';
-import {logError} from "../../bin/logger";
+import {logError} from '../../bin/logger';
 
 export async function usersRoute (fastify: FastifyInstance) {
 
-	// TODO When create or update user, add a profile_user_relation('
 	fastify.route({
 		method: 'POST',
 		url: '/',
@@ -43,11 +42,12 @@ export async function usersRoute (fastify: FastifyInstance) {
 			try {
 				if (!await getPermissions(user.selectedProfile, user.address)) return reply.code(403).send(error(403, ERROR_UP_NO_PERMISSIONS));
 				await insertUser(user.address, user.selectedProfile);
+				await insertUserProfileRelation(user.selectedProfile, user.address, false);
 				return reply.code(200).send(user);
 				/* eslint-disable */
 			} catch (e: any) {
 				logError(e);
-				if (e.sqlState === '23000') return reply.code(422).send(error(422, ERROR_USER_EXISTS));
+				if (e.code === '23505') return reply.code(422).send(error(422, ERROR_USER_EXISTS));
 				return reply.code(500).send(error(500, ERROR_INTERNAL));
 			}
 		}
@@ -97,6 +97,9 @@ export async function usersRoute (fastify: FastifyInstance) {
 				if (!await getPermissions(user.selectedProfile, user.address)) return reply.code(403).send(error(403, ERROR_UP_NO_PERMISSIONS));
 
 				await updateUser(user.address, user.selectedProfile);
+				if (await throwError(queryUserProfileRelation(user.selectedProfile, user.address)))
+					await insertUserProfileRelation(user.selectedProfile, user.address, false);
+
 				return  reply.code(200).send(user);
 				/* eslint-disable */
 			} catch (e: any) {
@@ -156,7 +159,7 @@ export async function usersRoute (fastify: FastifyInstance) {
 				/* eslint-disable */
 			} catch (e: any) {
 				logError(e);
-				if(e.errno === 1452) reply.code(404).send(error(404, ERROR_USER_NOT_FOUND));
+				if(e.code === '23503') reply.code(404).send(error(404, ERROR_USER_NOT_FOUND));
 				return reply.code(500).send(error(500, ERROR_INTERNAL));
 			}
 		}
