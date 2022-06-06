@@ -1,16 +1,16 @@
 import {isAddress} from '../../bin/utils/validators';
 import {
-  error, ERROR_ADR_INVALID,
-  ERROR_INCORRECT_SIGNED_NONCE,
-  ERROR_INTERNAL,
-  ERROR_INVALID_SIGNATURE
+	error, ERROR_ADR_INVALID,
+	ERROR_INCORRECT_SIGNED_NONCE,
+	ERROR_INTERNAL,
+	ERROR_INVALID_SIGNATURE
 } from '../../bin/utils/error-messages';
 import {insertNonce, queryNonce, updateNonce} from '../../bin/db/nonces.table';
 import {generateAddressWithSignature} from '../../bin/web3/auth';
 import {generateJWT} from '../../bin/json-web-token';
 import {FastifyInstance} from 'fastify';
-import {JWT_VALIDITY_TIME} from "../../environment/config";
-import {logError} from "../../bin/logger";
+import {JWT_VALIDITY_TIME} from '../../environment/config';
+import {logError} from '../../bin/logger';
 
 export async function authRoute (fastify: FastifyInstance) {
 

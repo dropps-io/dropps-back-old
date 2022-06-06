@@ -3,18 +3,16 @@ import {fastify} from "../../lib/fastify";
 import {generateJWT} from "../../bin/json-web-token";
 import {expect} from "chai";
 import {clearDB} from "../helpers/database-helper";
-import {executeQuery} from "../../bin/db/mysql";
+import {insertUserProfileRelation} from "../../bin/db/user-profile-relations.table";
 
-describe('users routes', () => {
+describe('profiles routes', () => {
 
   const EOA1 = '0xD692Ba892a902810a2EE3fA41C1D8DcD652D47Ab';
-  const EOA2 = '0x742b9DcaBE38f05CE619002029251a00F5dd0c6d';
-
   const UP1_EOA1 = '0x65068D4024B0D8dD98a95B560D290BdDB765a03b';
+  const UP2_EOA1 = '0x36eC763516259D4bE9EDe7cC2969969f201139dd';
 
+  const EOA2 = '0x742b9DcaBE38f05CE619002029251a00F5dd0c6d';
   const UP1_EOA2 = '0x63385D6b52530e6b514f6b44713ECf315FfBEf21';
-
-  let JWT_EOA1: string = generateJWT(EOA1);
 
   describe('GET /profiles/:profileAddress/users', () => {
 
@@ -33,19 +31,10 @@ describe('users routes', () => {
           selectedProfile: UP1_EOA2
         },
         headers: {
-          authorization: 'Bearer ' + generateJWT(EOA1)
+          authorization: 'Bearer ' + generateJWT(EOA2)
         }});
 
-      await fastify.inject({method: 'POST', url: '/users/' + EOA1 + '/profiles', payload: {
-          userAddress: EOA1,
-          profileAddress: UP1_EOA1,
-          archived: false
-        },
-        headers: {
-          authorization: 'Bearer ' + JWT_EOA1
-        }});
-
-      await executeQuery('INSERT INTO user_profile_relations VALUES (\'' + UP1_EOA1 +'\', \'' + EOA2 + '\', ' + false + ');');
+      await  insertUserProfileRelation(UP1_EOA1, EOA2, false);
     });
 
     it('should return 400 if incorrect address', async () => {
@@ -55,8 +44,7 @@ describe('users routes', () => {
     });
 
     it('should return 404 if profile do not exist', async () => {
-      const res = await fastify.inject({method: 'GET', url: '/profiles/' + UP1_EOA2 + '/users'});
-
+      const res = await fastify.inject({method: 'GET', url: '/profiles/' + UP2_EOA1 + '/users'});
       expect(res.statusCode).to.equal(404);
     });
 

@@ -140,8 +140,8 @@ describe('users routes', () => {
 
 		it('should return selectedProfile if user exist', async () => {
 			const res = await fastify.inject({method: 'GET', url: '/users/' + EOA1});
-
 			const body: User = JSON.parse(res.body);
+
 			expect(body.selectedProfile.toUpperCase()).to.equal(UP1_EOA1.toUpperCase());
 		});
 	});
@@ -289,7 +289,7 @@ describe('users routes', () => {
 		it('should return 400 if incorrect body address', async () => {
 			const res = await fastify.inject({method: 'POST', url: '/users/' + EOA1 + '/profiles', payload: {
 					userAddress: EOA1 + 'a',
-					profileAddress: UP1_EOA1,
+					profileAddress: UP2_EOA1,
 					archived: false
 				},
 				headers: {
@@ -302,7 +302,7 @@ describe('users routes', () => {
 		it('should return 400 if body & param address do not match', async () => {
 			const res = await fastify.inject({method: 'POST', url: '/users/' + EOA1 + '/profiles', payload: {
 					userAddress: EOA2,
-					profileAddress: UP1_EOA1,
+					profileAddress: UP2_EOA1,
 					archived: false
 				},
 				headers: {
@@ -328,7 +328,7 @@ describe('users routes', () => {
 		it('should return 200 if correct request', async () => {
 			const res = await fastify.inject({method: 'POST', url: '/users/' + EOA1 + '/profiles', payload: {
 					userAddress: EOA1,
-					profileAddress: UP1_EOA1,
+					profileAddress: UP2_EOA1,
 					archived: false
 				},
 				headers: {
@@ -341,7 +341,7 @@ describe('users routes', () => {
 		it('should return 401 if no jwt auth', async () => {
 			const res = await fastify.inject({method: 'POST', url: '/users/' + EOA1 + '/profiles', payload: {
 					userAddress: EOA1,
-					profileAddress: UP1_EOA1,
+					profileAddress: UP2_EOA1,
 					archived: false
 				}});
 
@@ -351,7 +351,7 @@ describe('users routes', () => {
 		it('should return 403 if jwt is for another address', async () => {
 			const res = await fastify.inject({method: 'POST', url: '/users/' + EOA1 + '/profiles', payload: {
 					userAddress: EOA1,
-					profileAddress: UP1_EOA1,
+					profileAddress: UP2_EOA1,
 					archived: false
 				},
 				headers: {
