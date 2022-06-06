@@ -25,7 +25,6 @@ import {logError} from '../../bin/logger';
 
 export async function usersRoute (fastify: FastifyInstance) {
 
-	// TODO When create or update user, add a profile_user_relation('
 	fastify.route({
 		method: 'POST',
 		url: '/',
@@ -43,6 +42,7 @@ export async function usersRoute (fastify: FastifyInstance) {
 			try {
 				if (!await getPermissions(user.selectedProfile, user.address)) return reply.code(403).send(error(403, ERROR_UP_NO_PERMISSIONS));
 				await insertUser(user.address, user.selectedProfile);
+				await insertUserProfileRelation(user.selectedProfile, user.address, false);
 				return reply.code(200).send(user);
 				/* eslint-disable */
 			} catch (e: any) {
@@ -97,6 +97,9 @@ export async function usersRoute (fastify: FastifyInstance) {
 				if (!await getPermissions(user.selectedProfile, user.address)) return reply.code(403).send(error(403, ERROR_UP_NO_PERMISSIONS));
 
 				await updateUser(user.address, user.selectedProfile);
+				if (await throwError(queryUserProfileRelation(user.selectedProfile, user.address)))
+					await insertUserProfileRelation(user.selectedProfile, user.address, false);
+
 				return  reply.code(200).send(user);
 				/* eslint-disable */
 			} catch (e: any) {

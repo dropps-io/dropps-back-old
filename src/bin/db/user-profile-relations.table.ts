@@ -4,7 +4,7 @@ import {ERROR_USER_PROFILE_RELATION_NOT_FOUND} from '../utils/error-messages';
 import {UserProfile} from '../../lib/models/types/user-profile';
 
 export async function queryUserProfileRelation(profileAddress: string, userAddress: string): Promise<UserProfileRelation> {
-	const res = await executeQuery('SELECT * FROM "user_profile_relations" WHERE "userAddress" = $1 AND "profileAddress" = $1', [userAddress, profileAddress]);
+	const res = await executeQuery('SELECT * FROM "user_profile_relations" WHERE "userAddress" = $1 AND "profileAddress" = $2', [userAddress, profileAddress]);
 	if (res.rows[0]) return res.rows[0] as UserProfileRelation;
 	else throw ERROR_USER_PROFILE_RELATION_NOT_FOUND;
 }
