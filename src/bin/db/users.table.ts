@@ -1,38 +1,18 @@
 import {User} from '../../lib/models/types/user';
-import {DB} from './mysql';
-import {USER_NOT_FOUND} from '../utils/error-messages';
+import {executeQuery} from './database';
+import {ERROR_USER_NOT_FOUND} from '../utils/error-messages';
 
 export async function queryUser(address: string): Promise<User> {
-	return new Promise((resolve, reject) => {
-
-		DB.query('SELECT * FROM users WHERE address = \'' + address +'\';', (err, res) => {
-			if (err) reject(err);
-			resolve(res[0] as User);
-		});
-
-	});
+	const res = await executeQuery('SELECT * FROM "users" WHERE "address" = $1', [address]);
+	return res.rows[0] as User;
 }
 
 export async function insertUser(address: string, selectedProfile: string): Promise<User> {
-	return new Promise((resolve, reject) => {
-
-		DB.query('INSERT INTO users VALUES (\'' + address +'\', \'' + selectedProfile + '\');', (err, res) => {
-			if (err) reject(err);
-			else resolve(res[0] as User);
-		});
-
-	});
+	const res = await executeQuery('INSERT INTO "users" VALUES ($1, $2)', [address, selectedProfile]);
+	return res.rows[0] as User;
 }
 
 export async function updateUser(address: string, newSelectedProfile: string): Promise<void> {
-	return new Promise((resolve, reject) => {
-
-		DB.query('UPDATE users SET selectedProfile = \'' + newSelectedProfile + '\' WHERE address = \'' + address + '\';'
-			, (err, res) => {
-				if (err) reject(err);
-				if (res.changedRows === 0) reject(USER_NOT_FOUND);
-				else resolve();
-			});
-
-	});
+	const res = await executeQuery('UPDATE "users" SET "selectedProfile" = $1 WHERE "address" = $2', [newSelectedProfile, address]);
+	if (res.rowCount === 0) throw ERROR_USER_NOT_FOUND;
 }

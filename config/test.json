@@ -1,0 +1,5 @@
+{
+  "env": "test",
+  "logger": false,
+  "jwt_validity_time": 6
+}

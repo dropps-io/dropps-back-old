@@ -1,26 +1,27 @@
 import { FastifyInstance } from 'fastify';
 import {isAddress} from '../../bin/utils/validators';
 import {insertUser, queryUser, updateUser} from '../../bin/db/users.table';
-
-import * as userSchema from '../models/json/user.json';
-import * as userProfileRelationSchema from '../models/json/user-profile-relation.json';
 import {User} from '../models/types/user';
 import {getPermissions} from '../../bin/u-profiles';
+import {UserProfileRelation} from '../models/types/user-profile-relation';
+import {throwError} from '../../bin/utils/throw-error';
+import {UserProfile} from '../models/types/user-profile';
+import {verifyJWT} from '../../bin/json-web-token';
+import * as userSchema from '../models/json/user.json';
+import * as userProfileRelationSchema from '../models/json/user-profile-relation.json';
 import {
-	ADR_INVALID,
-	ADR_NOT_EQUAL_PARAM_BODY, error,
-	INTERNAL,
-	UP_NO_PERMISSIONS, USER_EXISTS,
-	USER_NOT_FOUND, USER_PROFILE_RELATION_EXISTS, USER_PROFILE_RELATION_NOT_FOUND
+	ERROR_ADR_INVALID,
+	ERROR_ADR_NOT_EQUAL_PARAM_BODY, error,
+	ERROR_INTERNAL,
+	ERROR_UP_NO_PERMISSIONS, ERROR_USER_EXISTS,
+	ERROR_USER_NOT_FOUND, ERROR_USER_PROFILE_RELATION_EXISTS, ERROR_USER_PROFILE_RELATION_NOT_FOUND
 } from '../../bin/utils/error-messages';
 import {
 	deleteUserProfileRelation,
 	insertUserProfileRelation,
 	queryProfilesOfUser, queryUserProfileRelation, updateUserProfileRelation
-} from "../../bin/db/user-profile-relations.table";
-import {UserProfileRelation} from "../models/types/user-profile-relation";
-import {throwError} from "../../bin/utils/throw-error";
-import {UserProfile} from "../models/types/user-profile";
+} from '../../bin/db/user-profile-relations.table';
+import {logError} from '../../bin/logger';
 
 export async function usersRoute (fastify: FastifyInstance) {
 
@@ -35,16 +36,19 @@ export async function usersRoute (fastify: FastifyInstance) {
 			response: {200: userSchema}
 		},
 		handler: async (request, reply) => {
+			const user = request.body as User;
+			verifyJWT(request, reply, user.address);
+
 			try {
-				const user = request.body as User;
-				if (!await getPermissions(user.selectedProfile, user.address)) return reply.code(403).send(error(403, UP_NO_PERMISSIONS));
+				if (!await getPermissions(user.selectedProfile, user.address)) return reply.code(403).send(error(403, ERROR_UP_NO_PERMISSIONS));
 				await insertUser(user.address, user.selectedProfile);
+				await insertUserProfileRelation(user.selectedProfile, user.address, false);
 				return reply.code(200).send(user);
 				/* eslint-disable */
 			} catch (e: any) {
-				console.error(e);
-				if (e.sqlState === '23000') return reply.code(422).send(error(422, USER_EXISTS));
-				return reply.code(500).send(error(500, INTERNAL));
+				logError(e);
+				if (e.code === '23505') return reply.code(422).send(error(422, ERROR_USER_EXISTS));
+				return reply.code(500).send(error(500, ERROR_INTERNAL));
 			}
 		}
 	});
@@ -60,14 +64,14 @@ export async function usersRoute (fastify: FastifyInstance) {
 		handler: async (request, reply) => {
 			try {
 				const {userAddress} = request.params as { userAddress: string };
-				if (!isAddress(userAddress)) return reply.code(400).send(error(400, ADR_INVALID));
+				if (!isAddress(userAddress)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
 				const user = await queryUser(userAddress);
-				if (!user) return reply.code(404).send(error(404, USER_NOT_FOUND));
+				if (!user) return reply.code(404).send(error(404, ERROR_USER_NOT_FOUND));
 				return  reply.code(200).send(user);
 				/* eslint-disable */
 			} catch (e: any) {
-				console.error(e);
-				return reply.code(500).send(error(500, INTERNAL));
+				logError(e);
+				return reply.code(500).send(error(500, ERROR_INTERNAL));
 			}
 		}
 	});
@@ -83,21 +87,25 @@ export async function usersRoute (fastify: FastifyInstance) {
 			response: {200: userSchema}
 		},
 		handler: async (request, reply) => {
-			try {
-				const {userAddress} = request.params as { userAddress: string };
-				const user = request.body as User;
+			const {userAddress} = request.params as { userAddress: string };
+			const user = request.body as User;
+			if (!isAddress(userAddress)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
+			if (userAddress.toUpperCase() !== user.address.toUpperCase()) return reply.code(400).send(error(400, ERROR_ADR_NOT_EQUAL_PARAM_BODY));
+			verifyJWT(request, reply, userAddress);
 
-				if (!isAddress(userAddress)) return reply.code(400).send(error(400, ADR_INVALID));
-				if (userAddress.toUpperCase() !== user.address.toUpperCase()) return reply.code(400).send(error(400, ADR_NOT_EQUAL_PARAM_BODY));
-				if (!await getPermissions(user.selectedProfile, user.address)) return reply.code(403).send(error(403, UP_NO_PERMISSIONS));
+			try {
+				if (!await getPermissions(user.selectedProfile, user.address)) return reply.code(403).send(error(403, ERROR_UP_NO_PERMISSIONS));
 
 				await updateUser(user.address, user.selectedProfile);
+				if (await throwError(queryUserProfileRelation(user.selectedProfile, user.address)))
+					await insertUserProfileRelation(user.selectedProfile, user.address, false);
+
 				return  reply.code(200).send(user);
 				/* eslint-disable */
 			} catch (e: any) {
-				console.error(e);
-				if (e === USER_NOT_FOUND) return reply.code(404).send(error(404, USER_NOT_FOUND));
-				return reply.code(500).send(error(500, INTERNAL));
+				logError(e);
+				if (e === ERROR_USER_NOT_FOUND) return reply.code(404).send(error(404, ERROR_USER_NOT_FOUND));
+				return reply.code(500).send(error(500, ERROR_INTERNAL));
 			}
 		}
 	});
@@ -113,13 +121,14 @@ export async function usersRoute (fastify: FastifyInstance) {
 		handler: async (request, reply) => {
 			try {
 				const {userAddress} = request.params as { userAddress: string };
-				if (!isAddress(userAddress)) return reply.code(400).send(error(400, ADR_INVALID));
+				if (!isAddress(userAddress)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
 				const profiles: UserProfile[] = await queryProfilesOfUser(userAddress);
+				if (profiles.length === 0) return reply.code(404).send(error(404, ERROR_USER_NOT_FOUND));
 				return  reply.code(200).send(profiles);
 				/* eslint-disable */
 			} catch (e: any) {
-				console.error(e);
-				return reply.code(500).send(error(500, INTERNAL));
+				logError(e);
+				return reply.code(500).send(error(500, ERROR_INTERNAL));
 			}
 		}
 	});
@@ -135,21 +144,23 @@ export async function usersRoute (fastify: FastifyInstance) {
 			response: {200: userProfileRelationSchema}
 		},
 		handler: async (request, reply) => {
-			try {
-				const {userAddress} = request.params as { userAddress: string };
-				const userProfileRelation = request.body as UserProfileRelation;
+			const {userAddress} = request.params as { userAddress: string };
+			const userProfileRelation = request.body as UserProfileRelation;
+			verifyJWT(request, reply, userAddress);
 
-				if (!isAddress(userAddress)) return reply.code(400).send(error(400, ADR_INVALID));
-				if (userAddress.toUpperCase() !== userProfileRelation.userAddress.toUpperCase()) return reply.code(400).send(error(400, ADR_NOT_EQUAL_PARAM_BODY));
-				if (!await throwError(queryUserProfileRelation(userProfileRelation.profileAddress, userAddress))) return reply.code(422).send(error(422, USER_PROFILE_RELATION_EXISTS));
-				if (!await getPermissions(userProfileRelation.profileAddress, userProfileRelation.userAddress)) return reply.code(403).send(error(403, UP_NO_PERMISSIONS));
+			try {
+				if (!isAddress(userAddress)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
+				if (userAddress.toUpperCase() !== userProfileRelation.userAddress.toUpperCase()) return reply.code(400).send(error(400, ERROR_ADR_NOT_EQUAL_PARAM_BODY));
+				if (!await throwError(queryUserProfileRelation(userProfileRelation.profileAddress, userAddress))) return reply.code(422).send(error(422, ERROR_USER_PROFILE_RELATION_EXISTS));
+				if (!await getPermissions(userProfileRelation.profileAddress, userProfileRelation.userAddress)) return reply.code(403).send(error(403, ERROR_UP_NO_PERMISSIONS));
 
 				await insertUserProfileRelation(userProfileRelation.profileAddress, userProfileRelation.userAddress, userProfileRelation.archived);
 				return  reply.code(200).send(userProfileRelation);
 				/* eslint-disable */
 			} catch (e: any) {
-				console.error(e);
-				return reply.code(500).send(error(500, INTERNAL));
+				logError(e);
+				if(e.code === '23503') reply.code(404).send(error(404, ERROR_USER_NOT_FOUND));
+				return reply.code(500).send(error(500, ERROR_INTERNAL));
 			}
 		}
 	});
@@ -171,18 +182,19 @@ export async function usersRoute (fastify: FastifyInstance) {
 			response: {200: userProfileRelationSchema}
 		},
 		handler: async (request, reply) => {
-			try {
-				const {userAddress, profileAddress} = request.params as { userAddress: string, profileAddress: string };
-				const {archived} = request.body as { archived: boolean };
+			const {userAddress, profileAddress} = request.params as { userAddress: string, profileAddress: string };
+			const {archived} = request.body as { archived: boolean };
+			if (!isAddress(userAddress) || !isAddress(profileAddress)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
+			verifyJWT(request, reply, userAddress);
 
-				if (!isAddress(userAddress) || !isAddress(profileAddress)) return reply.code(400).send(error(400, ADR_INVALID));
+			try {
 				await updateUserProfileRelation(profileAddress, userAddress, archived);
 				return  reply.code(200).send({userAddress, profileAddress, archived});
 				/* eslint-disable */
 			} catch (e: any) {
-				console.error(e);
-				if (e === USER_PROFILE_RELATION_NOT_FOUND) reply.code(404).send(error(404, USER_PROFILE_RELATION_NOT_FOUND));
-				return reply.code(500).send(error(500, INTERNAL));
+				logError(e);
+				if (e === ERROR_USER_PROFILE_RELATION_NOT_FOUND) reply.code(404).send(error(404, ERROR_USER_PROFILE_RELATION_NOT_FOUND));
+				return reply.code(500).send(error(500, ERROR_INTERNAL));
 			}
 		}
 	});
@@ -196,17 +208,18 @@ export async function usersRoute (fastify: FastifyInstance) {
 			summary: 'Delete a user profile'
 		},
 		handler: async (request, reply) => {
-			try {
-				const {userAddress, profileAddress} = request.params as { userAddress: string, profileAddress: string };
+			const {userAddress, profileAddress} = request.params as { userAddress: string, profileAddress: string };
+			if (!isAddress(userAddress) || !isAddress(profileAddress)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
+			verifyJWT(request, reply, userAddress);
 
-				if (!isAddress(userAddress) || !isAddress(profileAddress)) return reply.code(400).send(error(400, ADR_INVALID));
+			try {
 				await deleteUserProfileRelation(profileAddress, userAddress);
 				return  reply.code(200).send({message: 'User-profile successfully deleted'});
 				/* eslint-disable */
 			} catch (e: any) {
-				console.error(e);
-				if (e === USER_PROFILE_RELATION_NOT_FOUND) reply.code(404).send(error(400, USER_PROFILE_RELATION_NOT_FOUND));
-				return reply.code(500).send(error(500, INTERNAL));
+				logError(e);
+				if (e === ERROR_USER_PROFILE_RELATION_NOT_FOUND) reply.code(404).send(error(400, ERROR_USER_PROFILE_RELATION_NOT_FOUND));
+				return reply.code(500).send(error(500, ERROR_INTERNAL));
 			}
 		}
 	});

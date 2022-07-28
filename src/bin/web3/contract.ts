@@ -3,7 +3,7 @@ import { AbiItem } from 'web3-utils';
 import {web3} from './web3';
 
 type ContractType = 'ERC725Y';
-
+/* eslint-disable */
 export async function createContractObject(
 	contractAddress: string,
 	contractType: ContractType

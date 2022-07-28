@@ -1,5 +1,6 @@
 import {createContractObject} from './web3/contract';
 import {Contract} from 'web3-eth-contract';
+import {logError} from './logger';
 
 export async function getErc725YValues(
 	contractAddress: string,
@@ -9,7 +10,7 @@ export async function getErc725YValues(
 	try {
 		return await contract.methods.getData(keys).call();
 	} catch (e) {
-		console.error(e);
+		logError(e);
 		throw e;
 	}
 }
