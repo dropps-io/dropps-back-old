@@ -4,5 +4,6 @@ export interface Event {
     transactionHash: string;
     logId: string;
     blockNumber: number;
+    topic: string;
     type: string;
 }

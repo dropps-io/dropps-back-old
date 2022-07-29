@@ -36,7 +36,7 @@ CREATE TABLE contract_interface (
 );
 
 CREATE TABLE contract_metadata (
-    "contractAddress" char(42) NOT NULL,
+    "address" char(42) NOT NULL,
     "name" varchar NOT NULL,
     "symbol" varchar NOT NULL,
     "description" varchar NOT NULL
@@ -61,13 +61,13 @@ CREATE SEQUENCE "decoded_parameter_eventId_seq"
 
 ALTER SEQUENCE "decoded_parameter_eventId_seq" OWNED BY decoded_parameter."eventId";
 
-
 CREATE TABLE "event" (
     "id" integer NOT NULL,
     "address" char(42) NOT NULL,
     "transactionHash" char(66) NOT NULL,
     "logId" char(8) NOT NULL,
     "blockNumber" integer NOT NULL,
+    "topic" char(66) NOT NULL,
     "type" varchar NOT NULL
 );
 
@@ -87,7 +87,7 @@ CREATE TABLE follow (
 
 
 CREATE TABLE image (
-    "contractAddress" char(42) NOT NULL,
+    "address" char(42) NOT NULL,
     "url" varchar NOT NULL,
     "width" smallint NOT NULL,
     "height" smallint NOT NULL,
@@ -96,22 +96,22 @@ CREATE TABLE image (
 
 
 CREATE TABLE "like" (
-    "postHash" char(66) NOT NULL,
-    "sender" char(42) NOT NULL
+    "sender" char(42) NOT NULL,
+    "postHash" char(66) NOT NULL
 );
 
 
 CREATE TABLE "link" (
-    "contractAddress" char(42) NOT NULL,
+    "address" char(42) NOT NULL,
     "title" varchar NOT NULL,
     "url" varchar NOT NULL
 );
 
 CREATE TABLE "method_interface" (
-    "name" varchar NOT NULL,
-    "type" varchar NOT NULL,
     "methodId" char(10) NOT NULL,
-    "methodHash" char(66) NOT NULL
+    "methodHash" char(66) NOT NULL,
+    "name" varchar NOT NULL,
+    "type" varchar NOT NULL
 );
 
 
@@ -141,7 +141,7 @@ CREATE TABLE "post" (
 
 
 CREATE TABLE "tag" (
-    "contractAddress" char(42) NOT NULL,
+    "address" char(42) NOT NULL,
     "title" varchar NOT NULL
 );
 
@@ -162,7 +162,7 @@ ALTER TABLE ONLY contract_interface
     ADD CONSTRAINT "contract-interface_pkey" PRIMARY KEY (code);
 
 ALTER TABLE ONLY contract_metadata
-    ADD CONSTRAINT contract_metadata_pkey PRIMARY KEY ("contractAddress");
+    ADD CONSTRAINT contract_metadata_pkey PRIMARY KEY ("address");
 
 ALTER TABLE ONLY contract
     ADD CONSTRAINT contract_pkey PRIMARY KEY (address);
@@ -186,7 +186,7 @@ ALTER TABLE ONLY chain_sync
     ADD CONSTRAINT chain_sync_address_fkey FOREIGN KEY (address) REFERENCES contract(address);
 
 ALTER TABLE ONLY contract_metadata
-    ADD CONSTRAINT "contract_metadata_contractAddress_fkey" FOREIGN KEY ("contractAddress") REFERENCES contract(address) NOT VALID;
+    ADD CONSTRAINT "contract_metadata_address_fkey" FOREIGN KEY ("address") REFERENCES contract(address) NOT VALID;
 
 ALTER TABLE ONLY decoded_parameter
     ADD CONSTRAINT "decoded_parameter_eventId_fkey" FOREIGN KEY ("eventId") REFERENCES event(id) NOT VALID;
@@ -201,7 +201,7 @@ ALTER TABLE ONLY follow
     ADD CONSTRAINT follow_following_fkey FOREIGN KEY (following) REFERENCES contract(address);
 
 ALTER TABLE ONLY image
-    ADD CONSTRAINT "image_contractAddress_fkey" FOREIGN KEY ("contractAddress") REFERENCES contract_metadata("contractAddress") NOT VALID;
+    ADD CONSTRAINT "image_address_fkey" FOREIGN KEY ("address") REFERENCES contract_metadata("address") NOT VALID;
 
 ALTER TABLE ONLY contract
     ADD CONSTRAINT interface FOREIGN KEY ("interfaceCode") REFERENCES contract_interface(code) NOT VALID;
@@ -213,7 +213,7 @@ ALTER TABLE ONLY "like"
     ADD CONSTRAINT like_sender_fkey FOREIGN KEY (sender) REFERENCES contract(address);
 
 ALTER TABLE ONLY link
-    ADD CONSTRAINT "link_contractAddress_fkey" FOREIGN KEY ("contractAddress") REFERENCES contract_metadata("contractAddress");
+    ADD CONSTRAINT "link_address_fkey" FOREIGN KEY ("address") REFERENCES contract_metadata("address");
 
 ALTER TABLE ONLY method_parameter
     ADD CONSTRAINT "method_parameter_methodId_fkey" FOREIGN KEY ("methodId") REFERENCES method_interface("methodId") NOT VALID;
@@ -232,7 +232,7 @@ ALTER TABLE ONLY post
 
 
 ALTER TABLE ONLY tag
-    ADD CONSTRAINT "tag_contractAddress_fkey" FOREIGN KEY ("contractAddress") REFERENCES contract_metadata("contractAddress") NOT VALID;
+    ADD CONSTRAINT "tag_address_fkey" FOREIGN KEY ("address") REFERENCES contract_metadata("address") NOT VALID;
 
 ALTER TABLE ONLY user_profile_relations
     ADD CONSTRAINT "user_profile_relations_userAddress_fkey" FOREIGN KEY ("userAddress") REFERENCES users(address);

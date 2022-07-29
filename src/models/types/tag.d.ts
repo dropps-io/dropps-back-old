@@ -1,4 +1,4 @@
 export interface Tag {
-    contractAddress: string;
+    address: string;
     title: string;
 }

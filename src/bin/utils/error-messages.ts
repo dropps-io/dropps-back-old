@@ -1,6 +1,9 @@
 export const ERROR_USER_NOT_FOUND = 'User not found';
 export const ERROR_USER_EXISTS = 'User already exists';
 
+export const ERROR_NOT_FOUND = 'Table not found';
+export const ERROR_EXISTS = 'Table already exists';
+
 export const ERROR_ADR_INVALID = 'Invalid address format';
 export const ERROR_ADR_NOT_EQUAL_PARAM_BODY = 'Body and param address should be equal';
 

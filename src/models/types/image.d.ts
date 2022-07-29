@@ -1,7 +1,9 @@
+export type ImageType = 'profile' | 'background' | 'icon' | '';
+
 export interface Image {
-    contractAddress: string;
+    address: string;
     url: string;
     width: number;
     height: number;
-    type: string;
+    type: ImageType;
 }

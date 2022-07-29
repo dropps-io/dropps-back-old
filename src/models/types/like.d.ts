@@ -1,4 +1,4 @@
 export interface Like {
-    postHash: string;
     sender: string;
+    postHash: string;
 }

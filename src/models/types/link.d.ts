@@ -1,5 +1,5 @@
 export interface Link {
-    contractAddress: string;
+    address: string;
     title: string;
     url: string;
 }
