@@ -1,8 +1,3 @@
--- PostgreSQL script to create the database
-
-CREATE DATABASE dropps;
-
-USE dropps;
 
 CREATE TABLE users (
   "address" char(42) NOT NULL,

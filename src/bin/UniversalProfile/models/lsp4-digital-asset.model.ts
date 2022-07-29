@@ -1,4 +1,4 @@
-import {Link, MetadataAsset, MetadataImage} from '../../../models/types/metadata-objects.model';
+import {Link, MetadataAsset, MetadataImage} from '../../../models/types/metadata-objects';
 
 export interface LSP4DigitalAsset {
     name: string,

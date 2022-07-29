@@ -1,4 +1,4 @@
-import {Link, MetadataAsset, MetadataImage} from '../../../models/types/metadata-objects.model';
+import {Link, MetadataAsset, MetadataImage} from '../../../models/types/metadata-objects';
 
 export interface LSP3UniversalProfile {
     name: string;
