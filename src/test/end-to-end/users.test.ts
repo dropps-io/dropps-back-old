@@ -3,18 +3,18 @@ import {expect} from 'chai';
 import {generateJWT} from "../../bin/json-web-token";
 import {clearDB} from "../helpers/database-helper";
 import {describe} from "mocha";
-import {User} from "../../lib/models/types/user";
-import {UserProfile} from "../../lib/models/types/user-profile";
+import {User} from "../../models/types/user";
+import {UserProfile} from "../../models/types/user-profile";
 
 describe('users routes', () => {
 
 	const EOA1 = '0xD692Ba892a902810a2EE3fA41C1D8DcD652D47Ab';
-	const EOA2 = '0x742b9DcaBE38f05CE619002029251a00F5dd0c6d';
+	const EOA2 = '0x7a1347322b9b0B635C36e15b3dE5e2Af99B1141a';
 
-	const UP1_EOA1 = '0x65068D4024B0D8dD98a95B560D290BdDB765a03b';
-	const UP2_EOA1 = '0x36eC763516259D4bE9EDe7cC2969969f201139dd';
+	const UP1_EOA1 = '0xB1a2B3518c30Eb82bb18Fe75456e83B692A75FFa';
+	const UP2_EOA1 = '0xA5284665954a54d12737Da405824160cCE05B0B0';
 
-	const UP1_EOA2 = '0x63385D6b52530e6b514f6b44713ECf315FfBEf21';
+	const UP1_EOA2 = '0xEb0Ef3F81d61f6eE16de26E541092824A6737dD1';
 
 	let JWT_EOA1: string = generateJWT(EOA1);
 	let JWT_EOA2: string = generateJWT(EOA2);

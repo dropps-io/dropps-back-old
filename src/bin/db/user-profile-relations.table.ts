@@ -1,7 +1,7 @@
 import {executeQuery} from './database';
-import {UserProfileRelation} from '../../lib/models/types/user-profile-relation';
+import {UserProfileRelation} from '../../models/types/user-profile-relation';
 import {ERROR_USER_PROFILE_RELATION_NOT_FOUND} from '../utils/error-messages';
-import {UserProfile} from '../../lib/models/types/user-profile';
+import {UserProfile} from '../../models/types/user-profile';
 
 export async function queryUserProfileRelation(profileAddress: string, userAddress: string): Promise<UserProfileRelation> {
 	const res = await executeQuery('SELECT * FROM "user_profile_relations" WHERE "userAddress" = $1 AND "profileAddress" = $2', [userAddress, profileAddress]);

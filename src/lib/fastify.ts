@@ -4,9 +4,9 @@ import fastifySwagger from 'fastify-swagger';
 import {usersRoute} from './routes/users.route';
 import {profilesRoute} from './routes/profiles.route';
 
-import * as userSchema from '../lib/models/json/user.json';
-import * as userProfileRelation from '../lib/models/json/user-profile-relation.json';
-import fastifyCors from 'fastify-cors';
+import * as userSchema from '../models/json/user.json';
+import * as userProfileRelation from '../models/json/user-profile-relation.json';
+const fastifyCors = require('fastify-cors');
 import {authRoute} from './routes/auth.route';
 import {LOGGER} from '../environment/config';
 

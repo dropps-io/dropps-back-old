@@ -8,11 +8,12 @@ import {insertUserProfileRelation} from "../../bin/db/user-profile-relations.tab
 describe('profiles routes', () => {
 
   const EOA1 = '0xD692Ba892a902810a2EE3fA41C1D8DcD652D47Ab';
-  const UP1_EOA1 = '0x65068D4024B0D8dD98a95B560D290BdDB765a03b';
-  const UP2_EOA1 = '0x36eC763516259D4bE9EDe7cC2969969f201139dd';
+  const EOA2 = '0x7a1347322b9b0B635C36e15b3dE5e2Af99B1141a';
 
-  const EOA2 = '0x742b9DcaBE38f05CE619002029251a00F5dd0c6d';
-  const UP1_EOA2 = '0x63385D6b52530e6b514f6b44713ECf315FfBEf21';
+  const UP1_EOA1 = '0xB1a2B3518c30Eb82bb18Fe75456e83B692A75FFa';
+  const UP2_EOA1 = '0xA5284665954a54d12737Da405824160cCE05B0B0';
+
+  const UP1_EOA2 = '0xEb0Ef3F81d61f6eE16de26E541092824A6737dD1';
 
   describe('GET /profiles/:profileAddress/users', () => {
 
@@ -25,7 +26,6 @@ describe('profiles routes', () => {
         headers: {
           authorization: 'Bearer ' + generateJWT(EOA1)
         }});
-
       await fastify.inject({method: 'POST', url: '/users', payload: {
           address: EOA2,
           selectedProfile: UP1_EOA2
@@ -33,7 +33,6 @@ describe('profiles routes', () => {
         headers: {
           authorization: 'Bearer ' + generateJWT(EOA2)
         }});
-
       await  insertUserProfileRelation(UP1_EOA1, EOA2, false);
     });
 
