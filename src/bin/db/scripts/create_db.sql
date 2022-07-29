@@ -32,6 +32,7 @@ CREATE TABLE "contract" (
 
 CREATE TABLE contract_interface (
     "code" varchar NOT NULL,
+    "id" char(10) NOT NULL,
     "name" varchar NOT NULL
 );
 

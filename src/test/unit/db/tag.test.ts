@@ -1,10 +1,9 @@
 import {beforeEach, describe} from "mocha";
 import {clearDB} from "../../helpers/database-helper";
 import {assert, expect} from "chai";
-import {UNIVERSAL_PROFILE_1, UNIVERSAL_PROFILE_2} from "../../helpers/constants";
-import {insertContract, queryContract, updateContract} from "../../../bin/db/contract.table";
+import {UNIVERSAL_PROFILE_1} from "../../helpers/constants";
+import {insertContract} from "../../../bin/db/contract.table";
 import {shouldThrow} from "../../helpers/should-throw";
-import {insertContractInterface} from "../../../bin/db/contract-interface.table";
 import {insertContractMetadata} from "../../../bin/db/contract-metadata.table";
 import {deleteTag, insertTag, queryTags} from "../../../bin/db/tag.table";
 

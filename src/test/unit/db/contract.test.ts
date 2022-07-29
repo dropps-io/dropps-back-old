@@ -11,7 +11,7 @@ export const ContractTests = () => {
 
       beforeEach(async () => {
           await clearDB();
-          await insertContractInterface('LSP0', 'Universal Profile');
+          await insertContractInterface('LSP0', '0x12345678', 'Universal Profile');
       });
 
       it ('should be able to insert values', async () => {
