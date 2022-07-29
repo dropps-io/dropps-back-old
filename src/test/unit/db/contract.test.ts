@@ -28,11 +28,11 @@ export const ContractTests = () => {
 
       it ('should be able to update values', async () => {
           await insertContract(UNIVERSAL_PROFILE_1, 'LSP0');
-          // await updateContract(UNIVERSAL_PROFILE_1, null);
+          await updateContract(UNIVERSAL_PROFILE_1, null);
           const res = await queryContract(UNIVERSAL_PROFILE_1);
 
           expect(res.address).to.be.equal(UNIVERSAL_PROFILE_1);
-          expect(res.interfaceCode).to.be.equal('LSP0');
+          expect(res.interfaceCode).to.be.equal(null);
       });
   });
 }

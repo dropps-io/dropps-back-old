@@ -2,9 +2,9 @@ import {Tag} from '../../models/types/tag';
 import {executeQuery} from './database';
 import {ERROR_NOT_FOUND} from '../utils/error-messages';
 
-export async function queryTags(address: string): Promise<Tag[]> {
+export async function queryTags(address: string): Promise<string[]> {
 	const res = await executeQuery('SELECT * FROM "tag" WHERE "address" = $1', [address]);
-	return res.rows as Tag[];
+	return res.rows.map((x: { title: string; }) => x.title);
 }
 
 export async function insertTag(address: string, title: string): Promise<Tag> {

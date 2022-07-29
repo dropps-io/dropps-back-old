@@ -1,12 +1,14 @@
 import {describe} from "mocha";
 import {ChainSyncTests} from "./db/chain-sync.test";
 import {ContractTests} from "./db/contract.test";
+import {TagTests} from "./db/tag.test";
 
 export const UnitTests = () => {
     describe('Unit Tests', () => {
         describe('Database', () => {
-            ChainSyncTests();
-            ContractTests();
+            // ChainSyncTests();
+            // ContractTests();
+            TagTests();
         });
     });
 }
