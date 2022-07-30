@@ -2,7 +2,7 @@ import {beforeEach, describe} from "mocha";
 import {clearDB} from "../../helpers/database-helper";
 import {shouldThrow} from "../../helpers/should-throw";
 import {assert, expect} from "chai";
-import {insertMethodInterface, queryMethodInterface, queryMethodInterfacesByType} from "../../../bin/db/method-interface.table";
+import {insertMethodInterface} from "../../../bin/db/method-interface.table";
 import {insertMethodParameter, queryMethodParameters} from "../../../bin/db/method-parameter.table";
 
 
