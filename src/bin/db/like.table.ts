@@ -9,7 +9,7 @@ export async function queryPostLike(sender: string, postHash: string): Promise<b
 
 export async function queryPostLikesCount(postHash: string): Promise<number> {
 	const res = await executeQuery('SELECT COUNT(*) FROM "like" WHERE "postHash" = $1', [postHash]);
-	return res.rows[0].count;
+	return parseInt(res.rows[0].count);
 }
 
 export async function querySenderLikes(sender: string): Promise<string[]> {

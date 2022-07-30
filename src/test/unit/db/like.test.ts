@@ -37,7 +37,7 @@ export const LikeTests = () => {
         it('should be able to count post likes', async () => {
             await insertLike(UNIVERSAL_PROFILE_1, '0xb097de0f7a884906c66ef0c5f42d8a27ae841af2fa68a05343cd1333d2435428');
             const likes: number = await queryPostLikesCount('0xb097de0f7a884906c66ef0c5f42d8a27ae841af2fa68a05343cd1333d2435428');
-            expect(likes).to.equal('1');
+            expect(likes).to.equal(1);
         });
 
         it('should be able to query a post like', async () => {
