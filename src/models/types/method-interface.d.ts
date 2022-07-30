@@ -1,6 +1,6 @@
 export interface MethodInterface {
-    methodId: string;
-    methodHash: string;
+    id: string;
+    hash: string;
     name: string;
     type: string;
 }

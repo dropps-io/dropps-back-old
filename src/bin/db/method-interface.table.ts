@@ -2,12 +2,17 @@ import {MethodInterface} from '../../models/types/method-interface';
 import {executeQuery} from './database';
 import {ERROR_NOT_FOUND} from '../utils/error-messages';
 
-export async function queryMethodInterface(methodId: string): Promise<MethodInterface> {
-	const res = await executeQuery('SELECT * FROM "method_interface" WHERE "methodId" = $1', [methodId]);
+export async function queryMethodInterface(id: string): Promise<MethodInterface> {
+	const res = await executeQuery('SELECT * FROM "method_interface" WHERE "id" = $1', [id]);
 	return res.rows[0] as MethodInterface;
 }
 
-export async function insertMethodInterface(methodId: string, methodHash: string, name: string, type: string): Promise<MethodInterface> {
-	const res = await executeQuery('INSERT INTO "method_interface" VALUES ($1, $2, $3, $4)', [methodId, methodHash, name, type]);
+export async function queryMethodInterfacesByType(type: 'function' | 'event'): Promise<MethodInterface[]> {
+	const res = await executeQuery('SELECT * FROM "method_interface" WHERE "type" = $1', [type]);
+	return res.rows as MethodInterface[];
+}
+
+export async function insertMethodInterface(id: string, hash: string, name: string, type: 'function' | 'event'): Promise<MethodInterface> {
+	const res = await executeQuery('INSERT INTO "method_interface" VALUES ($1, $2, $3, $4)', [id, hash, name, type]);
 	return res.rows[0] as MethodInterface;
 }

@@ -114,8 +114,8 @@ CREATE TABLE "link" (
 );
 
 CREATE TABLE "method_interface" (
-    "methodId" char(10) NOT NULL,
-    "methodHash" char(66) NOT NULL,
+    "id" char(10) NOT NULL,
+    "hash" char(66) NOT NULL,
     "name" varchar NOT NULL,
     "type" varchar NOT NULL
 );
@@ -179,7 +179,7 @@ ALTER TABLE ONLY event
     ADD CONSTRAINT event_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY method_interface
-    ADD CONSTRAINT method_interface_pkey PRIMARY KEY ("methodId");
+    ADD CONSTRAINT method_interface_pkey PRIMARY KEY ("id");
 
 ALTER TABLE ONLY nonces
     ADD CONSTRAINT "nonces_userAddress_key" UNIQUE ("userAddress");
@@ -224,7 +224,7 @@ ALTER TABLE ONLY link
     ADD CONSTRAINT "link_address_fkey" FOREIGN KEY ("address") REFERENCES contract_metadata("address");
 
 ALTER TABLE ONLY method_parameter
-    ADD CONSTRAINT "method_parameter_methodId_fkey" FOREIGN KEY ("methodId") REFERENCES method_interface("methodId") NOT VALID;
+    ADD CONSTRAINT "method_parameter_methodId_fkey" FOREIGN KEY ("methodId") REFERENCES method_interface("id") NOT VALID;
 
 ALTER TABLE ONLY post
     ADD CONSTRAINT "post_childHash_fkey" FOREIGN KEY ("childHash") REFERENCES post("hash") NOT VALID;
