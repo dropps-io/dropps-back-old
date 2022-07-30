@@ -47,7 +47,8 @@ CREATE TABLE decoded_parameter (
     "eventId" integer NOT NULL,
     "value" varchar NOT NULL,
     "name" varchar NOT NULL,
-    "type" varchar NOT NULL
+    "type" varchar NOT NULL,
+    UNIQUE ("eventId","name", "type")
 );
 
 
@@ -83,7 +84,8 @@ ALTER SEQUENCE event_id_seq OWNED BY event.id;
 
 CREATE TABLE follow (
     "follower" char(42) NOT NULL,
-    "following" char(42) NOT NULL
+    "following" char(42) NOT NULL,
+    UNIQUE ("follower","following")
 );
 
 
@@ -92,20 +94,23 @@ CREATE TABLE image (
     "url" varchar NOT NULL,
     "width" smallint NOT NULL,
     "height" smallint NOT NULL,
-    "type" varchar NOT NULL
+    "type" varchar NOT NULL,
+    UNIQUE ("address","url")
 );
 
 
 CREATE TABLE "like" (
     "sender" char(42) NOT NULL,
-    "postHash" char(66) NOT NULL
+    "postHash" char(66) NOT NULL,
+    UNIQUE ("sender","postHash")
 );
 
 
 CREATE TABLE "link" (
     "address" char(42) NOT NULL,
     "title" varchar NOT NULL,
-    "url" varchar NOT NULL
+    "url" varchar NOT NULL,
+    UNIQUE ("address","url")
 );
 
 CREATE TABLE "method_interface" (
@@ -120,7 +125,8 @@ CREATE TABLE method_parameter (
     "methodId" char(10) NOT NULL,
     "name" varchar NOT NULL,
     "type" varchar NOT NULL,
-    "indexed" boolean NOT NULL
+    "indexed" boolean NOT NULL,
+    UNIQUE ("methodId","name")
 );
 
 
@@ -143,7 +149,8 @@ CREATE TABLE "post" (
 
 CREATE TABLE "tag" (
     "address" char(42) NOT NULL,
-    "title" varchar NOT NULL
+    "title" varchar NOT NULL,
+    UNIQUE ("address","title")
 );
 
 CREATE TABLE "user_profile_relations" (
