@@ -80,7 +80,7 @@ export const PostTests = () => {
       });
 
       it('should be able to insert values with eventId referring to an event', async () => {
-          const id = await insertEvent(UNIVERSAL_PROFILE_1, '', '', '0', '', '');
+          const id = await insertEvent(UNIVERSAL_PROFILE_1, '', '', 0, '', '');
 
           assert(!await shouldThrow(
               insertPost(

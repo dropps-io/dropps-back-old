@@ -15,7 +15,7 @@ export const DecodedParametersTests = () => {
       beforeEach(async () => {
           await clearDB();
           await insertContract(UNIVERSAL_PROFILE_1, null);
-          id = await insertEvent(UNIVERSAL_PROFILE_1, '', '', '0', '', '');
+          id = await insertEvent(UNIVERSAL_PROFILE_1, '', '', 0, '', '');
       });
 
       it('should be able to insert values', async () => {
