@@ -1,6 +1,6 @@
 export interface Post {
-    postHash: string;
-    sender: string;
+    hash: string;
+    author: string;
     date: Date;
     text: string;
     mediaUrl: string;

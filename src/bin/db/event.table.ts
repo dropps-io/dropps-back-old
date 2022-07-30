@@ -7,9 +7,9 @@ export async function queryEvent(id: number): Promise<Event> {
 	return res.rows[0] as Event;
 }
 
-export async function insertEvent(address: string, transactionHash: string, logId: string, blockNumber: string, topic: string, type: string): Promise<Event> {
-	const res = await executeQuery('INSERT INTO "event" VALUES ($1, $2, $3, $4, $5, $6)', [address, transactionHash, logId, blockNumber, topic, type]);
-	return res.rows[0] as Event;
+export async function insertEvent(address: string, transactionHash: string, logId: string, blockNumber: string, topic: string, type: string): Promise<number> {
+	const res = await executeQuery('INSERT INTO "event" ("address", "transactionHash", "logId", "blockNumber", "topic", "type") VALUES ($1, $2, $3, $4, $5, $6) RETURNING "id"', [address, transactionHash, logId, blockNumber, topic, type]);
+	return res.rows[0].id;
 }
 
 export async function updateEvent(id: number, type: string): Promise<void> {

@@ -130,9 +130,9 @@ CREATE TABLE "nonces" (
 );
 
 CREATE TABLE "post" (
-    "postHash" char(66) NOT NULL,
+    "hash" char(66) NOT NULL,
     "sender" char(42) NOT NULL,
-    "date" date NOT NULL,
+    "date" timestamptz NOT NULL,
     "text" varchar NOT NULL,
     "mediaUrl" varchar NOT NULL,
     "parentHash" char(66),
@@ -178,7 +178,7 @@ ALTER TABLE ONLY nonces
     ADD CONSTRAINT "nonces_userAddress_key" UNIQUE ("userAddress");
 
 ALTER TABLE ONLY post
-    ADD CONSTRAINT post_pkey PRIMARY KEY ("postHash");
+    ADD CONSTRAINT post_pkey PRIMARY KEY ("hash");
 
 ALTER TABLE ONLY users
     ADD CONSTRAINT users_pkey PRIMARY KEY (address);
@@ -208,7 +208,7 @@ ALTER TABLE ONLY contract
     ADD CONSTRAINT interface FOREIGN KEY ("interfaceCode") REFERENCES contract_interface(code) NOT VALID;
 
 ALTER TABLE ONLY "like"
-    ADD CONSTRAINT "like_postHash_fkey" FOREIGN KEY ("postHash") REFERENCES post("postHash");
+    ADD CONSTRAINT "like_postHash_fkey" FOREIGN KEY ("postHash") REFERENCES post("hash");
 
 ALTER TABLE ONLY "like"
     ADD CONSTRAINT like_sender_fkey FOREIGN KEY (sender) REFERENCES contract(address);
@@ -220,13 +220,13 @@ ALTER TABLE ONLY method_parameter
     ADD CONSTRAINT "method_parameter_methodId_fkey" FOREIGN KEY ("methodId") REFERENCES method_interface("methodId") NOT VALID;
 
 ALTER TABLE ONLY post
-    ADD CONSTRAINT "post_childHash_fkey" FOREIGN KEY ("childHash") REFERENCES post("postHash") NOT VALID;
+    ADD CONSTRAINT "post_childHash_fkey" FOREIGN KEY ("childHash") REFERENCES post("hash") NOT VALID;
 
 ALTER TABLE ONLY post
     ADD CONSTRAINT "post_eventId_fkey" FOREIGN KEY ("eventId") REFERENCES event(id) NOT VALID;
 
 ALTER TABLE ONLY post
-    ADD CONSTRAINT "post_parentHash_fkey" FOREIGN KEY ("parentHash") REFERENCES post("postHash") NOT VALID;
+    ADD CONSTRAINT "post_parentHash_fkey" FOREIGN KEY ("parentHash") REFERENCES post("hash") NOT VALID;
 
 ALTER TABLE ONLY post
     ADD CONSTRAINT post_sender_fkey FOREIGN KEY (sender) REFERENCES contract(address);
