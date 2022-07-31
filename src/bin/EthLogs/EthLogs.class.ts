@@ -13,20 +13,19 @@ export class EthLogs {
     this.solEventsRepo = solEventsRepo;
   }
 
-  get lenght() {
+  get length() {
     return this.ethLogs.length;
   }
 
-  public addLog(log: Log) {
+  public addLog(log: Log): EthLog {
     const method = this.solEventsRepo.get(log.topics[0]) ? this.solEventsRepo.get(log.topics[0]) as SolEvent : UNKNOWN_SOL_EVENT;
     const logObject = new EthLog(log, this.provider, {method});
     this.ethLogs.push(logObject);
+    return logObject;
   }
 
   public async addLogAndExtract(log: Log) {
-    const method = this.solEventsRepo.get(log.topics[0]) ? this.solEventsRepo.get(log.topics[0]) as SolEvent : UNKNOWN_SOL_EVENT;
-    const logObject = new EthLog(log, this.provider, {method});
-    this.ethLogs.push(logObject);
+    const logObject = this.addLog(log);
     await logObject.extractData();
   }
 
