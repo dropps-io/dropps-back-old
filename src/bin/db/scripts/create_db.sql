@@ -140,8 +140,8 @@ CREATE TABLE "nonces" (
 
 CREATE TABLE "post" (
     "hash" char(66) NOT NULL,
-    "sender" char(42) NOT NULL,
-    "blockNumber" integer NOT NULL,
+    "author" char(42) NOT NULL,
+    "date" timestamptz NOT NULL,
     "text" varchar NOT NULL,
     "mediaUrl" varchar NOT NULL,
     "parentHash" char(66),

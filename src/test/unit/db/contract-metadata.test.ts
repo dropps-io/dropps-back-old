@@ -16,11 +16,11 @@ export const ContractMetadataTests = () => {
       });
 
       it('should be able to insert values', async () => {
-          assert(!await shouldThrow(insertContractMetadata(UNIVERSAL_PROFILE_1, 'My Profile', 'MP', 'My Description')));
+          assert(!await shouldThrow(insertContractMetadata(UNIVERSAL_PROFILE_1, 'My Profile', 'MP', 'My Description', false, 0)));
       });
 
       it('should be able to query values', async () => {
-          await insertContractMetadata(UNIVERSAL_PROFILE_1, 'My Profile', 'MP', 'My Description');
+          await insertContractMetadata(UNIVERSAL_PROFILE_1, 'My Profile', 'MP', 'My Description', false, 0);
           const res = await queryContractMetadata(UNIVERSAL_PROFILE_1);
 
           expect(res.address).to.equal(UNIVERSAL_PROFILE_1);
@@ -30,8 +30,8 @@ export const ContractMetadataTests = () => {
       });
 
       it('should be able to update values', async () => {
-          await insertContractMetadata(UNIVERSAL_PROFILE_1, 'My Profile', 'MP', 'My Description');
-          await updateContractMetadata(UNIVERSAL_PROFILE_1, 'Profile', 'P', 'Description');
+          await insertContractMetadata(UNIVERSAL_PROFILE_1, 'My Profile', 'MP', 'My Description', false, 0);
+          await updateContractMetadata(UNIVERSAL_PROFILE_1, 'Profile', 'P', 'Description', 0);
           const res = await queryContractMetadata(UNIVERSAL_PROFILE_1);
 
           expect(res.address).to.equal(UNIVERSAL_PROFILE_1);

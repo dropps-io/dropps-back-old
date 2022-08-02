@@ -13,7 +13,7 @@ export const LinkTests = () => {
       beforeEach(async () => {
           await clearDB();
           await insertContract(UNIVERSAL_PROFILE_1, null);
-          await insertContractMetadata(UNIVERSAL_PROFILE_1, '', '', '');
+          await insertContractMetadata(UNIVERSAL_PROFILE_1, '', '', '', false, 0);
       });
 
       it ('should be able to insert values', async () => {

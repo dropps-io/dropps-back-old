@@ -1,7 +1,7 @@
 export interface Post {
     hash: string;
     author: string;
-    blockNumber: number;
+    date: Date;
     text: string;
     mediaUrl: string;
     parentHash?: string;
