@@ -72,7 +72,8 @@ CREATE TABLE "event" (
     "logId" char(8) NOT NULL,
     "blockNumber" integer NOT NULL,
     "topic" char(66) NOT NULL,
-    "type" varchar NOT NULL
+    "type" varchar NOT NULL,
+    UNIQUE ("transactionHash","logId")
 );
 
 CREATE SEQUENCE event_id_seq
@@ -140,7 +141,7 @@ CREATE TABLE "nonces" (
 CREATE TABLE "post" (
     "hash" char(66) NOT NULL,
     "sender" char(42) NOT NULL,
-    "date" timestamptz NOT NULL,
+    "blockNumber" integer NOT NULL,
     "text" varchar NOT NULL,
     "mediaUrl" varchar NOT NULL,
     "parentHash" char(66),
