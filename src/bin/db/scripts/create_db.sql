@@ -40,7 +40,9 @@ CREATE TABLE contract_metadata (
     "address" char(42) NOT NULL,
     "name" varchar NOT NULL,
     "symbol" varchar NOT NULL,
-    "description" varchar NOT NULL
+    "description" varchar NOT NULL,
+    "isNFT" boolean NOT NULL,
+    "supply" integer NOT NULL
 );
 
 CREATE TABLE decoded_parameter (
