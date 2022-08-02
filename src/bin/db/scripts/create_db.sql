@@ -239,7 +239,7 @@ ALTER TABLE ONLY post
     ADD CONSTRAINT "post_parentHash_fkey" FOREIGN KEY ("parentHash") REFERENCES post("hash") NOT VALID;
 
 ALTER TABLE ONLY post
-    ADD CONSTRAINT post_sender_fkey FOREIGN KEY (sender) REFERENCES contract(address);
+    ADD CONSTRAINT post_sender_fkey FOREIGN KEY (author) REFERENCES contract(address);
 
 
 ALTER TABLE ONLY tag
