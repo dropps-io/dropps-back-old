@@ -60,7 +60,8 @@ CREATE TABLE public.data_changed (
                                      address character(42) NOT NULL,
                                      key character(66) NOT NULL,
                                      value character varying NOT NULL,
-                                     "blockNumber" integer NOT NULL
+                                     "blockNumber" integer NOT NULL,
+                                     UNIQUE("address", "key", "value", "blockNumber")
 );
 
 
