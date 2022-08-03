@@ -16,9 +16,11 @@ const clearDBQueries = [
 	'delete from "chain_sync"',
 	'delete from "post"',
 	'delete from "event"',
+	'delete from "data_changed"',
 	'delete from "contract"',
 	'delete from "contract_interface"',
 	'delete from "method_interface"',
+	'delete from "transaction"',
 ];
 
 // before(async () => {

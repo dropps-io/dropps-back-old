@@ -6,6 +6,7 @@ import {insertPost, queryPost} from "../../../bin/db/post.table";
 import {UNIVERSAL_PROFILE_1} from "../../helpers/constants";
 import {insertContract} from "../../../bin/db/contract.table";
 import {insertEvent, queryEvent} from "../../../bin/db/event.table";
+import {insertTransaction} from "../../../bin/db/transaction.table";
 
 export const PostTests = () => {
   describe('Table Post', () => {
@@ -30,7 +31,7 @@ export const PostTests = () => {
       });
 
       it('should be able to insert values with parentHash referring to a post', async () => {
-          insertPost(
+          await insertPost(
               '0xb097de0f7a884906c66ef0c5f42d8a27ae841af2fa68a05343cd1333d2435428',
               UNIVERSAL_PROFILE_1,
               new Date(),
@@ -80,7 +81,16 @@ export const PostTests = () => {
       });
 
       it('should be able to insert values with eventId referring to an event', async () => {
-          const id = await insertEvent(UNIVERSAL_PROFILE_1, '', '', 0, '', '');
+          await insertTransaction(
+              '0x6cf76a6ded55d828270d696eee6054e618dc3fc546434d3d4c68101dc25e9832',
+              '0xD692Ba892a902810a2EE3fA41C1D8DcD652D47Ab',
+              '0xD692Ba892a902810a2EE3fA41C1D8DcD652D47Ab',
+              '0',
+              '0x6cf76a6d00000000000000000000ed55d828270d696eee6054e618dc3fc546434d3d4c68101dc25e9821',
+              0
+          );
+
+          const id = await insertEvent(UNIVERSAL_PROFILE_1, '0x6cf76a6ded55d828270d696eee6054e618dc3fc546434d3d4c68101dc25e9832', '', 0, '', '');
 
           assert(!await shouldThrow(
               insertPost(
