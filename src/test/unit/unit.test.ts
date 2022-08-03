@@ -13,6 +13,8 @@ import {ImageTests} from "./db/image.test";
 import {LinkTests} from "./db/link.test";
 import {MethodInterfaceTests} from "./db/method-interface.test";
 import {MethodParameterTest} from "./db/method-parameter.test";
+import {TransactionTests} from "./db/transaction.test";
+import {DataChangedTests} from "./db/data-changed.test";
 
 export const UnitTests = () => {
     describe('Unit Tests', () => {
@@ -31,6 +33,8 @@ export const UnitTests = () => {
             LinkTests();
             MethodInterfaceTests();
             MethodParameterTest();
+            TransactionTests();
+            DataChangedTests();
         });
     });
 }
