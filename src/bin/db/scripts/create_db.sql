@@ -287,7 +287,7 @@ ALTER TABLE public.tag OWNER TO postgres;
 CREATE TABLE public.transaction (
                                     hash character(66) NOT NULL,
                                     "from" character(42) NOT NULL,
-                                    "to" character(42) NOT NULL,
+                                    "to" character(42),
                                     value character varying NOT NULL,
                                     input character varying NOT NULL,
                                     "blockNumber" integer NOT NULL
