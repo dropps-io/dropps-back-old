@@ -5,10 +5,7 @@ import {insertContractInterface} from "../bin/db/contract-interface.table";
 import Web3 from "web3";
 import {EthLogs} from "../bin/EthLogs/EthLogs.class";
 import {topicToEvent} from "../bin/EthLogs/data-extracting/utils/event-identification";
-
-async function main() {
-    await getFeed('0xA5284665954a54d12737Da405824160cCE05B0B0');
-}
+import {isGeneratorFunction} from "util/types";
 
 async function getFeed(user: string) {
     const start = new Date();
@@ -19,27 +16,30 @@ async function getFeed(user: string) {
     const logs: EthLogs = new EthLogs(topicToEvent, web3.currentProvider);
     let latestBlock: number = await web3.eth.getBlockNumber();
 
-    for (let block = latestBlock ; block > 0 ; block -= searchStep) {
-        for (let address of following) {
-            console.log(block)
-            await web3.eth.getPastLogs({
-                fromBlock: block - searchStep, toBlock: block, address
-            }, async (error, logsRes) => {
-                logs.addLogsAndExtract(logsRes);
-            })
+    for (let block = latestBlock ; block > 0 ; block - searchStep > 0 ? block -= searchStep : block = 0 ) {
+        for (let i = 0; i < 400 ; i++) {
+            try {
+                const from = block - searchStep > 0 ? block - searchStep : 0;
+                await web3.eth.getPastLogs({
+                    fromBlock: from, toBlock: block, address: '0xA5284665954a54d12737Da405824160cCE05B0B0'
+                }, async (error, logsRes) => {
+                    if (logsRes) logs.addLogs(logsRes);
+                });
+            } catch (e) {
+                console.error(e);
+            }
         }
-        console.log('found : ' + logs.lenght);
-        if (logs.lenght >= 20) {
+        console.log('found : ' + logs.length);
+        if (logs.length >= 40) {
             latestBlock = block;
             break;
         }
     }
     console.log(latestBlock);
-    console.log(logs.lenght);
+    console.log(logs.length);
     const end = new Date();
     const exectime = end.getTime() - start.getTime();
     console.log('execution time = ' + exectime );
     return;
 }
 
-main();

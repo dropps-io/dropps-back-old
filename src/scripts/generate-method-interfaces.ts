@@ -9,7 +9,7 @@ export async function generateAndPersistMethodInterfaces(contractAbis: AbiItem[]
 
     contractAbis.forEach(abis => {
         abis.forEach(abi => {
-            if (abi.name && (abi.type === 'event' || abi.type === 'function')) {
+            if (abi.name && (abi.type === 'event' || abi.type === 'function') && (abi.stateMutability !== 'pure' && abi.stateMutability !== 'view')) {
                 const skeleton = generateMethodSkeleton(abi);
                 const methodHash = '0x' + keccak256(skeleton).toString('hex');
                 if (interfaces.filter(x => x.hash === methodHash).length === 0)

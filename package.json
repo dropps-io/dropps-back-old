@@ -12,7 +12,8 @@
     "lint autofix": "eslint --fix src/**/*",
     "test": "npm run build&&set NODE_ENV=test&&mocha ./dist/test/**/* --exit",
     "coverage": "nyc npm run test",
-    "release": "standard-version"
+    "release": "standard-version",
+    "run script": "npm run build&&set NODE_ENV=development&& node dist/scripts/index.js -- exit"
   },
   "repository": {
     "type": "git",
@@ -42,6 +43,7 @@
   "dependencies": {
     "@erc725/erc725.js": "^0.14.4",
     "@lukso/lsp-smart-contracts": "^0.6.2",
+    "axios": "^0.27.2",
     "config": "^3.3.7",
     "dotenv": "^16.0.0",
     "ethereumjs-util": "^7.1.4",
@@ -49,6 +51,7 @@
     "fastify-cors": "^6.1.0",
     "fastify-swagger": "^4.15.0",
     "jsonwebtoken": "^8.5.1",
+    "keccak256": "^1.0.6",
     "nyc": "^15.1.0",
     "pg": "^8.7.3",
     "prettier": "^2.5.1",

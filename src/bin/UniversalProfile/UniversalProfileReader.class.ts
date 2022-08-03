@@ -16,6 +16,8 @@ import UniversalProfileArtifact from "./abi/UniversalProfile.json";
 import {initialUniversalProfile, LSP3UniversalProfile} from "./models/lsp3-universal-profile.model";
 import {topicToEvent} from "../EthLogs/data-extracting/utils/event-identification";
 import {logError} from "../logger";
+import {formatUrl} from "../utils/format-url";
+import axios from "axios";
 
 interface GetDataDynamicKey {
   keyName: string;
@@ -122,7 +124,9 @@ export class UniversalProfileReader {
   }
 
   private async fetchMetadata() {
-    const data = await this._erc725.fetchData(['LSP3Profile']);
-    this._metadata = JSON.parse(JSON.stringify(data[0])).value.LSP3Profile as LSP3UniversalProfile;
+    const data = await this._erc725.getData('LSP3Profile');
+    const url = formatUrl((data.value as URLDataWithHash).url, 'https://2eff.lukso.dev/ipfs/');
+    const lsp3Profile = (await axios.get(url)).data;
+    this._metadata = lsp3Profile.LSP3Profile as LSP3UniversalProfile;
   }
 }
