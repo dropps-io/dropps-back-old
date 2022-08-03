@@ -2,7 +2,6 @@ import {AbiInput} from "web3-utils";
 import {StandardInterface} from "./data-extracting/utils/contract-identification/standard-interfaces";
 import {LSP4DigitalAsset, LSP4DigitalAssetMetadata} from "../UniversalProfile/models/lsp4-digital-asset.model";
 import {LSP3UniversalProfile} from "../UniversalProfile/models/lsp3-universal-profile.model";
-import {SolMethodInterface} from "./data-extracting/utils/method-identification";
 import {ERC725JSONSchema} from "@erc725/erc725.js";
 import {EthLogs} from "./EthLogs.class";
 import {DecodeDataOutput} from "@erc725/erc725.js/build/main/src/types/decodeData";
@@ -23,13 +22,15 @@ export interface SolParameterWithValue extends AbiInput{
   value: string;
 }
 
-export interface SolEvent{
+export interface SolMethod{
+  hash: string
+  id: string
   name: string;
-  topic: string
+  type: 'function' | 'event';
   parameters: AbiInput[];
 }
 
-export const UNKNOWN_SOL_EVENT: SolEvent = {name: 'Unknown', topic: '0x', parameters: []};
+export const UNKNOWN_SOL_EVENT: SolMethod = {name: 'Unknown', type: 'event', hash: '0x', id: '0x', parameters: []};
 
 export interface ExtractedLogData {
   extracted: boolean,
@@ -58,7 +59,7 @@ export interface DataChangedData {
 
 export interface ExecutedData {
   address: string;
-  interface?: SolMethodInterface;
+  interface?: SolMethod;
   contract: StandardsData & {
     interface?: StandardInterface,
   };
