@@ -20,6 +20,10 @@ import {insertTransaction, queryTransaction} from "../db/transaction.table";
 import {insertDataChanged} from "../db/data-changed.table";
 import {ContractMetadata} from "../../models/types/contract-metadata";
 import {insertContractMetadata} from "../db/contract-metadata.table";
+import {Transaction} from "../../models/types/transaction";
+import {methodIdToInterface} from "./data-extracting/utils/method-identification";
+import {queryMethodInterfaceWithParameters} from "../db/method-interface.table";
+import {EthLogs} from "./EthLogs.class";
 
 export class EthLog {
 
@@ -57,100 +61,55 @@ export class EthLog {
     return this._extractedData;
   }
 
-  public async extractData(): Promise<ExtractedLogData> {
+  public async indexData(): Promise<void> {
     const logIndexed = !!(await queryEventByTh(this._log.transactionHash, this._log.id as string));
 
-    if (this._extractedData.extracted) return this._extractedData;
-
     if (!logIndexed) {
-      return await this.fetchFromBlockchainAndIndex();
-    } else {
-      return this._extractedData;
+      await this.fetchFromBlockchainAndIndex();
     }
   }
 
-  private async fetchFromBlockchainAndIndex(): Promise<ExtractedLogData> {
+  private async fetchFromBlockchainAndIndex(): Promise<void> {
+    try {
+      switch (this._event.name) {
+        case 'ContractCreated':
+          this._extractedData.ContractCreated = {...await extractContractData(this.parameters[1].value, this._web3), value: parseInt(this.parameters[2].value)};
+          break;
+        case 'Executed':
+          this._extractedData.Executed = await extractExecutedEventData(this.parameters[1].value, parseInt(this.parameters[2].value), this.parameters[3].value, this.log.transactionHash, this._web3);
+          break;
+        case 'DataChanged':
+          this._extractedData.DataChanged = await extractDataChangedEventData(this.log.address ,this.parameters, this._web3);
+          break;
+        case 'OwnershipTransferred':
+          this._extractedData.OwnershipTransferred = {
+            previousOwner: await extractContractData(this.parameters[0].value, this._web3),
+            newOwner: await extractContractData(this.parameters[1].value, this._web3)
+          }
+          break;
+        case 'ValueReceived':
+          this._extractedData.ValueReceived = {
+            sender: await extractContractData(this.parameters[0].value, this._web3),
+          }
+          break;
+      }
+      await this.indexDataExtracted();
 
-    switch (this._event.name) {
-      case 'ContractCreated':
-        this._extractedData.ContractCreated = {...await extractContractData(this.parameters[1].value, this._web3), value: parseInt(this.parameters[2].value)};
-        break;
-      case 'Executed':
-        this._extractedData.Executed = await extractExecutedEventData(this.parameters[1].value, parseInt(this.parameters[2].value), this.parameters[3].value, this.log.transactionHash, this._web3);
-        break;
-      case 'DataChanged':
-        this._extractedData.DataChanged = await extractDataChangedEventData(this.log.address ,this.parameters, this._web3);
-        break;
-      case 'OwnershipTransferred':
-        this._extractedData.OwnershipTransferred = {
-          previousOwner: await extractContractData(this.parameters[0].value, this._web3),
-          newOwner: await extractContractData(this.parameters[1].value, this._web3)
-        }
-        break;
-      case 'ValueReceived':
-        this._extractedData.ValueReceived = {
-          sender: await extractContractData(this.parameters[0].value, this._web3),
-        }
-        break;
+    } catch (e) {
+      
     }
-
-    await this.indexDataExtracted();
-
-    this._extractedData.extracted = true;
-    return this._extractedData;
   }
 
   private async indexDataExtracted(): Promise<void> {
     try {
-      const transactionIndexed: boolean = !!(await queryTransaction(this._log.transactionHash));
-      if (!transactionIndexed) {
-        const th = await this._web3.eth.getTransaction(this._log.transactionHash);
-        await insertTransaction(this._log.transactionHash, th.from, th.to as string, th.value, th.input, th.blockNumber as number);
+      let transaction: Transaction = await queryTransaction(this._log.transactionHash);
+      if (!transaction) {
+        transaction = await this._web3.eth.getTransaction(this._log.transactionHash);
+        await insertTransaction(this._log.transactionHash, transaction.from, transaction.to as string, transaction.value, transaction.input, transaction.blockNumber as number);
       }
 
-      const contractIndexed = !!(await queryContract(this._log.address));
+      await this.indexContract(this._log.address);
 
-      if (!contractIndexed) {
-        const standardInterface = await tryIdentifyingContract(this._log.address, this._web3);
-        await insertContract(this._log.address, standardInterface?.code as string);
-
-        if (standardInterface?.code) {
-          const contractData = await extractContractData(this._log.address, this._web3, standardInterface);
-          if (contractData.LSP0) {
-            const metadata: ContractMetadata = {
-              address: this._log.address,
-              name: contractData.LSP0.name,
-              description: contractData.LSP0.description,
-              symbol: '',
-              isNFT: false,
-              supply: 0
-            }
-            await insertContractMetadata(this.log.address, metadata.name, metadata.symbol, metadata.description, metadata.isNFT, metadata.supply);
-          }
-          if (contractData.LSP7) {
-            const metadata: ContractMetadata = {
-              address: this._log.address,
-              name: contractData.LSP7.name,
-              description: contractData.LSP7.metadata?.description ? contractData.LSP7.metadata?.description : '',
-              symbol: contractData.LSP7.symbol,
-              isNFT: contractData.LSP7.isNFT,
-              supply: contractData.LSP7.supply
-            }
-            await insertContractMetadata(this.log.address, metadata.name, metadata.symbol, metadata.description, metadata.isNFT, metadata.supply);
-          }
-          if (contractData.LSP8) {
-            const metadata: ContractMetadata = {
-              address: this._log.address,
-              name: contractData.LSP8.name,
-              description: contractData.LSP8.metadata?.description ? contractData.LSP8.metadata?.description : '',
-              symbol: contractData.LSP8.symbol,
-              isNFT: true,
-              supply: 0
-            }
-            await insertContractMetadata(this.log.address, metadata.name, metadata.symbol, metadata.description, metadata.isNFT, metadata.supply);
-          }
-        }
-      }
       const eventId: number = await insertEvent(this._log.address, this._log.transactionHash, (this._log.id as string).slice(4, 12), this._log.blockNumber, this._event.hash, this._event.name);
       await insertPost('0x' + keccak256(JSON.stringify(this._log)).toString('hex'), this._log.address, new Date(((await this._web3.eth.getBlock(this._log.blockNumber)).timestamp as number) * 1000), '', '', null, null, eventId);
       for (let parameter of this.parameters) {
@@ -161,6 +120,16 @@ export class EthLog {
         case 'ContractCreated':
           break;
         case 'Executed':
+          await this.indexContract(this._decodedParameters['to']);
+          const methodInterface: SolMethod | undefined = await queryMethodInterfaceWithParameters(this._decodedParameters['selector']);
+          if (methodInterface) {
+            const transaction = await this._web3.eth.getTransactionReceipt(this.log.transactionHash);
+            for (const log of transaction.logs) {
+              // We don't add the Executed events/logs, so we avoid infinite recursive loop
+              const logObject = new EthLog(log, this._web3.currentProvider, {method: methodInterface});
+              if (!log.topics[0].includes('0x48108744') && !log.topics[0].includes('0x6b934045')) await logObject.indexData();
+            }
+          }
           break;
         case 'DataChanged':
           const th = await this._web3.eth.getTransaction(this._log.transactionHash);
@@ -171,7 +140,53 @@ export class EthLog {
           }
         }
     } catch (e) {
-      console.error(e);
+      // console.error(e);
+    }
+  }
+
+  private async indexContract(address: string) {
+    const contractIndexed = !!(await queryContract(address));
+
+    if (!contractIndexed) {
+      const standardInterface = await tryIdentifyingContract(this._log.address, this._web3);
+      await insertContract(this._log.address, standardInterface?.code as string);
+
+      if (standardInterface?.code) {
+        const contractData = await extractContractData(this._log.address, this._web3, standardInterface);
+        if (contractData.LSP0) {
+          const metadata: ContractMetadata = {
+            address: this._log.address,
+            name: contractData.LSP0.name,
+            description: contractData.LSP0.description,
+            symbol: '',
+            isNFT: false,
+            supply: 0
+          }
+          await insertContractMetadata(this.log.address, metadata.name, metadata.symbol, metadata.description, metadata.isNFT, metadata.supply);
+        }
+        if (contractData.LSP7) {
+          const metadata: ContractMetadata = {
+            address: this._log.address,
+            name: contractData.LSP7.name,
+            description: contractData.LSP7.metadata?.description ? contractData.LSP7.metadata?.description : '',
+            symbol: contractData.LSP7.symbol,
+            isNFT: contractData.LSP7.isNFT,
+            supply: contractData.LSP7.supply
+          }
+          await insertContractMetadata(this.log.address, metadata.name, metadata.symbol, metadata.description, metadata.isNFT, metadata.supply);
+        }
+        if (contractData.LSP8) {
+          const metadata: ContractMetadata = {
+            address: this._log.address,
+            name: contractData.LSP8.name,
+            description: contractData.LSP8.metadata?.description ? contractData.LSP8.metadata?.description : '',
+            symbol: contractData.LSP8.symbol,
+            isNFT: true,
+            supply: 0
+          }
+          await insertContractMetadata(this.log.address, metadata.name, metadata.symbol, metadata.description, metadata.isNFT, metadata.supply);
+        }
+      }
     }
   }
 

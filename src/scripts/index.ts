@@ -1,5 +1,5 @@
 import Web3 from "web3";
-import {indexBlockchain} from "./index-blockchain";
+import {indexBlockchain, tryIdentifyingContract} from "./index-blockchain";
 import {clearDB} from "../test/helpers/database-helper";
 import {standardInterfaces} from "../bin/EthLogs/data-extracting/utils/contract-identification/standard-interfaces";
 import {insertContractInterface} from "../bin/db/contract-interface.table";
@@ -16,30 +16,35 @@ import ERC20 from "../assets/artifacts/ERC20PresetMinterPauser.json";
 import ERC777 from "../assets/artifacts/ERC777PresetFixedSupply.json";
 import ERC721 from "../assets/artifacts/ERC721PresetMinterPauserAutoId.json";
 import {AbiItem} from "web3-utils";
+import {web3} from "../bin/web3/web3";
 
 async function main() {
-    await clearDB();
 
-    for (let standardInterface of standardInterfaces) {
-        await insertContractInterface(standardInterface.code, standardInterface.id, standardInterface.name);
-    }
+    const contractInterface = await tryIdentifyingContract('0xB1a2B3518c30Eb82bb18Fe75456e83B692A75FFa');
+    console.log(contractInterface);
 
-    await generateAndPersistMethodInterfaces(
-        [
-            LSP0ERC725Account.abi as AbiItem[],
-            LSP8Mintable.abi as AbiItem[],
-            LSP7Mintable.abi as AbiItem[],
-            LSP6KeyManager.abi as AbiItem [],
-            LSP1DelegateVault.abi as AbiItem [],
-            LSP1DelegateUP.abi as AbiItem [],
-            LSP9Vault.abi as AbiItem [],
-            ERC1155.abi as AbiItem[],
-            ERC777.abi as AbiItem[],
-            ERC721.abi as AbiItem[],
-            ERC20.abi as AbiItem[],
-        ]);
-
-    await indexBlockchain(0);
+    // await clearDB();
+    //
+    // for (let standardInterface of standardInterfaces) {
+    //     await insertContractInterface(standardInterface.code, standardInterface.id, standardInterface.name);
+    // }
+    //
+    // await generateAndPersistMethodInterfaces(
+    //     [
+    //         LSP0ERC725Account.abi as AbiItem[],
+    //         LSP8Mintable.abi as AbiItem[],
+    //         LSP7Mintable.abi as AbiItem[],
+    //         LSP6KeyManager.abi as AbiItem [],
+    //         LSP1DelegateVault.abi as AbiItem [],
+    //         LSP1DelegateUP.abi as AbiItem [],
+    //         LSP9Vault.abi as AbiItem [],
+    //         ERC1155.abi as AbiItem[],
+    //         ERC777.abi as AbiItem[],
+    //         ERC721.abi as AbiItem[],
+    //         ERC20.abi as AbiItem[],
+    //     ]);
+    //
+    // await indexBlockchain(60000);
 }
 
 main();

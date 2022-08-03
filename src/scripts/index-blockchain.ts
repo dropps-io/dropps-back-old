@@ -1,6 +1,12 @@
 import Web3 from "web3";
 import {EthLogs} from "../bin/EthLogs/EthLogs.class";
 import {topicToEvent} from "../bin/EthLogs/data-extracting/utils/event-identification";
+import {Log} from "../bin/EthLogs/EthLog.models";
+import {queryEventByTh} from "../bin/db/event.table";
+import {insertContract, queryContract} from "../bin/db/contract.table";
+import {Contract} from "../models/types/contract";
+import {queryContractInterfaces} from "../bin/db/contract-interface.table";
+import {ContractInterface} from "../models/types/contract-interface";
 const web3 = new Web3('https://rpc.l16.lukso.network');
 
 async function sleep(ms: number) {
@@ -35,20 +41,49 @@ export async function indexBlockchain(latestBlockIndexed: number) {
         await web3.eth.getPastLogs({fromBlock: latestBlockIndexed, toBlock: lastBlock
         }, async (error, logsRes) => {
             if (logsRes) {
-                console.log(logsRes.length);
-
                 for (let log of logsRes) {
-                    if (topicsWanted.includes(log.topics[0])) await logsRepo.addLogAndExtract(log);
+                    if (topicsWanted.includes(log.topics[0])) await extractDataFromLog(log);
                 }
             }
         });
 
-        console.log('Found: ' + logsRepo.length);
         // await sleep(10000);
         await indexBlockchain(lastBlock);
     } catch (e) {
         console.error(e);
         // await sleep(30000);
+        console.log('GOT ERROR');
         await indexBlockchain(lastBlock);
     }
+}
+
+async function extractDataFromLog(log: Log) {
+    const logIndexed = !!(await queryEventByTh(log.transactionHash, (log.id as string).slice(4, 12)));
+    if (logIndexed) return;
+
+    let contract = await queryContract(log.address);
+    if (!contract) contract = await indexContract(log.address);
+}
+
+async function indexContract(address: string): Promise<Contract>{
+    const contractInterface = await tryIdentifyingContract(address);
+    try {
+        await insertContract(address, contractInterface?.code ? contractInterface?.code : null);
+    } catch (e) {
+        console.log(e);
+    }
+    return {address, interfaceCode: contractInterface?.code ? contractInterface?.code : null}
+}
+
+export async function tryIdentifyingContract(address: string): Promise<ContractInterface | undefined> {
+    const contractCode = await web3.eth.getCode(address);
+    console.log(contractCode)
+    const contractInterfaces: ContractInterface[] = await queryContractInterfaces();
+    console.log(contractInterfaces)
+
+    for (let i = 0 ; i < contractInterfaces.length ; i++) {
+        if (contractCode.includes(contractInterfaces[i].id.slice(2, 10))) return contractInterfaces[i];
+    }
+
+    return undefined;
 }

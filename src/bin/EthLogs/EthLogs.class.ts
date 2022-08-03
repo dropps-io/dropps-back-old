@@ -26,7 +26,7 @@ export class EthLogs {
 
   public async addLogAndExtract(log: Log) {
     const logObject = this.addLog(log);
-    await logObject.extractData();
+    await logObject.indexData();
   }
 
   public addLogs(logs: Log[]) {

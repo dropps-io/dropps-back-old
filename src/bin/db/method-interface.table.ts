@@ -1,10 +1,19 @@
 import {MethodInterface} from '../../models/types/method-interface';
 import {executeQuery} from './database';
 import {ERROR_NOT_FOUND} from '../utils/error-messages';
+import {SolMethod} from "../EthLogs/EthLog.models";
+import {queryMethodParameters} from "./method-parameter.table";
 
 export async function queryMethodInterface(id: string): Promise<MethodInterface> {
 	const res = await executeQuery('SELECT * FROM "method_interface" WHERE "id" = $1', [id]);
 	return res.rows[0] as MethodInterface;
+}
+
+export async function queryMethodInterfaceWithParameters(id: string): Promise<SolMethod> {
+	const method: SolMethod = {...await queryMethodInterface(id), parameters: []};
+	const params = await queryMethodParameters(id);
+	params.forEach(param => method.parameters.push({...param}));
+	return method;
 }
 
 export async function queryMethodInterfacesByType(type: 'function' | 'event'): Promise<MethodInterface[]> {

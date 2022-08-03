@@ -1,8 +1,8 @@
 export interface Transaction {
     hash: string;
     from: string;
-    to: string;
+    to: string | null;
     value: string;
     input: string;
-    blockNumber: number;
+    blockNumber: number | null;
 }
