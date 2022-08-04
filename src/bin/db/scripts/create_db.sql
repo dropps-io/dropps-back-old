@@ -1,7 +1,51 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 14.4
+-- Dumped by pg_dump version 14.4
+
+-- Started on 2022-08-04 09:28:03
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- TOC entry 230 (class 1259 OID 33237)
+-- Name: asset; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.asset (
+    address character(42) NOT NULL,
+    url character varying NOT NULL,
+    "fileType" character(10) NOT NULL,
+    hash character(66) NOT NULL
+);
+
+
+ALTER TABLE public.asset OWNER TO postgres;
+
+--
+-- TOC entry 209 (class 1259 OID 18320)
+-- Name: chain_sync; Type: TABLE; Schema: public; Owner: postgres
+--
+
 CREATE TABLE public.chain_sync (
-                                   address character(42) NOT NULL,
-                                   "likeChanges" smallint NOT NULL,
-                                   "followChanges" smallint NOT NULL
+    address character(42) NOT NULL,
+    "likeChanges" smallint NOT NULL,
+    "followChanges" smallint NOT NULL
 );
 
 
@@ -13,8 +57,8 @@ ALTER TABLE public.chain_sync OWNER TO postgres;
 --
 
 CREATE TABLE public.contract (
-                                 address character(42) NOT NULL,
-                                 "interfaceCode" character varying
+    address character(42) NOT NULL,
+    "interfaceCode" character varying
 );
 
 
@@ -26,9 +70,9 @@ ALTER TABLE public.contract OWNER TO postgres;
 --
 
 CREATE TABLE public.contract_interface (
-                                           code character varying NOT NULL,
-                                           id character(10) NOT NULL,
-                                           name character varying NOT NULL
+    code character varying NOT NULL,
+    id character(10) NOT NULL,
+    name character varying NOT NULL
 );
 
 
@@ -40,12 +84,12 @@ ALTER TABLE public.contract_interface OWNER TO postgres;
 --
 
 CREATE TABLE public.contract_metadata (
-                                          address character(42) NOT NULL,
-                                          name character varying NOT NULL,
-                                          symbol character varying NOT NULL,
-                                          description character varying NOT NULL,
-                                          "isNFT" boolean NOT NULL,
-                                          supply integer NOT NULL
+    address character(42) NOT NULL,
+    name character varying NOT NULL,
+    symbol character varying NOT NULL,
+    description character varying NOT NULL,
+    "isNFT" boolean NOT NULL,
+    supply integer NOT NULL
 );
 
 
@@ -57,11 +101,10 @@ ALTER TABLE public.contract_metadata OWNER TO postgres;
 --
 
 CREATE TABLE public.data_changed (
-                                     address character(42) NOT NULL,
-                                     key character(66) NOT NULL,
-                                     value character varying NOT NULL,
-                                     "blockNumber" integer NOT NULL,
-                                     UNIQUE("address", "key", "value", "blockNumber")
+    address character(42) NOT NULL,
+    key character(66) NOT NULL,
+    value character varying NOT NULL,
+    "blockNumber" integer NOT NULL
 );
 
 
@@ -73,10 +116,10 @@ ALTER TABLE public.data_changed OWNER TO postgres;
 --
 
 CREATE TABLE public.decoded_parameter (
-                                          "eventId" integer NOT NULL,
-                                          value character varying NOT NULL,
-                                          name character varying NOT NULL,
-                                          type character varying NOT NULL
+    "eventId" integer NOT NULL,
+    value character varying NOT NULL,
+    name character varying NOT NULL,
+    type character varying NOT NULL
 );
 
 
@@ -99,7 +142,7 @@ CREATE SEQUENCE public."decoded_parameter_eventId_seq"
 ALTER TABLE public."decoded_parameter_eventId_seq" OWNER TO postgres;
 
 --
--- TOC entry 3437 (class 0 OID 0)
+-- TOC entry 3444 (class 0 OID 0)
 -- Dependencies: 214
 -- Name: decoded_parameter_eventId_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -113,13 +156,13 @@ ALTER SEQUENCE public."decoded_parameter_eventId_seq" OWNED BY public.decoded_pa
 --
 
 CREATE TABLE public.event (
-                              id integer NOT NULL,
-                              address character(42) NOT NULL,
-                              "transactionHash" character(66) NOT NULL,
-                              "logId" character(8) NOT NULL,
-                              "blockNumber" integer NOT NULL,
-                              topic character(66) NOT NULL,
-                              type character varying NOT NULL
+    id integer NOT NULL,
+    address character(42) NOT NULL,
+    "transactionHash" character(66) NOT NULL,
+    "logId" character(8) NOT NULL,
+    "blockNumber" integer NOT NULL,
+    topic character(66) NOT NULL,
+    type character varying NOT NULL
 );
 
 
@@ -141,7 +184,7 @@ CREATE SEQUENCE public.event_id_seq
 ALTER TABLE public.event_id_seq OWNER TO postgres;
 
 --
--- TOC entry 3438 (class 0 OID 0)
+-- TOC entry 3445 (class 0 OID 0)
 -- Dependencies: 216
 -- Name: event_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -155,8 +198,8 @@ ALTER SEQUENCE public.event_id_seq OWNED BY public.event.id;
 --
 
 CREATE TABLE public.follow (
-                               follower character(42) NOT NULL,
-                               following character(42) NOT NULL
+    follower character(42) NOT NULL,
+    following character(42) NOT NULL
 );
 
 
@@ -168,11 +211,12 @@ ALTER TABLE public.follow OWNER TO postgres;
 --
 
 CREATE TABLE public.image (
-                              address character(42) NOT NULL,
-                              url character varying NOT NULL,
-                              width smallint NOT NULL,
-                              height smallint NOT NULL,
-                              type character varying NOT NULL
+    address character(42) NOT NULL,
+    url character varying NOT NULL,
+    width smallint NOT NULL,
+    height smallint NOT NULL,
+    type character varying NOT NULL,
+    hash character(66) NOT NULL
 );
 
 
@@ -184,8 +228,8 @@ ALTER TABLE public.image OWNER TO postgres;
 --
 
 CREATE TABLE public."like" (
-                               sender character(42) NOT NULL,
-                               "postHash" character(66) NOT NULL
+    sender character(42) NOT NULL,
+    "postHash" character(66) NOT NULL
 );
 
 
@@ -197,9 +241,9 @@ ALTER TABLE public."like" OWNER TO postgres;
 --
 
 CREATE TABLE public.link (
-                             address character(42) NOT NULL,
-                             title character varying NOT NULL,
-                             url character varying NOT NULL
+    address character(42) NOT NULL,
+    title character varying NOT NULL,
+    url character varying NOT NULL
 );
 
 
@@ -211,10 +255,10 @@ ALTER TABLE public.link OWNER TO postgres;
 --
 
 CREATE TABLE public.method_interface (
-                                         id character(10) NOT NULL,
-                                         hash character(66) NOT NULL,
-                                         name character varying NOT NULL,
-                                         type character varying NOT NULL
+    id character(10) NOT NULL,
+    hash character(66) NOT NULL,
+    name character varying NOT NULL,
+    type character varying NOT NULL
 );
 
 
@@ -226,10 +270,10 @@ ALTER TABLE public.method_interface OWNER TO postgres;
 --
 
 CREATE TABLE public.method_parameter (
-                                         "methodId" character(10) NOT NULL,
-                                         name character varying NOT NULL,
-                                         type character varying NOT NULL,
-                                         indexed boolean NOT NULL
+    "methodId" character(10) NOT NULL,
+    name character varying NOT NULL,
+    type character varying NOT NULL,
+    indexed boolean NOT NULL
 );
 
 
@@ -241,8 +285,8 @@ ALTER TABLE public.method_parameter OWNER TO postgres;
 --
 
 CREATE TABLE public.nonces (
-                               "userAddress" character(42) NOT NULL,
-                               nonce character(6) NOT NULL
+    "userAddress" character(42) NOT NULL,
+    nonce character(6) NOT NULL
 );
 
 
@@ -254,14 +298,14 @@ ALTER TABLE public.nonces OWNER TO postgres;
 --
 
 CREATE TABLE public.post (
-                             hash character(66) NOT NULL,
-                             author character(42) NOT NULL,
-                             date timestamp with time zone NOT NULL,
-                             text character varying NOT NULL,
-                             "mediaUrl" character varying NOT NULL,
-                             "parentHash" character(66),
-                             "childHash" character(66),
-                             "eventId" integer
+    hash character(66) NOT NULL,
+    author character(42) NOT NULL,
+    date timestamp with time zone NOT NULL,
+    text character varying NOT NULL,
+    "mediaUrl" character varying NOT NULL,
+    "parentHash" character(66),
+    "childHash" character(66),
+    "eventId" integer
 );
 
 
@@ -273,8 +317,8 @@ ALTER TABLE public.post OWNER TO postgres;
 --
 
 CREATE TABLE public.tag (
-                            address character(42) NOT NULL,
-                            title character varying NOT NULL
+    address character(42) NOT NULL,
+    title character varying NOT NULL
 );
 
 
@@ -286,12 +330,12 @@ ALTER TABLE public.tag OWNER TO postgres;
 --
 
 CREATE TABLE public.transaction (
-                                    hash character(66) NOT NULL,
-                                    "from" character(42) NOT NULL,
-                                    "to" character(42),
-                                    value character varying NOT NULL,
-                                    input character varying NOT NULL,
-                                    "blockNumber" integer NOT NULL
+    hash character(66) NOT NULL,
+    "from" character(42) NOT NULL,
+    "to" character(42),
+    value character varying NOT NULL,
+    input character varying NOT NULL,
+    "blockNumber" integer NOT NULL
 );
 
 
@@ -303,9 +347,9 @@ ALTER TABLE public.transaction OWNER TO postgres;
 --
 
 CREATE TABLE public.user_profile_relations (
-                                               "profileAddress" character(42) NOT NULL,
-                                               "userAddress" character(42) NOT NULL,
-                                               archived boolean DEFAULT false
+    "profileAddress" character(42) NOT NULL,
+    "userAddress" character(42) NOT NULL,
+    archived boolean DEFAULT false
 );
 
 
@@ -317,15 +361,15 @@ ALTER TABLE public.user_profile_relations OWNER TO postgres;
 --
 
 CREATE TABLE public.users (
-                              address character(42) NOT NULL,
-                              "selectedProfile" character(42) NOT NULL
+    address character(42) NOT NULL,
+    "selectedProfile" character(42) NOT NULL
 );
 
 
 ALTER TABLE public.users OWNER TO postgres;
 
 --
--- TOC entry 3237 (class 2604 OID 18412)
+-- TOC entry 3241 (class 2604 OID 18412)
 -- Name: event id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -333,7 +377,7 @@ ALTER TABLE ONLY public.event ALTER COLUMN id SET DEFAULT nextval('public.event_
 
 
 --
--- TOC entry 3242 (class 2606 OID 18414)
+-- TOC entry 3246 (class 2606 OID 18414)
 -- Name: contract_interface contract-interface_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -342,7 +386,7 @@ ALTER TABLE ONLY public.contract_interface
 
 
 --
--- TOC entry 3244 (class 2606 OID 18416)
+-- TOC entry 3248 (class 2606 OID 18416)
 -- Name: contract_metadata contract_metadata_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -351,7 +395,7 @@ ALTER TABLE ONLY public.contract_metadata
 
 
 --
--- TOC entry 3240 (class 2606 OID 18418)
+-- TOC entry 3244 (class 2606 OID 18418)
 -- Name: contract contract_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -360,7 +404,16 @@ ALTER TABLE ONLY public.contract
 
 
 --
--- TOC entry 3246 (class 2606 OID 18344)
+-- TOC entry 3278 (class 2606 OID 19780)
+-- Name: data_changed data_changed_address_key_value_blockNumber_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.data_changed
+    ADD CONSTRAINT "data_changed_address_key_value_blockNumber_key" UNIQUE (address, key, value, "blockNumber");
+
+
+--
+-- TOC entry 3250 (class 2606 OID 18344)
 -- Name: decoded_parameter decoded_parameter_eventId_name_type_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -369,7 +422,7 @@ ALTER TABLE ONLY public.decoded_parameter
 
 
 --
--- TOC entry 3248 (class 2606 OID 18420)
+-- TOC entry 3252 (class 2606 OID 18420)
 -- Name: event event_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -378,7 +431,7 @@ ALTER TABLE ONLY public.event
 
 
 --
--- TOC entry 3250 (class 2606 OID 18352)
+-- TOC entry 3254 (class 2606 OID 18352)
 -- Name: event event_transactionHash_logId_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -387,7 +440,7 @@ ALTER TABLE ONLY public.event
 
 
 --
--- TOC entry 3252 (class 2606 OID 18358)
+-- TOC entry 3256 (class 2606 OID 18358)
 -- Name: follow follow_follower_following_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -396,7 +449,7 @@ ALTER TABLE ONLY public.follow
 
 
 --
--- TOC entry 3254 (class 2606 OID 18365)
+-- TOC entry 3258 (class 2606 OID 18365)
 -- Name: image image_address_url_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -405,7 +458,7 @@ ALTER TABLE ONLY public.image
 
 
 --
--- TOC entry 3256 (class 2606 OID 18370)
+-- TOC entry 3260 (class 2606 OID 18370)
 -- Name: like like_sender_postHash_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -414,7 +467,7 @@ ALTER TABLE ONLY public."like"
 
 
 --
--- TOC entry 3258 (class 2606 OID 18377)
+-- TOC entry 3262 (class 2606 OID 18377)
 -- Name: link link_address_url_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -423,7 +476,7 @@ ALTER TABLE ONLY public.link
 
 
 --
--- TOC entry 3260 (class 2606 OID 18422)
+-- TOC entry 3264 (class 2606 OID 18422)
 -- Name: method_interface method_interface_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -432,7 +485,7 @@ ALTER TABLE ONLY public.method_interface
 
 
 --
--- TOC entry 3262 (class 2606 OID 18389)
+-- TOC entry 3266 (class 2606 OID 18389)
 -- Name: method_parameter method_parameter_methodId_name_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -441,7 +494,7 @@ ALTER TABLE ONLY public.method_parameter
 
 
 --
--- TOC entry 3264 (class 2606 OID 18424)
+-- TOC entry 3268 (class 2606 OID 18424)
 -- Name: nonces nonces_userAddress_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -450,7 +503,7 @@ ALTER TABLE ONLY public.nonces
 
 
 --
--- TOC entry 3266 (class 2606 OID 18426)
+-- TOC entry 3270 (class 2606 OID 18426)
 -- Name: post post_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -459,7 +512,7 @@ ALTER TABLE ONLY public.post
 
 
 --
--- TOC entry 3268 (class 2606 OID 18404)
+-- TOC entry 3272 (class 2606 OID 18404)
 -- Name: tag tag_address_title_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -468,7 +521,7 @@ ALTER TABLE ONLY public.tag
 
 
 --
--- TOC entry 3272 (class 2606 OID 18598)
+-- TOC entry 3276 (class 2606 OID 18598)
 -- Name: transaction transaction_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -477,7 +530,7 @@ ALTER TABLE ONLY public.transaction
 
 
 --
--- TOC entry 3270 (class 2606 OID 18428)
+-- TOC entry 3274 (class 2606 OID 18428)
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -486,7 +539,16 @@ ALTER TABLE ONLY public.users
 
 
 --
--- TOC entry 3273 (class 2606 OID 18429)
+-- TOC entry 3299 (class 2606 OID 33242)
+-- Name: asset asset_address_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.asset
+    ADD CONSTRAINT asset_address_fkey FOREIGN KEY (address) REFERENCES public.contract(address);
+
+
+--
+-- TOC entry 3279 (class 2606 OID 18429)
 -- Name: chain_sync chain_sync_address_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -495,7 +557,7 @@ ALTER TABLE ONLY public.chain_sync
 
 
 --
--- TOC entry 3275 (class 2606 OID 18434)
+-- TOC entry 3281 (class 2606 OID 18434)
 -- Name: contract_metadata contract_metadata_address_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -504,7 +566,7 @@ ALTER TABLE ONLY public.contract_metadata
 
 
 --
--- TOC entry 3292 (class 2606 OID 18605)
+-- TOC entry 3298 (class 2606 OID 18605)
 -- Name: data_changed data_changed_address_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -513,7 +575,7 @@ ALTER TABLE ONLY public.data_changed
 
 
 --
--- TOC entry 3276 (class 2606 OID 18439)
+-- TOC entry 3282 (class 2606 OID 18439)
 -- Name: decoded_parameter decoded_parameter_eventId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -522,7 +584,7 @@ ALTER TABLE ONLY public.decoded_parameter
 
 
 --
--- TOC entry 3277 (class 2606 OID 18444)
+-- TOC entry 3283 (class 2606 OID 18444)
 -- Name: event event_address_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -531,7 +593,7 @@ ALTER TABLE ONLY public.event
 
 
 --
--- TOC entry 3278 (class 2606 OID 18610)
+-- TOC entry 3284 (class 2606 OID 18610)
 -- Name: event event_transactionHash_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -540,7 +602,7 @@ ALTER TABLE ONLY public.event
 
 
 --
--- TOC entry 3279 (class 2606 OID 18449)
+-- TOC entry 3285 (class 2606 OID 18449)
 -- Name: follow follow_follower_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -549,7 +611,7 @@ ALTER TABLE ONLY public.follow
 
 
 --
--- TOC entry 3280 (class 2606 OID 18454)
+-- TOC entry 3286 (class 2606 OID 18454)
 -- Name: follow follow_following_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -558,7 +620,7 @@ ALTER TABLE ONLY public.follow
 
 
 --
--- TOC entry 3281 (class 2606 OID 18459)
+-- TOC entry 3287 (class 2606 OID 18459)
 -- Name: image image_address_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -567,7 +629,7 @@ ALTER TABLE ONLY public.image
 
 
 --
--- TOC entry 3274 (class 2606 OID 18464)
+-- TOC entry 3280 (class 2606 OID 18464)
 -- Name: contract interface; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -576,7 +638,7 @@ ALTER TABLE ONLY public.contract
 
 
 --
--- TOC entry 3282 (class 2606 OID 18469)
+-- TOC entry 3288 (class 2606 OID 18469)
 -- Name: like like_postHash_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -585,7 +647,7 @@ ALTER TABLE ONLY public."like"
 
 
 --
--- TOC entry 3283 (class 2606 OID 18474)
+-- TOC entry 3289 (class 2606 OID 18474)
 -- Name: like like_sender_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -594,7 +656,7 @@ ALTER TABLE ONLY public."like"
 
 
 --
--- TOC entry 3284 (class 2606 OID 18479)
+-- TOC entry 3290 (class 2606 OID 18479)
 -- Name: link link_address_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -603,7 +665,7 @@ ALTER TABLE ONLY public.link
 
 
 --
--- TOC entry 3285 (class 2606 OID 18484)
+-- TOC entry 3291 (class 2606 OID 18484)
 -- Name: method_parameter method_parameter_methodId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -612,7 +674,7 @@ ALTER TABLE ONLY public.method_parameter
 
 
 --
--- TOC entry 3286 (class 2606 OID 18489)
+-- TOC entry 3292 (class 2606 OID 18489)
 -- Name: post post_childHash_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -621,7 +683,7 @@ ALTER TABLE ONLY public.post
 
 
 --
--- TOC entry 3287 (class 2606 OID 18494)
+-- TOC entry 3293 (class 2606 OID 18494)
 -- Name: post post_eventId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -630,7 +692,7 @@ ALTER TABLE ONLY public.post
 
 
 --
--- TOC entry 3288 (class 2606 OID 18499)
+-- TOC entry 3294 (class 2606 OID 18499)
 -- Name: post post_parentHash_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -639,7 +701,7 @@ ALTER TABLE ONLY public.post
 
 
 --
--- TOC entry 3289 (class 2606 OID 18504)
+-- TOC entry 3295 (class 2606 OID 18504)
 -- Name: post post_sender_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -648,7 +710,7 @@ ALTER TABLE ONLY public.post
 
 
 --
--- TOC entry 3290 (class 2606 OID 18509)
+-- TOC entry 3296 (class 2606 OID 18509)
 -- Name: tag tag_address_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -657,7 +719,7 @@ ALTER TABLE ONLY public.tag
 
 
 --
--- TOC entry 3291 (class 2606 OID 18514)
+-- TOC entry 3297 (class 2606 OID 18514)
 -- Name: user_profile_relations user_profile_relations_userAddress_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -665,7 +727,7 @@ ALTER TABLE ONLY public.user_profile_relations
     ADD CONSTRAINT "user_profile_relations_userAddress_fkey" FOREIGN KEY ("userAddress") REFERENCES public.users(address);
 
 
--- Completed on 2022-08-03 12:26:34
+-- Completed on 2022-08-04 09:28:03
 
 --
 -- PostgreSQL database dump complete
