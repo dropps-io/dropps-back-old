@@ -1,0 +1,1 @@
+export const LUKSO_IPFS_GATEWAY = 'https://2eff.lukso.dev/ipfs/';
