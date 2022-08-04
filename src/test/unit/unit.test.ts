@@ -15,6 +15,7 @@ import {MethodInterfaceTests} from "./db/method-interface.test";
 import {MethodParameterTest} from "./db/method-parameter.test";
 import {TransactionTests} from "./db/transaction.test";
 import {DataChangedTests} from "./db/data-changed.test";
+import {AssetTests} from "./db/asset.test";
 
 export const UnitTests = () => {
     describe('Unit Tests', () => {
@@ -30,6 +31,7 @@ export const UnitTests = () => {
             LikeTests();
             FollowTests();
             ImageTests();
+            AssetTests();
             LinkTests();
             MethodInterfaceTests();
             MethodParameterTest();

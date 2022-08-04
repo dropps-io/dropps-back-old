@@ -1,5 +1,4 @@
 import {executeQuery} from '../../bin/db/database';
-import {DB_NAME} from '../../environment/endpoints';
 
 const clearDBQueries = [
 	'delete from "user_profile_relations"',
@@ -9,6 +8,7 @@ const clearDBQueries = [
 	'delete from "decoded_parameter"',
 	'delete from "method_parameter"',
 	'delete from "image"',
+	'delete from "asset"',
 	'delete from "like"',
 	'delete from "tag"',
 	'delete from "contract_metadata"',

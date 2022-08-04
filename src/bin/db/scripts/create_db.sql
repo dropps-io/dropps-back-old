@@ -30,7 +30,7 @@ SET default_table_access_method = heap;
 CREATE TABLE public.asset (
     address character(42) NOT NULL,
     url character varying NOT NULL,
-    "fileType" character(10) NOT NULL,
+    "fileType" character varying NOT NULL,
     hash character(66) NOT NULL
 );
 

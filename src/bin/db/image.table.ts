@@ -12,8 +12,8 @@ export async function queryImagesByType(address: string, type: ImageType): Promi
 	return res.rows as Image[];
 }
 
-export async function insertImage(address: string, url: string, width: number, height: number, type: ImageType): Promise<Image> {
-	const res = await executeQuery('INSERT INTO "image" VALUES ($1, $2, $3, $4, $5)', [address, url, width, height, type]);
+export async function insertImage(address: string, url: string, width: number, height: number, type: ImageType, hash: string): Promise<Image> {
+	const res = await executeQuery('INSERT INTO "image" VALUES ($1, $2, $3, $4, $5, $6)', [address, url, width, height, type, hash]);
 	return res.rows[0] as Image;
 }
 
