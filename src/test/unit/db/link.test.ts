@@ -30,7 +30,7 @@ export const LinkTests = () => {
 
       it ('should be able to delete values', async () => {
           await insertLink(UNIVERSAL_PROFILE_1, 'creator', 'url');
-          await deleteLink(UNIVERSAL_PROFILE_1, 'creator');
+          await deleteLink(UNIVERSAL_PROFILE_1, 'creator', 'url');
           const res = await queryLinks(UNIVERSAL_PROFILE_1);
 
           expect(res.length).to.be.equal(0);

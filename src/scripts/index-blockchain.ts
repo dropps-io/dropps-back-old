@@ -12,18 +12,18 @@ import LSP8IdentifiableDigitalAsset from "@lukso/lsp-smart-contracts/artifacts/L
 import LSP7DigitalAsset from "@lukso/lsp-smart-contracts/artifacts/LSP7DigitalAsset.json";
 import LSP4DigitalAssetJSON from '@erc725/erc725.js/schemas/LSP4DigitalAsset.json';
 import LSP3UniversalProfileMetadataJSON from '@erc725/erc725.js/schemas/LSP3UniversalProfileMetadata.json';
-import {AbiItem} from "web3-utils";
-import {initialDigitalAssetMetadata, LSP4DigitalAsset} from "../bin/UniversalProfile/models/lsp4-digital-asset.model";
+import {AbiInput, AbiItem} from "web3-utils";
+import {initialDigitalAssetMetadata, LSP4DigitalAsset, LSP4DigitalAssetMetadata} from "../bin/UniversalProfile/models/lsp4-digital-asset.model";
 import ERC725, {ERC725JSONSchema} from "@erc725/erc725.js";
 import {formatUrl} from "../bin/utils/format-url";
 import {URLDataWithHash} from "@erc725/erc725.js/build/main/src/types/encodeData/JSONURL";
 import axios from "axios";
-import {insertContractMetadata} from "../bin/db/contract-metadata.table";
-import {insertAsset} from "../bin/db/asset.table";
-import {insertImage} from "../bin/db/image.table";
-import {insertLink} from "../bin/db/link.table";
+import {insertContractMetadata, updateContractDescription, updateContractName, updateContractSymbol} from "../bin/db/contract-metadata.table";
+import {deleteAsset, insertAsset, queryAssets} from "../bin/db/asset.table";
+import {deleteImage, insertImage, queryImages} from "../bin/db/image.table";
+import {deleteLink, insertLink, queryLinks} from "../bin/db/link.table";
 import {initialUniversalProfile, LSP3UniversalProfile} from "../bin/UniversalProfile/models/lsp3-universal-profile.model";
-import {insertTag} from "../bin/db/tag.table";
+import {deleteTag, insertTag, queryTags} from "../bin/db/tag.table";
 import {Transaction} from "../models/types/transaction";
 import {insertTransaction, queryTransaction} from "../bin/db/transaction.table";
 import {insertPost} from "../bin/db/post.table";
@@ -31,6 +31,12 @@ import keccak256 from "keccak256";
 import {insertDecodedParameter} from "../bin/db/decoded-parameter.table";
 import {queryMethodInterfaceWithParameters} from "../bin/db/method-interface.table";
 import {insertDataChanged} from "../bin/db/data-changed.table";
+import {Image} from "../models/types/image";
+import {Asset} from "../models/types/asset";
+import {Link} from "../models/types/link";
+import {DecodeDataInput} from "@erc725/erc725.js/build/main/src/types/decodeData";
+import {LUKSO_IPFS_GATEWAY} from "../bin/utils/lukso-ipfs-gateway";
+import {Tag} from "../models/types/tag";
 const web3 = new Web3('https://rpc.l16.lukso.network');
 
 async function sleep(ms: number) {
@@ -128,6 +134,7 @@ async function indexEvent(log: Log): Promise<void> {
                 const dataChanged = decodeSetDataValue(th.input);
 
                 for (let keyValue of dataChanged) {
+                    await analyseKey(log.address, keyValue.key, keyValue.value);
                     await tryExecuting(insertDataChanged(log.address, keyValue.key, keyValue.value, th.blockNumber as number));
                 }
                 break;
@@ -176,7 +183,7 @@ async function extractLSP4Data(address: string): Promise<LSP4DigitalAsset> {
     return {
         name: data && data[0].value ? data[0].value as string: '',
         symbol: data && data[1].value ? data[1].value as string: '',
-        metadata: lsp4Metadata.value ? (lsp4Metadata.value as any).LSP4Metadata : initialDigitalAssetMetadata(),
+        metadata: lsp4Metadata ? (lsp4Metadata as any).LSP4Metadata : initialDigitalAssetMetadata(),
     }
 }
 
@@ -225,7 +232,7 @@ async function indexLSP4Data(address: string, lsp4: LSP4DigitalAsset, isNFT: boo
     for (let asset of lsp4.metadata.assets) await tryExecuting(insertAsset(address, asset.url, asset.fileType, asset.hash));
     for (let image of lsp4.metadata.images) await tryExecuting(insertImage(address, image.url, image.width, image.height, '', image.hash));
     for (let link of lsp4.metadata.links) await tryExecuting(insertLink(address, link.title, link.url));
-    if (lsp4.metadata.icon) await tryExecuting(insertImage(address, lsp4.metadata.icon.url, lsp4.metadata.icon.width, lsp4.metadata.icon.height, 'icon', lsp4.metadata.icon.hash));
+    for (let icon of lsp4.metadata.icon) await tryExecuting(insertImage(address, icon.url, icon.width, icon.height, 'icon', icon.hash));
 }
 
 function decodeSetDataValue(input: string): {key: string, value: string}[] {
@@ -245,6 +252,92 @@ function decodeSetDataValue(input: string): {key: string, value: string}[] {
     }
 }
 
+async function analyseKey(address: string, key: string, value: string) {
+    switch (key) {
+        case '0x2f0a68ab07768e01943a599e73362a0e17a63a72e94dd2e384d2c1d4db932756': // LSP4TokenSymbol
+            await updateContractSymbol(address, value);
+            break;
+        case '0xdeba1e292f8ba88238e10ab3c7f88bd4be4fac56cad5194b6ecceaf653468af1': // LSP4TokenName
+            await updateContractName(address, value);
+            break;
+        case '0x9afb95cacc9f95858ec44aa8c3b685511002e30ae54415823f406128b85b238e': // LSP4Metadata
+            const decoded = ERC725.decodeData([{value: [{key, value}], keyName: 'LSP4Metadata'}], LSP4DigitalAssetJSON as ERC725JSONSchema[]);
+            const lsp4 = (await axios.get(formatUrl(decoded[0].value.url, LUKSO_IPFS_GATEWAY))).data;
+            await updateLSP4Metadata(address, lsp4 ? (lsp4 as any).LSP4Metadata : null);
+            break;
+        case '0x5ef83ad9559033e6e941db7d7c495acdce616347d28e90c7ce47cbfcfcad3bc5': // LSP3Profile
+            const decodedJsonUrl = ERC725.decodeData([{value: [{key, value}], keyName: 'LSP3Profile'}], LSP3UniversalProfileMetadataJSON as ERC725JSONSchema[]);
+            const lsp3 = (await axios.get(formatUrl(decodedJsonUrl[0].value.url, LUKSO_IPFS_GATEWAY))).data;
+            await updateLSP3Profile(address, lsp3 ? (lsp3 as any).LSP3Profile : null);
+            break;
+    }
+}
+
+//TODO Quick and dirty, to improve
+async function updateLSP4Metadata(address: string, lsp4: LSP4DigitalAssetMetadata) {
+    if (!lsp4) return;
+
+    const images: Image[] = await queryImages(address);
+    const assets: Asset[] = await queryAssets(address);
+    const links: Link[] = await queryLinks(address);
+
+    await updateContractDescription(address, lsp4.description);
+
+    const imagesToDelete = images.filter(i => !lsp4.images.map(x => x.hash).includes(i.hash) && !lsp4.icon.map(x => x.hash).includes(i.hash));
+    const imagesToAdd = lsp4.images.filter(i => !images.map(x => x.hash).includes(i.hash));
+    const iconsToAdd = lsp4.icon.filter(i => !images.map(x => x.hash).includes(i.hash));
+
+    for (let image of imagesToDelete) await deleteImage(address, image.url);
+    for (let image of imagesToAdd) await insertImage(address, image.url, image.width, image.height, '', image.hash);
+    for (let image of iconsToAdd) await insertImage(address, image.url, image.width, image.height, 'icon', image.hash);
+
+    const assetsToDelete = assets.filter(i => !lsp4.assets.map(x => x.hash).includes(i.hash));
+    const assetsToAdd = lsp4.assets.filter(i => !assets.map(x => x.hash).includes(i.hash));
+
+    for (let asset of assetsToDelete) await deleteAsset(address, asset.url);
+    for (let asset of assetsToAdd) await insertAsset(address, asset.url, asset.fileType, asset.hash);
+
+    const linksToDelete = links.filter(i => !lsp4.links.map(x => x.url).includes(i.url));
+    const linksToAdd = lsp4.links.filter(i => !links.map(x => x.url).includes(i.url));
+
+    for (let link of linksToDelete) await deleteLink(address, link.title, link.url);
+    for (let link of linksToAdd) await insertLink(address, link.title, link.url);
+}
+
+//TODO Quick and dirty, to improve, improve comparison (ex: if 2 images are the same (same hash) but one is for bg an other for profile we need to compare hash AND type)
+async function updateLSP3Profile(address: string, lsp3: LSP3UniversalProfile) {
+    if (!lsp3) return;
+
+    console.log(lsp3);
+
+    const images: Image[] = await queryImages(address);
+    const assets: Asset[] = await queryAssets(address);
+    const links: Link[] = await queryLinks(address);
+    const tags: string[] = await queryTags(address);
+
+    await updateContractDescription(address, lsp3.description);
+    await updateContractName(address, lsp3.name);
+
+    const imagesToDelete = images.filter(i => !lsp3.profileImage.map(x => x.hash).includes(i.hash) && !lsp3.backgroundImage.map(x => x.hash).includes(i.hash));
+    const profileImagesToAdd = lsp3.profileImage.filter(i => !images.map(x => x.hash).includes(i.hash));
+    const backgroundImagesToAdd = lsp3.backgroundImage.filter(i => !images.map(x => x.hash).includes(i.hash));
+
+    for (let image of imagesToDelete) await deleteImage(address, image.url);
+    for (let image of profileImagesToAdd) await insertImage(address, image.url, image.width, image.height, 'profile', image.hash);
+    for (let image of backgroundImagesToAdd) await insertImage(address, image.url, image.width, image.height, 'background', image.hash);
+
+    const linksToDelete = links.filter(i => !lsp3.links.map(x => x.url).includes(i.url));
+    const linksToAdd = lsp3.links.filter(i => !links.map(x => x.url).includes(i.url));
+
+    for (let link of linksToDelete) await deleteLink(address, link.title, link.url);
+    for (let link of linksToAdd) await insertLink(address, link.title, link.url);
+
+    const tagsToDelete = tags.filter(i => !lsp3.tags.includes(i));
+    const tagsToAdd = lsp3.tags.filter(i => !tags.includes(i));
+
+    for (let tag of tagsToDelete) await deleteTag(address, tag);
+    for (let tag of tagsToAdd) await insertTag(address, tag);
+}
 
 async function tryIdentifyingContract(address: string): Promise<ContractInterface | undefined> {
     try {

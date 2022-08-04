@@ -17,26 +17,26 @@ import ERC721 from "../assets/artifacts/ERC721PresetMinterPauserAutoId.json";
 import {AbiItem} from "web3-utils";
 
 async function main() {
-    await clearDB();
-
-    for (let standardInterface of standardInterfaces) {
-        await insertContractInterface(standardInterface.code, standardInterface.id, standardInterface.name);
-    }
-
-    await generateAndPersistMethodInterfaces(
-        [
-            LSP0ERC725Account.abi as AbiItem[],
-            LSP8Mintable.abi as AbiItem[],
-            LSP7Mintable.abi as AbiItem[],
-            LSP6KeyManager.abi as AbiItem [],
-            LSP1DelegateVault.abi as AbiItem [],
-            LSP1DelegateUP.abi as AbiItem [],
-            LSP9Vault.abi as AbiItem [],
-            ERC1155.abi as AbiItem[],
-            ERC777.abi as AbiItem[],
-            ERC721.abi as AbiItem[],
-            ERC20.abi as AbiItem[],
-        ]);
+    // await clearDB();
+    //
+    // for (let standardInterface of standardInterfaces) {
+    //     await insertContractInterface(standardInterface.code, standardInterface.id, standardInterface.name);
+    // }
+    //
+    // await generateAndPersistMethodInterfaces(
+    //     [
+    //         LSP0ERC725Account.abi as AbiItem[],
+    //         LSP8Mintable.abi as AbiItem[],
+    //         LSP7Mintable.abi as AbiItem[],
+    //         LSP6KeyManager.abi as AbiItem [],
+    //         LSP1DelegateVault.abi as AbiItem [],
+    //         LSP1DelegateUP.abi as AbiItem [],
+    //         LSP9Vault.abi as AbiItem [],
+    //         ERC1155.abi as AbiItem[],
+    //         ERC777.abi as AbiItem[],
+    //         ERC721.abi as AbiItem[],
+    //         ERC20.abi as AbiItem[],
+    //     ]);
 
     await indexBlockchain(60000);
 }

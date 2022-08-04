@@ -9,7 +9,7 @@ export interface LSP4DigitalAsset {
 export interface LSP4DigitalAssetMetadata {
     description: string;
     links: Link[];
-    icon: MetadataImage;
+    icon: MetadataImage[];
     images: MetadataImage[];
     assets: MetadataAsset[];
 }
@@ -18,13 +18,7 @@ export function initialDigitalAssetMetadata(): LSP4DigitalAssetMetadata {
     return {
         description: '',
         links: [],
-        icon: {
-            url: '',
-            hash: '',
-            height: 0,
-            width: 0,
-            hashFunction: '',
-        },
+        icon: [],
         images: [],
         assets: []
     };

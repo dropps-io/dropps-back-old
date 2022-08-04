@@ -17,7 +17,7 @@ export async function updateLink(address: string, title: string, url: string): P
 	if (res.rowCount === 0) throw ERROR_NOT_FOUND;
 }
 
-export async function deleteLink(address: string, title: string): Promise<void> {
-	const res = await executeQuery('DELETE FROM "link" WHERE "address" = $1 AND "title" = $2' , [address, title]);
+export async function deleteLink(address: string, title: string, url: string): Promise<void> {
+	const res = await executeQuery('DELETE FROM "link" WHERE "address" = $1 AND "title" = $2 AND "url" = $3', [address, title, url]);
 	if (res.rowCount === 0) throw ERROR_NOT_FOUND;
 }
