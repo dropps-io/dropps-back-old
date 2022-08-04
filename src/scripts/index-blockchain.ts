@@ -1,7 +1,4 @@
 import Web3 from "web3";
-import {EthLogs} from "../bin/EthLogs/EthLogs.class";
-import {topicToEvent} from "../bin/EthLogs/data-extracting/utils/event-identification";
-import {Log, SolMethod} from "../bin/EthLogs/EthLog.models";
 import {insertEvent, queryEventByTh} from "../bin/db/event.table";
 import {insertContract, queryContract} from "../bin/db/contract.table";
 import {Contract} from "../models/types/contract";
@@ -12,7 +9,7 @@ import LSP8IdentifiableDigitalAsset from "@lukso/lsp-smart-contracts/artifacts/L
 import LSP7DigitalAsset from "@lukso/lsp-smart-contracts/artifacts/LSP7DigitalAsset.json";
 import LSP4DigitalAssetJSON from '@erc725/erc725.js/schemas/LSP4DigitalAsset.json';
 import LSP3UniversalProfileMetadataJSON from '@erc725/erc725.js/schemas/LSP3UniversalProfileMetadata.json';
-import {AbiInput, AbiItem} from "web3-utils";
+import {AbiItem} from "web3-utils";
 import {initialDigitalAssetMetadata, LSP4DigitalAsset, LSP4DigitalAssetMetadata} from "../bin/UniversalProfile/models/lsp4-digital-asset.model";
 import ERC725, {ERC725JSONSchema} from "@erc725/erc725.js";
 import {formatUrl} from "../bin/utils/format-url";
@@ -34,9 +31,9 @@ import {insertDataChanged} from "../bin/db/data-changed.table";
 import {Image} from "../models/types/image";
 import {Asset} from "../models/types/asset";
 import {Link} from "../models/types/link";
-import {DecodeDataInput} from "@erc725/erc725.js/build/main/src/types/decodeData";
 import {LUKSO_IPFS_GATEWAY} from "../bin/utils/lukso-ipfs-gateway";
-import {Tag} from "../models/types/tag";
+import {Log} from "../models/types/log";
+import {SolMethod} from "../models/types/sol-method";
 const web3 = new Web3('https://rpc.l16.lukso.network');
 
 async function sleep(ms: number) {
@@ -50,7 +47,6 @@ async function sleep(ms: number) {
 export async function indexBlockchain(latestBlockIndexed: number) {
     let lastBlock: number = 0;
     try {
-        const logsRepo: EthLogs = new EthLogs(topicToEvent, 'https://rpc.l16.lukso.network');
         lastBlock = await web3.eth.getBlockNumber();
         if (lastBlock - latestBlockIndexed > 5000) lastBlock = latestBlockIndexed + 5000;
 
@@ -308,10 +304,7 @@ async function updateLSP4Metadata(address: string, lsp4: LSP4DigitalAssetMetadat
 async function updateLSP3Profile(address: string, lsp3: LSP3UniversalProfile) {
     if (!lsp3) return;
 
-    console.log(lsp3);
-
     const images: Image[] = await queryImages(address);
-    const assets: Asset[] = await queryAssets(address);
     const links: Link[] = await queryLinks(address);
     const tags: string[] = await queryTags(address);
 
