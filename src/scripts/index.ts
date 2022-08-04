@@ -1,6 +1,5 @@
 import {indexBlockchain} from "./index-blockchain";
 import {clearDB} from "../test/helpers/database-helper";
-import {standardInterfaces} from "../bin/EthLogs/data-extracting/utils/contract-identification/standard-interfaces";
 import {insertContractInterface} from "../bin/db/contract-interface.table";
 import {generateAndPersistMethodInterfaces} from "./generate-method-interfaces";
 import LSP7Mintable from "@lukso/lsp-smart-contracts/artifacts/LSP7Mintable.json";

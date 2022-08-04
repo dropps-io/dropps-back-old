@@ -1,8 +1,8 @@
 import {AbiInput, AbiItem} from "web3-utils";
 import keccak256 from "keccak256";
-import {SolMethod} from "../bin/EthLogs/EthLog.models";
 import {insertMethodInterface} from "../bin/db/method-interface.table";
 import {insertMethodParameter} from "../bin/db/method-parameter.table";
+import {SolMethod} from "../models/types/sol-method";
 
 export async function generateAndPersistMethodInterfaces(contractAbis: AbiItem[][]): Promise<SolMethod[]> {
     const interfaces: SolMethod[] = [];
