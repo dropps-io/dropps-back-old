@@ -4,5 +4,5 @@ export interface ContractMetadata {
     symbol: string;
     description: string;
     isNFT: boolean;
-    supply: number;
+    supply: string;
 }

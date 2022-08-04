@@ -9,6 +9,6 @@ export async function extractLSP7Data(address: string, web3: Web3): Promise<LSP7
     const lsp4Data: LSP4DigitalAsset = await extractLSP4Data(address, web3);
     const lsp7contract = new web3.eth.Contract(LSP7DigitalAsset.abi as AbiItem[], address);
     const isNFT: boolean = (await lsp7contract.methods.decimals().call()) === '0';
-    const supply: number = await lsp7contract.methods.totalSupply().call();
+    const supply: string = await lsp7contract.methods.totalSupply().call();
     return {isNFT, supply, ...lsp4Data};
 }

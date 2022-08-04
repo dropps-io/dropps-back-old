@@ -85,7 +85,7 @@ export interface StandardsData {
 export interface LSP7Data {
   name: string,
   symbol: string,
-  supply: number,
+  supply: string,
   isNFT: boolean,
   metadata?: LSP4DigitalAssetMetadata
 }

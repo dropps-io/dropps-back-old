@@ -160,7 +160,7 @@ export class EthLog {
             description: contractData.LSP0.description,
             symbol: '',
             isNFT: false,
-            supply: 0
+            supply: '0'
           }
           await insertContractMetadata(this.log.address, metadata.name, metadata.symbol, metadata.description, metadata.isNFT, metadata.supply);
         }
@@ -182,7 +182,7 @@ export class EthLog {
             description: contractData.LSP8.metadata?.description ? contractData.LSP8.metadata?.description : '',
             symbol: contractData.LSP8.symbol,
             isNFT: true,
-            supply: 0
+            supply: '0'
           }
           await insertContractMetadata(this.log.address, metadata.name, metadata.symbol, metadata.description, metadata.isNFT, metadata.supply);
         }
