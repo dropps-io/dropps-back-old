@@ -1,12 +1,36 @@
 import Web3 from "web3";
 import {EthLogs} from "../bin/EthLogs/EthLogs.class";
 import {topicToEvent} from "../bin/EthLogs/data-extracting/utils/event-identification";
-import {Log} from "../bin/EthLogs/EthLog.models";
-import {queryEventByTh} from "../bin/db/event.table";
+import {Log, SolMethod} from "../bin/EthLogs/EthLog.models";
+import {insertEvent, queryEventByTh} from "../bin/db/event.table";
 import {insertContract, queryContract} from "../bin/db/contract.table";
 import {Contract} from "../models/types/contract";
 import {queryContractInterfaces} from "../bin/db/contract-interface.table";
 import {ContractInterface} from "../models/types/contract-interface";
+import LSP0ERC725Account from "@lukso/lsp-smart-contracts/artifacts/LSP0ERC725Account.json";
+import LSP8IdentifiableDigitalAsset from "@lukso/lsp-smart-contracts/artifacts/LSP8IdentifiableDigitalAsset.json";
+import LSP7DigitalAsset from "@lukso/lsp-smart-contracts/artifacts/LSP7DigitalAsset.json";
+import LSP4DigitalAssetJSON from '@erc725/erc725.js/schemas/LSP4DigitalAsset.json';
+import LSP3UniversalProfileMetadataJSON from '@erc725/erc725.js/schemas/LSP3UniversalProfileMetadata.json';
+import {AbiItem} from "web3-utils";
+import {initialDigitalAssetMetadata, LSP4DigitalAsset} from "../bin/UniversalProfile/models/lsp4-digital-asset.model";
+import ERC725, {ERC725JSONSchema} from "@erc725/erc725.js";
+import {formatUrl} from "../bin/utils/format-url";
+import {URLDataWithHash} from "@erc725/erc725.js/build/main/src/types/encodeData/JSONURL";
+import axios from "axios";
+import {insertContractMetadata} from "../bin/db/contract-metadata.table";
+import {insertAsset} from "../bin/db/asset.table";
+import {insertImage} from "../bin/db/image.table";
+import {insertLink} from "../bin/db/link.table";
+import {initialUniversalProfile, LSP3UniversalProfile} from "../bin/UniversalProfile/models/lsp3-universal-profile.model";
+import {insertTag} from "../bin/db/tag.table";
+import {Transaction} from "../models/types/transaction";
+import {insertTransaction, queryTransaction} from "../bin/db/transaction.table";
+import {insertPost} from "../bin/db/post.table";
+import keccak256 from "keccak256";
+import {insertDecodedParameter} from "../bin/db/decoded-parameter.table";
+import {queryMethodInterfaceWithParameters} from "../bin/db/method-interface.table";
+import {insertDataChanged} from "../bin/db/data-changed.table";
 const web3 = new Web3('https://rpc.l16.lukso.network');
 
 async function sleep(ms: number) {
@@ -61,29 +85,191 @@ async function extractDataFromLog(log: Log) {
     const logIndexed = !!(await queryEventByTh(log.transactionHash, (log.id as string).slice(4, 12)));
     if (logIndexed) return;
 
-    let contract = await queryContract(log.address);
-    if (!contract) contract = await indexContract(log.address);
+    const contract = await indexContract(log.address);
+
+    let transaction: Transaction = await queryTransaction(log.transactionHash);
+    if (!transaction) {
+        transaction = await web3.eth.getTransaction(log.transactionHash);
+        await tryExecuting(insertTransaction(log.transactionHash, transaction.from, transaction.to as string, transaction.value, transaction.input, transaction.blockNumber as number));
+    }
+
+    await indexEvent(log);
+}
+
+async function indexEvent(log: Log): Promise<void> {
+    try {
+        const eventInterface: SolMethod = await queryMethodInterfaceWithParameters(log.topics[0].slice(0, 10));
+        const eventId: number = await insertEvent(log.address, log.transactionHash, (log.id as string).slice(4, 12), log.blockNumber, log.topics[0], eventInterface.name ? eventInterface.name : '');
+        await insertPost('0x' + keccak256(JSON.stringify(log)).toString('hex'), log.address, new Date(((await web3.eth.getBlock(log.blockNumber)).timestamp as number) * 1000), '', '', null, null, eventId);
+        const decodedParameters = !eventInterface.name ? {} : web3.eth.abi.decodeLog(eventInterface.parameters, log.data, log.topics.filter((x, i) => i !== 0));
+
+        for (let parameter of eventInterface.parameters.map((x) => {return {...x, value: decodedParameters[x.name]}})) {
+            await insertDecodedParameter(eventId, parameter.value ? parameter.value : '' , parameter.name, parameter. type);
+        }
+
+        switch (eventInterface.name) {
+            case 'ContractCreated':
+                await indexContract(decodedParameters['contractAddress']);
+                break;
+            case 'Executed':
+                await indexContract(decodedParameters['to']);
+                const transaction = await web3.eth.getTransactionReceipt(log.transactionHash);
+                for (const log of transaction.logs) {
+                    // We don't add the Executed events/logs, so we avoid infinite recursive loop
+                    if (!log.topics[0].includes('0x48108744') && !log.topics[0].includes('0x6b934045')) await extractDataFromLog(log);
+                }
+                break;
+            case 'OwnershipTransferred':
+                await indexContract(decodedParameters['previousOwner']);
+                await indexContract(decodedParameters['newOwner']);
+                break;
+            case 'DataChanged':
+                const th = await web3.eth.getTransaction(log.transactionHash);
+                const dataChanged = decodeSetDataValue(th.input);
+
+                for (let keyValue of dataChanged) {
+                    await tryExecuting(insertDataChanged(log.address, keyValue.key, keyValue.value, th.blockNumber as number));
+                }
+                break;
+        }
+    } catch (e) {
+
+    }
 }
 
 async function indexContract(address: string): Promise<Contract>{
+    let contract = await queryContract(address);
+    if (contract) return contract;
     const contractInterface = await tryIdentifyingContract(address);
     try {
         await insertContract(address, contractInterface?.code ? contractInterface?.code : null);
+        switch (contractInterface?.code) {
+            case 'LSP8':
+                await indexLSP8Data(address);
+                break;
+            case 'LSP7':
+                await indexLSP7Data(address);
+                break;
+            case 'LSP0':
+                await indexLSP3Data(address);
+                break;
+        }
     } catch (e) {
         console.log(e);
     }
     return {address, interfaceCode: contractInterface?.code ? contractInterface?.code : null}
 }
 
-export async function tryIdentifyingContract(address: string): Promise<ContractInterface | undefined> {
-    const contractCode = await web3.eth.getCode(address);
-    console.log(contractCode)
-    const contractInterfaces: ContractInterface[] = await queryContractInterfaces();
-    console.log(contractInterfaces)
+async function extractLSP4Data(address: string): Promise<LSP4DigitalAsset> {
+    const erc725Y = new ERC725(LSP4DigitalAssetJSON as ERC725JSONSchema[], address, web3.currentProvider, {ipfsGateway: 'https://2eff.lukso.dev/ipfs/'});
+    let lsp4Metadata, data;
 
-    for (let i = 0 ; i < contractInterfaces.length ; i++) {
-        if (contractCode.includes(contractInterfaces[i].id.slice(2, 10))) return contractInterfaces[i];
+    try {
+        data = await erc725Y.getData(['LSP4TokenName', 'LSP4TokenSymbol']);
+        const metadataData = await erc725Y.getData('LSP4Metadata');
+        const url = formatUrl((metadataData.value as URLDataWithHash).url, 'https://2eff.lukso.dev/ipfs/');
+        lsp4Metadata = (await axios.get(url)).data;
+    } catch (e) {
+        lsp4Metadata = {value: null};
+    }
+
+    return {
+        name: data && data[0].value ? data[0].value as string: '',
+        symbol: data && data[1].value ? data[1].value as string: '',
+        metadata: lsp4Metadata.value ? (lsp4Metadata.value as any).LSP4Metadata : initialDigitalAssetMetadata(),
+    }
+}
+
+async function indexLSP3Data(address: string): Promise<void> {
+    const erc725Y = new ERC725(LSP3UniversalProfileMetadataJSON as ERC725JSONSchema[], address, web3.currentProvider, {ipfsGateway: 'https://2eff.lukso.dev/ipfs/'});
+    let lsp3: LSP3UniversalProfile
+
+    try {
+        const data = await erc725Y.getData('LSP3Profile');
+        const url = formatUrl((data.value as URLDataWithHash).url, 'https://2eff.lukso.dev/ipfs/');
+        const res = (await axios.get(url)).data;
+        lsp3 = res ? (res as any).LSP3Profile as LSP3UniversalProfile : initialUniversalProfile();
+    } catch (e) {
+        console.error(e);
+        lsp3 = initialUniversalProfile();
+    }
+
+    await insertContractMetadata(address, lsp3.name, '', lsp3.description, false, '0');
+    for (let image of lsp3.backgroundImage) await tryExecuting(insertImage(address, image.url, image.width, image.height, 'background', image.hash));
+    for (let image of lsp3.profileImage) await tryExecuting(insertImage(address, image.url, image.width, image.height, 'profile', image.hash));
+    for (let link of lsp3.links) await tryExecuting(insertLink(address, link.title, link.url));
+    for (let tag of lsp3.tags) await tryExecuting(insertTag(address, tag));
+    if (lsp3.avatar) await tryExecuting(insertAsset(address, lsp3.avatar.url, lsp3.avatar.fileType, lsp3.avatar.hash));
+}
+
+async function indexLSP8Data(address: string): Promise<void> {
+    const lsp4 = await extractLSP4Data(address)
+
+    const lsp8contract = new web3.eth.Contract(LSP8IdentifiableDigitalAsset.abi as AbiItem[], address);
+    const supply: string = await lsp8contract.methods.totalSupply().call();
+
+    await indexLSP4Data(address, lsp4, true, supply);
+}
+
+async function indexLSP7Data(address: string): Promise<void> {
+    const lsp4: LSP4DigitalAsset = await extractLSP4Data(address);
+    const lsp7contract = new web3.eth.Contract(LSP7DigitalAsset.abi as AbiItem[], address);
+    const isNFT: boolean = (await lsp7contract.methods.decimals().call()) === '0';
+    const supply: string = await lsp7contract.methods.totalSupply().call();
+
+    await indexLSP4Data(address, lsp4, isNFT, supply);
+}
+
+async function indexLSP4Data(address: string, lsp4: LSP4DigitalAsset, isNFT: boolean, supply: string) {
+    await insertContractMetadata(address, lsp4.name, lsp4.symbol, lsp4.metadata.description, true, supply);
+    for (let asset of lsp4.metadata.assets) await tryExecuting(insertAsset(address, asset.url, asset.fileType, asset.hash));
+    for (let image of lsp4.metadata.images) await tryExecuting(insertImage(address, image.url, image.width, image.height, '', image.hash));
+    for (let link of lsp4.metadata.links) await tryExecuting(insertLink(address, link.title, link.url));
+    if (lsp4.metadata.icon) await tryExecuting(insertImage(address, lsp4.metadata.icon.url, lsp4.metadata.icon.width, lsp4.metadata.icon.height, 'icon', lsp4.metadata.icon.hash));
+}
+
+function decodeSetDataValue(input: string): {key: string, value: string}[] {
+    switch (input.slice(0, 10)) {
+        case '0x09c5eabe':
+            return decodeSetDataValue(web3.eth.abi.decodeParameters([{name: 'bytes', type: 'bytes'}], input.slice(10))['bytes'] as string);
+        case '0x44c028fe':
+            return decodeSetDataValue(web3.eth.abi.decodeParameters(['uint256', 'address', 'uint256' ,{name: 'bytes', type: 'bytes'}], input.slice(10))['bytes'] as string);
+        case '0x7f23690c':
+            const decodedDataKeyValue = web3.eth.abi.decodeParameters([{name: 'key', type: 'bytes32'}, {name: 'value', type: 'bytes'}], input.slice(10));
+            return [{key: decodedDataKeyValue['key'], value: decodedDataKeyValue['value']}];
+        case '0x14a6e293':
+            const decodedDataKeysValues = web3.eth.abi.decodeParameters([{name: 'keys', type: 'bytes32[]'}, {name: 'values', type: 'bytes[]'}], input.slice(10));
+            return decodedDataKeysValues['keys'].map((x: string, i: number) => { return {key: x, value: decodedDataKeysValues['values'][i]}});
+        default:
+            return [];
+    }
+}
+
+
+async function tryIdentifyingContract(address: string): Promise<ContractInterface | undefined> {
+    try {
+        const contractCode = await web3.eth.getCode(address);
+        const contractInterfaces: ContractInterface[] = await queryContractInterfaces();
+
+        for (let i = 0 ; i < contractInterfaces.length ; i++) {
+            if (contractCode.includes(contractInterfaces[i].id.slice(2, 10))) return contractInterfaces[i];
+        }
+        const contract = new web3.eth.Contract(LSP0ERC725Account.abi as AbiItem[], address);
+
+        for (let i = 0 ; i < contractInterfaces.length ; i++) {
+            if (await contract.methods.supportsInterface(contractInterfaces[i].id).call()) return contractInterfaces[i];
+        }
+    } catch (e) {
+        return undefined;
     }
 
     return undefined;
+}
+
+async function tryExecuting(f: Promise<any>) {
+    try {
+        await f;
+    } catch (e) {
+        // console.error(e);
+    }
 }
