@@ -34,6 +34,10 @@ import {Link} from "../models/types/link";
 import {LUKSO_IPFS_GATEWAY} from "../bin/utils/lukso-ipfs-gateway";
 import {Log} from "../models/types/log";
 import {SolMethod} from "../models/types/sol-method";
+import {queryMethodParameters} from "../bin/db/method-parameter.table";
+import {MethodParameter} from "../models/types/method-parameter";
+import {insertDecodedFunctionParameter} from "../bin/db/decoded-function-parameter.table";
+
 const web3 = new Web3('https://rpc.l16.lukso.network');
 
 async function sleep(ms: number) {
@@ -91,8 +95,14 @@ async function extractDataFromLog(log: Log) {
 
     let transaction: Transaction = await queryTransaction(log.transactionHash);
     if (!transaction) {
-        transaction = await web3.eth.getTransaction(log.transactionHash);
+        transaction = {...await web3.eth.getTransaction(log.transactionHash), methodId: ''};
+        transaction.input = decodeFunctionFinalInput(transaction.input);
+        const parameters: MethodParameter[] = await queryMethodParameters(transaction.input.slice(0, 10));
+        const decodedParameters = web3.eth.abi.decodeParameters(parameters, transaction.input.slice(10));
         await tryExecuting(insertTransaction(log.transactionHash, transaction.from, transaction.to as string, transaction.value, transaction.input, transaction.blockNumber as number));
+        for (let parameter of parameters) {
+            await tryExecuting(insertDecodedFunctionParameter(log.transactionHash, decodedParameters[parameter.name] as string, parameter.name, parameter.type, parameter.displayType));
+        }
     }
 
     await indexEvent(log);
@@ -130,7 +140,7 @@ async function indexEvent(log: Log): Promise<void> {
                 const dataChanged = decodeSetDataValue(th.input);
 
                 for (let keyValue of dataChanged) {
-                    await analyseKey(log.address, keyValue.key, keyValue.value);
+                    // await analyseKey(log.address, keyValue.key, keyValue.value);
                     await tryExecuting(insertDataChanged(log.address, keyValue.key, keyValue.value, th.blockNumber as number));
                 }
                 break;
@@ -237,6 +247,8 @@ function decodeSetDataValue(input: string): {key: string, value: string}[] {
             return decodeSetDataValue(web3.eth.abi.decodeParameters([{name: 'bytes', type: 'bytes'}], input.slice(10))['bytes'] as string);
         case '0x44c028fe':
             return decodeSetDataValue(web3.eth.abi.decodeParameters(['uint256', 'address', 'uint256' ,{name: 'bytes', type: 'bytes'}], input.slice(10))['bytes'] as string);
+        case '0x902d5fa0':
+            return decodeSetDataValue(web3.eth.abi.decodeParameters(['bytes', 'uint256',{name: 'bytes', type: 'bytes'}], input.slice(10))['bytes'] as string);
         case '0x7f23690c':
             const decodedDataKeyValue = web3.eth.abi.decodeParameters([{name: 'key', type: 'bytes32'}, {name: 'value', type: 'bytes'}], input.slice(10));
             return [{key: decodedDataKeyValue['key'], value: decodedDataKeyValue['value']}];
@@ -245,6 +257,21 @@ function decodeSetDataValue(input: string): {key: string, value: string}[] {
             return decodedDataKeysValues['keys'].map((x: string, i: number) => { return {key: x, value: decodedDataKeysValues['values'][i]}});
         default:
             return [];
+    }
+}
+
+function decodeFunctionFinalInput(input: string): string {
+    if (!input) return '';
+    switch (input.slice(0, 10)) {
+        case '0x09c5eabe':
+            return decodeFunctionFinalInput(web3.eth.abi.decodeParameters([{name: 'bytes', type: 'bytes'}], input.slice(10))['bytes'] as string);
+        case '0x44c028fe':
+            return decodeFunctionFinalInput(web3.eth.abi.decodeParameters(['uint256', 'address', 'uint256' ,{name: 'bytes', type: 'bytes'}], input.slice(10))['bytes'] as string);
+        case '0x902d5fa0':
+            return decodeFunctionFinalInput(web3.eth.abi.decodeParameters(['bytes', 'uint256',{name: 'bytes', type: 'bytes'}], input.slice(10))['bytes'] as string);
+        default:
+            return input;
+
     }
 }
 

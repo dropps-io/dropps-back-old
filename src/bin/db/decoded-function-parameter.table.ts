@@ -6,7 +6,7 @@ export async function queryDecodedFunctionParameters(transactionHash: string): P
 	return res.rows as DecodedFunctionParameter[];
 }
 
-export async function insertDecodedFunctionParameter(transactionHash: string, value: string, name: string, type: string): Promise<DecodedFunctionParameter> {
-	const res = await executeQuery('INSERT INTO "decoded_function_parameter" VALUES ($1, $2, $3, $4)', [transactionHash, value, name, type]);
+export async function insertDecodedFunctionParameter(transactionHash: string, value: string, name: string, type: string, displayType?: string): Promise<DecodedFunctionParameter> {
+	const res = await executeQuery('INSERT INTO "decoded_function_parameter" VALUES ($1, $2, $3, $4, $5)', [transactionHash, value, name, type, displayType]);
 	return res.rows[0] as DecodedFunctionParameter;
 }

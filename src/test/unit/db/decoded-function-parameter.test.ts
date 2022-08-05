@@ -28,6 +28,10 @@ export const DecodedFunctionParametersTests = () => {
           assert(!await shouldThrow(insertDecodedFunctionParameter('0x6cf76a6ded55d828270d696eee6054e618dc3fc546434d3d4c68101dc25e9822', 'SuperValue', 'key', 'string')));
       });
 
+      it('should be able to insert values with displayType', async () => {
+          assert(!await shouldThrow(insertDecodedFunctionParameter('0x6cf76a6ded55d828270d696eee6054e618dc3fc546434d3d4c68101dc25e9822', 'SuperValue', 'key', 'string', 'display')));
+      });
+
         it('should be able to query decoded parameters', async () => {
             await insertDecodedFunctionParameter('0x6cf76a6ded55d828270d696eee6054e618dc3fc546434d3d4c68101dc25e9822', 'SuperValue', 'key', 'string');
             const decodedParameters = await queryDecodedFunctionParameters('0x6cf76a6ded55d828270d696eee6054e618dc3fc546434d3d4c68101dc25e9822');
