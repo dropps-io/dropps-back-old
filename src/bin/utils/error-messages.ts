@@ -22,6 +22,8 @@ export const ERROR_UNAUTHORIZED = 'You don\'t have the permission to access this
 
 export const ERROR_PROFILE_NOT_FOUND = 'Cannot find the Universal Profile';
 
+export const RESOURCE_EXISTS = 'Resource already exists';
+
 export function error(code: number, message: string): { code: number, message: string } {
 	return {
 		code,
