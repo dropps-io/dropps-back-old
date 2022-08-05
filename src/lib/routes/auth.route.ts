@@ -11,6 +11,9 @@ import {generateJWT} from '../../bin/json-web-token';
 import {FastifyInstance} from 'fastify';
 import {JWT_VALIDITY_TIME} from '../../environment/config';
 import {logError} from '../../bin/logger';
+import {UniversalProfileReader} from "../../bin/UniversalProfile/UniversalProfileReader.class";
+import {LUKSO_IPFS_GATEWAY} from "../../bin/utils/lukso-ipfs-gateway";
+import {web3} from "../../bin/web3/web3";
 
 export async function authRoute (fastify: FastifyInstance) {
 
@@ -37,7 +40,7 @@ export async function authRoute (fastify: FastifyInstance) {
     }
   });
 
-  fastify.route({
+    fastify.route({
     method: 'POST',
     url: '/:userAddress/signature',
     schema: {
@@ -78,4 +81,50 @@ export async function authRoute (fastify: FastifyInstance) {
       }
     }
   });
+
+    fastify.route({
+        method: 'POST',
+        url: '/:userAddress/controller-signature',
+        schema: {
+            description: 'Request a JWT by sending a signed nonce from a controller address.',
+            tags: ['auth'],
+            summary: 'Request for a Universal Profile JWT',
+            body: {
+                type: 'object',
+                required: ['signedNonce'],
+                properties: {
+                    signedNonce: {type: 'string', description: 'Nonce signed by the user'}
+                }
+            }
+        },
+        handler: async (request, reply) => {
+            const {userAddress} = request.params as { userAddress: string };
+            const {signedNonce} = request.body as { signedNonce: string };
+
+            try {
+                if (!isAddress(userAddress)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
+                let nonce: string = await queryNonce(userAddress);
+
+                const controllerAddress = generateAddressWithSignature(nonce, signedNonce);
+                const profile = new UniversalProfileReader(userAddress, LUKSO_IPFS_GATEWAY, web3);
+
+                if (!await profile.fetchPermissionsOf(controllerAddress)) return reply.code(403).send(error(403, ERROR_INCORRECT_SIGNED_NONCE));
+                // User is auth
+
+                await updateNonce(userAddress);
+
+                return reply.code(200).send({
+                    token: generateJWT(userAddress),
+                    userAddress: userAddress,
+                    message: 'Token valid for ' + JWT_VALIDITY_TIME + 'h'
+                });
+                /* eslint-disable */
+            } catch (e: any) {
+                logError(e);
+                if (e.message.includes('Invalid signature')) return reply.code(400).send(error(400, ERROR_INVALID_SIGNATURE));
+                else return reply.code(500).send(error(500, ERROR_INTERNAL));
+            }
+        }
+    });
+
 }
