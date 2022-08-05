@@ -16,6 +16,8 @@ import {MethodParameterTest} from "./db/method-parameter.test";
 import {TransactionTests} from "./db/transaction.test";
 import {DataChangedTests} from "./db/data-changed.test";
 import {AssetTests} from "./db/asset.test";
+import {MethodDisplayTests} from "./db/method-display.test";
+import {DecodedFunctionParametersTests} from "./db/decoded-function-parameter.test";
 
 export const UnitTests = () => {
     describe('Unit Tests', () => {
@@ -27,6 +29,7 @@ export const UnitTests = () => {
             ContractMetadataTests();
             PostTests();
             DecodedParametersTests();
+            DecodedFunctionParametersTests();
             EventTests();
             LikeTests();
             FollowTests();
@@ -37,6 +40,7 @@ export const UnitTests = () => {
             MethodParameterTest();
             TransactionTests();
             DataChangedTests();
+            MethodDisplayTests();
         });
     });
 }

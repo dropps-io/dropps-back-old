@@ -3,4 +3,5 @@ export interface MethodParameter {
     name: string;
     type: string;
     indexed: boolean;
+    displayType?: string;
 }
