@@ -25,7 +25,7 @@ import {Transaction} from "../models/types/transaction";
 import {insertTransaction, queryTransaction} from "../bin/db/transaction.table";
 import {insertPost} from "../bin/db/post.table";
 import keccak256 from "keccak256";
-import {insertDecodedParameter} from "../bin/db/decoded-parameter.table";
+import {insertDecodedEventParameter} from "../bin/db/decoded-event-parameter.table";
 import {queryMethodInterfaceWithParameters} from "../bin/db/method-interface.table";
 import {insertDataChanged} from "../bin/db/data-changed.table";
 import {Image} from "../models/types/image";
@@ -116,7 +116,7 @@ async function indexEvent(log: Log): Promise<void> {
         const decodedParameters = !eventInterface.name ? {} : web3.eth.abi.decodeLog(eventInterface.parameters, log.data, log.topics.filter((x, i) => i !== 0));
 
         for (let parameter of eventInterface.parameters.map((x) => {return {...x, value: decodedParameters[x.name]}})) {
-            await insertDecodedParameter(eventId, parameter.value ? parameter.value : '' , parameter.name, parameter. type);
+            await insertDecodedEventParameter(eventId, parameter.value ? parameter.value : '' , parameter.name, parameter. type);
         }
 
         switch (eventInterface.name) {

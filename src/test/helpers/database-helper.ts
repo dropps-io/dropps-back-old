@@ -5,7 +5,7 @@ const clearDBQueries = [
 	'delete from "users"',
 	'delete from "nonces"',
 	'delete from "link"',
-	'delete from "decoded_parameter"',
+	'delete from "decoded_event_parameter"',
 	'delete from "decoded_function_parameter"',
 	'delete from "method_parameter"',
 	'delete from "method_display"',

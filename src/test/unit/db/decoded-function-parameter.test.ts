@@ -37,7 +37,6 @@ export const DecodedFunctionParametersTests = () => {
             const decodedParameters = await queryDecodedFunctionParameters('0x6cf76a6ded55d828270d696eee6054e618dc3fc546434d3d4c68101dc25e9822');
 
             expect(decodedParameters[0].value).to.equal('SuperValue');
-            expect(decodedParameters[0].transactionHash).to.equal('0x6cf76a6ded55d828270d696eee6054e618dc3fc546434d3d4c68101dc25e9822');
             expect(decodedParameters[0].name).to.equal('key');
             expect(decodedParameters[0].type).to.equal('string');
         });
