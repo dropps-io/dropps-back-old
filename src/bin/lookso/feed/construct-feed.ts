@@ -5,6 +5,7 @@ import {DecodedParameter} from "../../../models/types/decoded-parameter";
 import {Event} from "../../../models/types/event";
 import {generateEventDisplay} from "./generate-event-display";
 import {queryDecodedFunctionParameters} from "../../db/decoded-function-parameter.table";
+import {queryContractName} from "../../db/contract-metadata.table";
 
 
 export async function constructFeed(posts: Post[]) {
@@ -14,7 +15,7 @@ export async function constructFeed(posts: Post[]) {
         if (post.eventId) {
             const event: Event = await queryEvent(post.eventId);
             const parameters: Map<string, DecodedParameter> = new Map((await queryDecodedEventParameters(post.eventId)).map(x => {return [x.name, x]}));
-            const feedObject = {author: post.author, type: 'event', name: event.type, date: post.date, blockNumber: event.blockNumber, transactionHash: event.transactionHash, display: {}};
+            const feedObject = {author: {address: post.author, name: await queryContractName(post.author)}, type: 'event', name: event.type, date: post.date, blockNumber: event.blockNumber, transactionHash: event.transactionHash, display: {}};
             switch (event.type) {
                 case 'ContractCreated':
                     feedObject.display = await generateEventDisplay(event.topic.slice(0, 10), parameters);

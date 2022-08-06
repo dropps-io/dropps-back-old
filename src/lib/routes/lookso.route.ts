@@ -5,13 +5,13 @@ import {error, ERROR_ADR_INVALID, ERROR_INTERNAL, ERROR_NOT_FOUND, RESOURCE_EXIS
 import {logError} from '../../bin/logger';
 import {Follow} from "../../models/types/follow";
 import {
-	insertFollow,
-	queryFollowersCount,
-	queryFollowersWithNames,
-	queryFollowingCount, queryFollowingWithNames
+	insertFollow, queryFollowersCount, queryFollowersWithNames, queryFollowing, queryFollowingCount, queryFollowingWithNames
 } from "../../bin/db/follow.table";
 import {queryContract} from "../../bin/db/contract.table";
 import {queryImagesByType} from "../../bin/db/image.table";
+import {Post} from "../../models/types/post";
+import {queryPostsOfUser, queryPostsOfUsers} from "../../bin/db/post.table";
+import {constructFeed} from "../../bin/lookso/feed/construct-feed";
 
 export async function looksoRoute (fastify: FastifyInstance) {
 
@@ -143,6 +143,65 @@ export async function looksoRoute (fastify: FastifyInstance) {
 			try {
 				const following: number = await queryFollowingCount(address);
 				return reply.code(200).send({following});
+				/* eslint-disable */
+			} catch (e: any) {
+				logError(e);
+				reply.code(500).send(error(500, ERROR_INTERNAL));
+			}
+		}
+	});
+
+	fastify.route({
+		method: 'GET',
+		url: '/profile/:address/activity',
+		schema: {
+			description: 'Get posts linked to a profile.',
+			tags: ['lookso'],
+			querystring: {
+				limit: { type: 'number' },
+				offset: { type: 'number' },
+			},
+			summary: 'Get profile feed.',
+		},
+		handler: async (request, reply) => {
+			const {address} = request.params as { address: string };
+			const {limit, offset} = request.query as { limit: number, offset: number };
+
+			try {
+				const posts: Post[] = await queryPostsOfUser(address, limit, offset);
+				const feed = await constructFeed(posts);
+
+				return reply.code(200).send(feed);
+				/* eslint-disable */
+			} catch (e: any) {
+				logError(e);
+				reply.code(500).send(error(500, ERROR_INTERNAL));
+			}
+		}
+	});
+
+	fastify.route({
+		method: 'GET',
+		url: '/profile/:address/feed',
+		schema: {
+			description: 'Get posts linked to a profile.',
+			tags: ['lookso'],
+			querystring: {
+				limit: { type: 'number' },
+				offset: { type: 'number' },
+			},
+			summary: 'Get profile feed.',
+		},
+		handler: async (request, reply) => {
+			const {address} = request.params as { address: string };
+			const {limit, offset} = request.query as { limit: number, offset: number };
+
+			try {
+				const followingList = await queryFollowing(address);
+				const posts: Post[] = await queryPostsOfUsers(followingList, limit, offset);
+				const feed = await constructFeed(posts);
+
+				return reply.code(200).send(feed);
 				/* eslint-disable */
 			} catch (e: any) {
 				logError(e);
