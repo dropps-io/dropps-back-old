@@ -31,7 +31,7 @@ import {insertDataChanged} from "../bin/db/data-changed.table";
 import {Image} from "../models/types/image";
 import {Asset} from "../models/types/asset";
 import {Link} from "../models/types/link";
-import {LUKSO_IPFS_GATEWAY} from "../bin/utils/lukso-ipfs-gateway";
+import {LUKSO_IPFS_GATEWAY} from "../bin/utils/constants";
 import {Log} from "../models/types/log";
 import {SolMethod} from "../models/types/sol-method";
 import {queryMethodParameters} from "../bin/db/method-parameter.table";
