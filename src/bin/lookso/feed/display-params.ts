@@ -1,11 +1,14 @@
 import {queryContract} from "../../db/contract.table";
 import {Contract} from "../../../models/types/contract";
 import {queryContractName} from "../../db/contract-metadata.table";
+import Web3 from "web3";
 
 export async function getDisplayParam(value: string, type: string) {
     switch (type) {
         case 'address':
             return {...await queryAddressDisplayParam(value), type};
+        case 'lyx':
+            return {value: Web3.utils.fromWei(value, 'ether'), type};
         default:
             return {value, type};
     }
@@ -19,7 +22,7 @@ async function queryAddressDisplayParam(address:string): Promise<{ address:strin
         return {address, name: '', interfaceCode: ''};
     }
 
-    if (!contract.interfaceCode) return {address, name: '', interfaceCode: ''};
+    if (!contract || !contract.interfaceCode) return {address, name: '', interfaceCode: ''};
 
     try {
         name = await queryContractName(address);

@@ -7,6 +7,7 @@ import {queryContract} from "../../db/contract.table";
 import {queryContractIsNFT} from "../../db/contract-metadata.table";
 import {queryImages} from "../../db/image.table";
 import {Image} from "../../../models/types/image";
+import {queryMethodParameterDisplayType} from "../../db/method-parameter.table";
 
 export async function generateEventDisplay(methodId: string, params: Map<string, DecodedParameter>, context?: {senderProfile?: string, executionContract?: string}) {
     const methodDisplay: MethodDisplay = await queryMethodDisplay(methodId);
@@ -16,9 +17,14 @@ export async function generateEventDisplay(methodId: string, params: Map<string,
 
     if (!methodDisplay) return {text:'', params: []};
 
+    //TODO Delete displayType from decoded param tables
+
     for (let word of getWordsBetweenCurlies(methodDisplay.text)) {
         const param = params.get(word);
-        if (param) displayParams[param.name] = await getDisplayParam(param.value, param.displayType ? param.displayType : param.type);
+        if (param) {
+            const displayType = await queryMethodParameterDisplayType(methodId, param.name);
+            displayParams[param.name] = await getDisplayParam(param.value, displayType ? displayType : param.type);
+        }
         else if(context?.senderProfile && word === 'senderProfile') displayParams['senderProfile'] = await getDisplayParam(context.senderProfile, 'address');
         else if(context?.executionContract && word === 'executionContract') displayParams['executionContract'] = await getDisplayParam(context.executionContract, 'address');
     }

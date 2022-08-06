@@ -17,6 +17,7 @@ export async function constructFeed(posts: Post[]) {
             const feedObject = {author: post.author, type: 'event', name: event.type, date: post.date, blockNumber: event.blockNumber, transactionHash: event.transactionHash, display: {}};
             switch (event.type) {
                 case 'ContractCreated':
+                    feedObject.display = await generateEventDisplay(event.topic.slice(0, 10), parameters);
                     break;
                 case 'Executed':
                     const [selector, executionContract] = [parameters.get('selector'), parameters.get('to')];
@@ -29,6 +30,7 @@ export async function constructFeed(posts: Post[]) {
                     feedObject.display = await generateEventDisplay(event.topic.slice(0, 10), parameters);
                     break;
                 case 'ValueReceived':
+                    feedObject.display = await generateEventDisplay(event.topic.slice(0, 10), parameters);
                     break;
             }
             feed.push(feedObject);
