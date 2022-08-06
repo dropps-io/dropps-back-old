@@ -12,7 +12,7 @@ import {FastifyInstance} from 'fastify';
 import {JWT_VALIDITY_TIME} from '../../environment/config';
 import {logError} from '../../bin/logger';
 import {UniversalProfileReader} from "../../bin/UniversalProfile/UniversalProfileReader.class";
-import {LUKSO_IPFS_GATEWAY} from "../../bin/utils/lukso-ipfs-gateway";
+import {LUKSO_IPFS_GATEWAY} from "../../bin/utils/constants";
 import {web3} from "../../bin/web3/web3";
 
 export async function authRoute (fastify: FastifyInstance) {
