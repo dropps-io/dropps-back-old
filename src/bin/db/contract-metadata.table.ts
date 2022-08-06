@@ -13,6 +13,12 @@ export async function queryContractName(address: string): Promise<string> {
 	else return '';
 }
 
+export async function queryContractIsNFT(address: string): Promise<boolean> {
+	const res = await executeQuery('SELECT "isNFT" FROM "contract_metadata" WHERE "address" = $1', [address]);
+	if (res.rows[0]) return res.rows[0].isNFT
+	else return false;
+}
+
 export async function insertContractMetadata(address: string, name: string, symbol: string, description: string, isNFT: boolean, supply: string): Promise<ContractMetadata> {
 	const res = await executeQuery('INSERT INTO "contract_metadata" VALUES ($1, $2, $3, $4, $5, $6)', [address, name, symbol, description, isNFT, supply]);
 	return res.rows[0] as ContractMetadata;
