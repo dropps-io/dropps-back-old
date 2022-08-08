@@ -8,10 +8,13 @@ import {
 	insertFollow, queryFollowersCount, queryFollowersWithNames, queryFollowing, queryFollowingCount, queryFollowingWithNames
 } from "../../bin/db/follow.table";
 import {queryContract} from "../../bin/db/contract.table";
-import {queryImagesByType} from "../../bin/db/image.table";
+import {queryImages, queryImagesByType} from "../../bin/db/image.table";
 import {Post} from "../../models/types/post";
 import {queryPostsOfUser, queryPostsOfUsers} from "../../bin/db/post.table";
 import {constructFeed} from "../../bin/lookso/feed/construct-feed";
+import {queryContractMetadata} from "../../bin/db/contract-metadata.table";
+import {queryTags} from "../../bin/db/tag.table";
+import {queryLinks} from "../../bin/db/link.table";
 
 export async function looksoRoute (fastify: FastifyInstance) {
 
@@ -202,6 +205,50 @@ export async function looksoRoute (fastify: FastifyInstance) {
 				const feed = await constructFeed(posts);
 
 				return reply.code(200).send(feed);
+				/* eslint-disable */
+			} catch (e: any) {
+				logError(e);
+				reply.code(500).send(error(500, ERROR_INTERNAL));
+			}
+		}
+	});
+
+	fastify.route({
+		method: 'GET',
+		url: '/profile/:address/info',
+		schema: {
+			description: 'Get profile name, description, picture, tags, links and background.',
+			tags: ['lookso'],
+			summary: 'Get profile info.',
+		},
+		handler: async (request, reply) => {
+			const {address} = request.params as { address: string };
+
+			try {
+				const metadata = await queryContractMetadata(address);
+				const tags = await queryTags(address);
+				const links = await queryLinks(address);
+				const images = await queryImages(address);
+				const profileImages = images.filter(i => i.type === 'profile').sort((i1, i2) => {
+					if (i1.width > i1.width) return -1;
+					else return 1;
+				});
+				const backgroundImage = images.filter(i => i.type === 'profile').sort((i1, i2) => {
+					if (i1.width > i1.width) return -1;
+					else return 1;
+				})[0];
+
+				let profileImage = profileImages[0];
+
+				for (let i = 0 ; i < profileImages.length ; i++) {
+					if (profileImages[i + 1] && profileImages[i + 1].width > 210) {
+						profileImage = profileImages[i + 1];
+					} else {
+						break;
+					}
+				}
+
+				return reply.code(200).send({address: metadata.address, name: metadata.name, description: metadata.description, profileImage, backgroundImage});
 				/* eslint-disable */
 			} catch (e: any) {
 				logError(e);

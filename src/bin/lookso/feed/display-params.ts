@@ -7,7 +7,7 @@ export async function getDisplayParam(value: string, type: string) {
     switch (type) {
         case 'address':
             return {...await queryAddressDisplayParam(value), type};
-        case 'lyx':
+        case 'native':
             return {value: Web3.utils.fromWei(value, 'ether'), type};
         default:
             return {value, type};
