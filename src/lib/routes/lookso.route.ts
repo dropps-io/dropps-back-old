@@ -230,12 +230,12 @@ export async function looksoRoute (fastify: FastifyInstance) {
 				const links = await queryLinks(address);
 				const images = await queryImages(address);
 				const profileImages = images.filter(i => i.type === 'profile').sort((i1, i2) => {
-					if (i1.width > i1.width) return -1;
-					else return 1;
+					if (i1.width > i2.width) return 1;
+					else return -1;
 				});
 				const backgroundImage = images.filter(i => i.type === 'profile').sort((i1, i2) => {
-					if (i1.width > i1.width) return -1;
-					else return 1;
+					if (i1.width > i2.width) return 1;
+					else return -1;
 				})[0];
 
 				let profileImage = profileImages[0];
@@ -248,7 +248,7 @@ export async function looksoRoute (fastify: FastifyInstance) {
 					}
 				}
 
-				return reply.code(200).send({address: metadata.address, name: metadata.name, description: metadata.description, profileImage, backgroundImage});
+				return reply.code(200).send({address: metadata.address, name: metadata.name, links: links.map(l => { return {title: l.title, url: l.url}}), tags, description: metadata.description, profileImage: profileImage.url, backgroundImage: backgroundImage.url});
 				/* eslint-disable */
 			} catch (e: any) {
 				logError(e);
