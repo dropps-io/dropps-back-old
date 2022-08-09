@@ -5,7 +5,13 @@ import {error, ERROR_ADR_INVALID, ERROR_INTERNAL, ERROR_NOT_FOUND, RESOURCE_EXIS
 import {logError} from '../../bin/logger';
 import {Follow} from "../../models/types/follow";
 import {
-	insertFollow, queryFollowersCount, queryFollowersWithNames, queryFollowing, queryFollowingCount, queryFollowingWithNames
+	insertFollow,
+	queryFollow,
+	queryFollowersCount,
+	queryFollowersWithNames,
+	queryFollowing,
+	queryFollowingCount,
+	queryFollowingWithNames, removeFollow
 } from "../../bin/db/follow.table";
 import {queryContract} from "../../bin/db/contract.table";
 import {queryImages, queryImagesByType} from "../../bin/db/image.table";
@@ -15,6 +21,7 @@ import {constructFeed} from "../../bin/lookso/feed/construct-feed";
 import {queryContractMetadata} from "../../bin/db/contract-metadata.table";
 import {queryTags} from "../../bin/db/tag.table";
 import {queryLinks} from "../../bin/db/link.table";
+import {selectImage} from "../../bin/utils/select-image";
 
 export async function looksoRoute (fastify: FastifyInstance) {
 
@@ -47,6 +54,34 @@ export async function looksoRoute (fastify: FastifyInstance) {
 	});
 
 	fastify.route({
+		method: 'DELETE',
+		url: '/unfollow',
+		schema: {
+			description: 'Follow a new profile.',
+			tags: ['lookso'],
+			summary: 'Follow a new profile',
+		},
+		handler: async (request, reply) => {
+			const body = request.body as Follow;
+			verifyJWT(request, reply, body.follower);
+			if (!isAddress(body.following)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
+
+			try {
+				const contract = await queryContract(body.following);
+				if (contract && contract.interfaceCode !== 'LSP0') return reply.code(400).send(error(400, 'The following address is not an LSP0'));
+				await removeFollow(body.follower, body.following);
+				return reply.code(200).send();
+				/* eslint-disable */
+			} catch (e: any) {
+				logError(e);
+				if(e.code === '23503' && e.detail.includes('present')) return reply.code(409).send(error(404, ERROR_NOT_FOUND));
+				if(e.code === '23505' && e.detail.includes('exists')) return reply.code(409).send(error(409, RESOURCE_EXISTS));
+				return reply.code(500).send(error(500, ERROR_INTERNAL));
+			}
+		}
+	});
+
+	fastify.route({
 		method: 'GET',
 		url: '/profile/:address/followers',
 		schema: {
@@ -56,20 +91,28 @@ export async function looksoRoute (fastify: FastifyInstance) {
 			querystring: {
 				limit: { type: 'number' },
 				offset: { type: 'number' },
+				followerAddress: { type: 'string' },
 			}
 		},
 		handler: async (request, reply) => {
 			const {address} = request.params as { address: string};
-			const {limit, offset} = request.query as {limit: number, offset: number};
+			const {followerAddress, limit, offset} = request.query as {followerAddress:string, limit: number, offset: number};
 
 			try {
-				const response = [];
-				const followers = await queryFollowersWithNames(address, limit, offset);
-				for (let follower of followers) {
-					const images = await queryImagesByType(follower.address, 'profile');
-					response.push({...follower, images});
+				if (followerAddress) {
+					if (!isAddress(followerAddress)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
+					const isFollower = await queryFollow(followerAddress, address);
+					return reply.code(200).send({followers: isFollower ? [followerAddress] : []});
 				}
-				return reply.code(200).send(response);
+				else {
+					const response = [];
+					const followers = await queryFollowersWithNames(address, limit, offset);
+					for (let follower of followers) {
+						const images = await queryImagesByType(follower.address, 'profile');
+						response.push({...follower, image: selectImage(images, {minWidthExpected: 50})});
+					}
+					return reply.code(200).send(response);
+				}
 				/* eslint-disable */
 			} catch (e: any) {
 				logError(e);
@@ -229,24 +272,8 @@ export async function looksoRoute (fastify: FastifyInstance) {
 				const tags = await queryTags(address);
 				const links = await queryLinks(address);
 				const images = await queryImages(address);
-				const profileImages = images.filter(i => i.type === 'profile').sort((i1, i2) => {
-					if (i1.width > i2.width) return 1;
-					else return -1;
-				});
-				const backgroundImage = images.filter(i => i.type === 'profile').sort((i1, i2) => {
-					if (i1.width > i2.width) return 1;
-					else return -1;
-				})[0];
-
-				let profileImage = profileImages[0];
-
-				for (let i = 0 ; i < profileImages.length ; i++) {
-					if (profileImages[i + 1] && profileImages[i + 1].width > 210) {
-						profileImage = profileImages[i + 1];
-					} else {
-						break;
-					}
-				}
+				const backgroundImage = selectImage(images.filter(i => i.type === 'background'), {minWidthExpected: 1900})
+				const profileImage = selectImage(images.filter(i => i.type === 'profile'), {minWidthExpected: 210})
 
 				return reply.code(200).send({address: metadata.address, name: metadata.name, links: links.map(l => { return {title: l.title, url: l.url}}), tags, description: metadata.description, profileImage: profileImage.url, backgroundImage: backgroundImage.url});
 				/* eslint-disable */
@@ -256,4 +283,5 @@ export async function looksoRoute (fastify: FastifyInstance) {
 			}
 		}
 	});
+
 }
