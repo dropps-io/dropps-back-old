@@ -31,7 +31,7 @@ export async function authRoute (fastify: FastifyInstance) {
 				if (!isAddress(userAddress)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
 				let nonce: string = await queryNonce(userAddress);
 				if (!nonce) nonce = await insertNonce(userAddress);
-				return reply.code(200).send({nonce});
+				return reply.code(200).send({nonce: 'I want to log in to lookso.io. \nMy address: ' + userAddress + '\nMy nonce: ' + nonce});
 				/* eslint-disable */
       } catch (e: any) {
         logError(e);
@@ -59,11 +59,13 @@ export async function authRoute (fastify: FastifyInstance) {
       const {userAddress} = request.params as { userAddress: string };
       const {signedNonce} = request.body as { signedNonce: string };
 
+      console.log(signedNonce);
+
       try {
         if (!isAddress(userAddress)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
         let nonce: string = await queryNonce(userAddress);
 
-        if (generateAddressWithSignature(nonce, signedNonce).toUpperCase() !== userAddress.toUpperCase()) return reply.code(403).send(error(403, ERROR_INCORRECT_SIGNED_NONCE));
+        if (generateAddressWithSignature('I want to log in to lookso.io. \nMy address: ' + userAddress + '\nMy nonce: ' + nonce, signedNonce).toUpperCase() !== userAddress.toUpperCase()) return reply.code(403).send(error(403, ERROR_INCORRECT_SIGNED_NONCE));
         // User is auth
 
         await updateNonce(userAddress);
@@ -105,7 +107,7 @@ export async function authRoute (fastify: FastifyInstance) {
                 if (!isAddress(userAddress)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
                 let nonce: string = await queryNonce(userAddress);
 
-                const controllerAddress = generateAddressWithSignature(nonce, signedNonce);
+                const controllerAddress = generateAddressWithSignature('I want to log in to lookso.io. \nMy address: ' + userAddress + '\nMy nonce: ' + nonce, signedNonce);
                 const profile = new UniversalProfileReader(userAddress, LUKSO_IPFS_GATEWAY, web3);
 
                 if (!await profile.fetchPermissionsOf(controllerAddress)) return reply.code(403).send(error(403, ERROR_INCORRECT_SIGNED_NONCE));
@@ -115,8 +117,8 @@ export async function authRoute (fastify: FastifyInstance) {
 
                 return reply.code(200).send({
                     token: generateJWT(userAddress),
-                    userAddress: userAddress,
-                    message: 'Token valid for ' + JWT_VALIDITY_TIME + 'h'
+                    address: userAddress,
+                    validity: JWT_VALIDITY_TIME
                 });
                 /* eslint-disable */
             } catch (e: any) {
