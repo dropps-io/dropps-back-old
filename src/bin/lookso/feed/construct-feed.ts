@@ -10,10 +10,11 @@ import {queryImagesByType} from "../../db/image.table";
 import {selectImage} from "../../utils/select-image";
 import {queryPostLikesCount} from "../../db/like.table";
 import {queryPostCommentsCount, queryPostRepostsCount} from "../../db/post.table";
+import {FeedPost} from "../../../models/types/feed-post";
 
 
-export async function constructFeed(posts: Post[]) {
-    const feed = [];
+export async function constructFeed(posts: Post[]): Promise<FeedPost[]> {
+    const feed: FeedPost[] = [];
 
     for (let post of posts) {
       const authorName = await queryContractName(post.author);
@@ -26,19 +27,24 @@ export async function constructFeed(posts: Post[]) {
             const event: Event = await queryEvent(post.eventId);
             const parameters: Map<string, DecodedParameter> = new Map((await queryDecodedEventParameters(post.eventId)).map(x => {return [x.name, x]}));
 
-            const feedObject = {
+            const feedObject: FeedPost = {
               author:
                 {
                   address: post.author,
                   name: authorName,
-                  image: authorPic
+                  image: authorPic.url
                 },
               type: 'event',
               name: event.type,
               date: post.date,
               blockNumber: event.blockNumber,
               transactionHash: event.transactionHash,
-              display: {},
+              display: {
+                text: '',
+                params: {},
+                image: '',
+                tags: {copies: null, standardType: null, standard: null}
+              },
               likes: postLikes,
               comments: postComments,
               reposts: postReposts

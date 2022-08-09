@@ -1,11 +1,9 @@
-import {Image} from "./image";
-
 export interface FeedPost {
   author:
     {
       address: string,
       name: string,
-      image: Image
+      image: string
     },
   type: 'event' | 'post',
   name: string,
@@ -21,7 +19,7 @@ export interface FeedPost {
 export interface FeedDisplay {
   text: string,
   params: {[key: string]: FeedDisplayParam},
-  image: Image | null,
+  image: string,
   tags: {standard: string | null, copies: string | null, standardType: string | null}
 }
 

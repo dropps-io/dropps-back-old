@@ -6,7 +6,6 @@ import {getDisplayParam} from "./display-params";
 import {queryContract} from "../../db/contract.table";
 import {queryContractIsNFT} from "../../db/contract-metadata.table";
 import {queryImages} from "../../db/image.table";
-import {Image} from "../../../models/types/image";
 import {queryMethodParameterDisplayType} from "../../db/method-parameter.table";
 import {FeedDisplay, FeedDisplayParam} from "../../../models/types/feed-post";
 import {selectImage} from "../../utils/select-image";
@@ -14,7 +13,7 @@ import {selectImage} from "../../utils/select-image";
 export async function generateEventDisplay(methodId: string, params: Map<string, DecodedParameter>, context?: {senderProfile?: string, executionContract?: string}): Promise<FeedDisplay> {
     const methodDisplay: MethodDisplay = await queryMethodDisplay(methodId);
     const tags: {standard: string | null, copies: string | null, standardType: string | null} = {standard: null, copies: null, standardType: null};
-    let image: Image | null = null;
+    let image: string = '';
     let displayParams: {[key: string]: FeedDisplayParam} = {}
 
     if (!methodDisplay) return {text:'', params: {}, image, tags};
@@ -68,7 +67,8 @@ export async function generateEventDisplay(methodId: string, params: Map<string,
         if (param) address = param.value; else if (methodDisplay.standardFrom === 'senderProfile' && context?.senderProfile) address = context.senderProfile; else if (methodDisplay.standardFrom === 'executionContract' && context?.executionContract) address = context.executionContract;
 
         if (address) {
-           image = selectImage(await queryImages(address), {minWidthExpected: 100});
+          const pickedImage = selectImage(await queryImages(address), {minWidthExpected: 100});
+          image = pickedImage ? pickedImage.url : '';
         }
     }
     return {text: methodDisplay.text, params: displayParams, image, tags};
