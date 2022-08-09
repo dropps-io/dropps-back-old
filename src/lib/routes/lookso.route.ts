@@ -269,13 +269,16 @@ export async function looksoRoute (fastify: FastifyInstance) {
 
 			try {
 				const metadata = await queryContractMetadata(address);
+
+				if (!metadata) return reply.code(404).send(error(404, ERROR_NOT_FOUND));
+
 				const tags = await queryTags(address);
 				const links = await queryLinks(address);
 				const images = await queryImages(address);
 				const backgroundImage = selectImage(images.filter(i => i.type === 'background'), {minWidthExpected: 1900})
 				const profileImage = selectImage(images.filter(i => i.type === 'profile'), {minWidthExpected: 210})
 
-				return reply.code(200).send({address: metadata.address, name: metadata.name, links: links.map(l => { return {title: l.title, url: l.url}}), tags, description: metadata.description, profileImage: profileImage.url, backgroundImage: backgroundImage.url});
+				return reply.code(200).send({address: metadata.address, name: metadata.name, links: links.map(l => { return {title: l.title, url: l.url}}), tags, description: metadata.description, profileImage: profileImage ? profileImage.url : '', backgroundImage: backgroundImage ? backgroundImage.url : ''});
 				/* eslint-disable */
 			} catch (e: any) {
 				logError(e);
