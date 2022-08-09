@@ -6,6 +6,16 @@ export async function queryPost(hash: string): Promise<Post> {
 	return res.rows[0] as Post;
 }
 
+export async function queryPostCommentsCount(hash: string): Promise<number> {
+	const res = await executeQuery('SELECT COUNT(*) FROM "post" WHERE "parentHash" = $1', [hash]);
+	return parseInt(res.rows[0].count);
+}
+
+export async function queryPostRepostsCount(hash: string): Promise<number> {
+	const res = await executeQuery('SELECT COUNT(*) FROM "post" WHERE "childHash" = $1', [hash]);
+	return parseInt(res.rows[0].count);
+}
+
 export async function queryPostsOfUser(address: string, limit: number, offset: number): Promise<Post[]> {
 	const res = await executeQuery('SELECT * FROM "post" WHERE "author" = $1 AND "parentHash" IS NULL ORDER BY "date" DESC LIMIT $2 OFFSET $3', [address, limit, offset]);
 	return res.rows as Post[];

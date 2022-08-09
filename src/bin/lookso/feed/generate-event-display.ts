@@ -8,14 +8,16 @@ import {queryContractIsNFT} from "../../db/contract-metadata.table";
 import {queryImages} from "../../db/image.table";
 import {Image} from "../../../models/types/image";
 import {queryMethodParameterDisplayType} from "../../db/method-parameter.table";
+import {FeedDisplay, FeedDisplayParam} from "../../../models/types/feed-post";
+import {selectImage} from "../../utils/select-image";
 
-export async function generateEventDisplay(methodId: string, params: Map<string, DecodedParameter>, context?: {senderProfile?: string, executionContract?: string}) {
+export async function generateEventDisplay(methodId: string, params: Map<string, DecodedParameter>, context?: {senderProfile?: string, executionContract?: string}): Promise<FeedDisplay> {
     const methodDisplay: MethodDisplay = await queryMethodDisplay(methodId);
     const tags: {standard: string | null, copies: string | null, standardType: string | null} = {standard: null, copies: null, standardType: null};
-    let images: Image[] = [];
-    let displayParams: {[key: string]: any} = {}
+    let image: Image | null = null;
+    let displayParams: {[key: string]: FeedDisplayParam} = {}
 
-    if (!methodDisplay) return {text:'', params: []};
+    if (!methodDisplay) return {text:'', params: {}, image, tags};
 
     //TODO Delete displayType from decoded param tables
 
@@ -25,8 +27,9 @@ export async function generateEventDisplay(methodId: string, params: Map<string,
             const displayType = await queryMethodParameterDisplayType(methodId, param.name);
             displayParams[param.name] = await getDisplayParam(param.value, displayType ? displayType : param.type);
         }
-        else if(context?.senderProfile && word === 'senderProfile') displayParams['senderProfile'] = await getDisplayParam(context.senderProfile, 'address');
-        else if(context?.executionContract && word === 'executionContract') displayParams['executionContract'] = await getDisplayParam(context.executionContract, 'address');
+        else if (context?.senderProfile && word === 'senderProfile') displayParams['senderProfile'] = await getDisplayParam(context.senderProfile, 'address');
+        else if (context?.executionContract && word === 'executionContract') displayParams['executionContract'] = await getDisplayParam(context.executionContract, 'address');
+        else if (word === 'nativeToken') displayParams['nativeToken'] = {value: 'LYXt', display: 'LYXt', type: 'string', additionalProperties: {}};
     }
 
     if (methodDisplay.standardFrom) {
@@ -65,8 +68,8 @@ export async function generateEventDisplay(methodId: string, params: Map<string,
         if (param) address = param.value; else if (methodDisplay.standardFrom === 'senderProfile' && context?.senderProfile) address = context.senderProfile; else if (methodDisplay.standardFrom === 'executionContract' && context?.executionContract) address = context.executionContract;
 
         if (address) {
-            images = await queryImages(address);
+           image = selectImage(await queryImages(address), {minWidthExpected: 100});
         }
     }
-    return {text: methodDisplay.text, params: displayParams, images, tags};
+    return {text: methodDisplay.text, params: displayParams, image, tags};
 }
