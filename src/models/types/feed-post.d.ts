@@ -1,4 +1,5 @@
 export interface FeedPost {
+  hash: string,
   author:
     {
       address: string,
@@ -13,7 +14,8 @@ export interface FeedPost {
   display: FeedDisplay,
   likes: number,
   comments: number,
-  reposts: number
+  reposts: number,
+  isLiked?: boolean
 }
 
 export interface FeedDisplay {

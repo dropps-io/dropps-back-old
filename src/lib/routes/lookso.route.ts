@@ -22,6 +22,8 @@ import {queryContractMetadata} from "../../bin/db/contract-metadata.table";
 import {queryTags} from "../../bin/db/tag.table";
 import {queryLinks} from "../../bin/db/link.table";
 import {selectImage} from "../../bin/utils/select-image";
+import {insertLike, queryPostLike, queryPostLikesWithNames, removeLike} from "../../bin/db/like.table";
+import {Like} from "../../models/types/like";
 
 export async function looksoRoute (fastify: FastifyInstance) {
 
@@ -70,6 +72,37 @@ export async function looksoRoute (fastify: FastifyInstance) {
 				const contract = await queryContract(body.following);
 				if (contract && contract.interfaceCode !== 'LSP0') return reply.code(400).send(error(400, 'The following address is not an LSP0'));
 				await removeFollow(body.follower, body.following);
+				return reply.code(200).send();
+				/* eslint-disable */
+			} catch (e: any) {
+				logError(e);
+				if(e.code === '23503' && e.detail.includes('present')) return reply.code(409).send(error(404, ERROR_NOT_FOUND));
+				if(e.code === '23505' && e.detail.includes('exists')) return reply.code(409).send(error(409, RESOURCE_EXISTS));
+				return reply.code(500).send(error(500, ERROR_INTERNAL));
+			}
+		}
+	});
+
+	fastify.route({
+		method: 'POST',
+		url: '/like',
+		schema: {
+			description: 'Like or unlike a post.',
+			tags: ['lookso'],
+			summary: 'Like or unlike a post',
+		},
+		handler: async (request, reply) => {
+			const body = request.body as Like;
+			verifyJWT(request, reply, body.sender);
+
+			try {
+				const liked: boolean = await queryPostLike(body.sender, body.postHash);
+				if (liked) {
+					await removeLike(body.sender, body.postHash)
+				} else {
+					await insertLike(body.sender, body.postHash);
+				}
+
 				return reply.code(200).send();
 				/* eslint-disable */
 			} catch (e: any) {
@@ -245,7 +278,7 @@ export async function looksoRoute (fastify: FastifyInstance) {
 			try {
 				const followingList = await queryFollowing(address);
 				const posts: Post[] = await queryPostsOfUsers(followingList, limit, offset);
-				const feed = await constructFeed(posts);
+				const feed = await constructFeed(posts, address);
 
 				return reply.code(200).send(feed);
 				/* eslint-disable */
@@ -255,6 +288,7 @@ export async function looksoRoute (fastify: FastifyInstance) {
 			}
 		}
 	});
+
 
 	fastify.route({
 		method: 'GET',
@@ -279,6 +313,38 @@ export async function looksoRoute (fastify: FastifyInstance) {
 				const profileImage = selectImage(images.filter(i => i.type === 'profile'), {minWidthExpected: 210})
 
 				return reply.code(200).send({address: metadata.address, name: metadata.name, links: links.map(l => { return {title: l.title, url: l.url}}), tags, description: metadata.description, profileImage: profileImage ? profileImage.url : '', backgroundImage: backgroundImage ? backgroundImage.url : ''});
+				/* eslint-disable */
+			} catch (e: any) {
+				logError(e);
+				reply.code(500).send(error(500, ERROR_INTERNAL));
+			}
+		}
+	});
+
+	fastify.route({
+		method: 'GET',
+		url: '/post/:hash/likes',
+		schema: {
+			description: 'Get profile likes list.',
+			tags: ['lookso'],
+			summary: 'Get profile likes list.',
+			querystring: {
+				limit: { type: 'number' },
+				offset: { type: 'number' }
+			}
+		},
+		handler: async (request, reply) => {
+			const {hash} = request.params as { hash: string};
+			const {limit, offset} = request.query as {sender:string, limit: number, offset: number};
+
+			try {
+				const response = [];
+				const likes = await queryPostLikesWithNames(hash, limit, offset);
+				for (let like of likes) {
+					const images = await queryImagesByType(like.address, 'profile');
+					response.push({...like, image: selectImage(images, {minWidthExpected: 50})});
+				}
+				return reply.code(200).send(response);
 				/* eslint-disable */
 			} catch (e: any) {
 				logError(e);

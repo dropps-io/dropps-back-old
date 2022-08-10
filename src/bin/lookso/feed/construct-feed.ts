@@ -8,12 +8,12 @@ import {queryDecodedFunctionParameters} from "../../db/decoded-function-paramete
 import {queryContractName} from "../../db/contract-metadata.table";
 import {queryImagesByType} from "../../db/image.table";
 import {selectImage} from "../../utils/select-image";
-import {queryPostLikesCount} from "../../db/like.table";
+import {queryPostLike, queryPostLikesCount} from "../../db/like.table";
 import {queryPostCommentsCount, queryPostRepostsCount} from "../../db/post.table";
 import {FeedPost} from "../../../models/types/feed-post";
 
 
-export async function constructFeed(posts: Post[]): Promise<FeedPost[]> {
+export async function constructFeed(posts: Post[], profile?: string): Promise<FeedPost[]> {
     const feed: FeedPost[] = [];
 
     for (let post of posts) {
@@ -22,12 +22,17 @@ export async function constructFeed(posts: Post[]): Promise<FeedPost[]> {
       const postLikes = await queryPostLikesCount(post.hash);
       const postComments = await queryPostCommentsCount(post.hash);
       const postReposts = await queryPostRepostsCount(post.hash);
+      let isLiked = false;
+      if (profile) {
+        isLiked = await queryPostLike(profile, post.hash);
+      }
 
         if (post.eventId) {
             const event: Event = await queryEvent(post.eventId);
             const parameters: Map<string, DecodedParameter> = new Map((await queryDecodedEventParameters(post.eventId)).map(x => {return [x.name, x]}));
 
             const feedObject: FeedPost = {
+              hash: post.hash,
               author:
                 {
                   address: post.author,
@@ -47,7 +52,8 @@ export async function constructFeed(posts: Post[]): Promise<FeedPost[]> {
               },
               likes: postLikes,
               comments: postComments,
-              reposts: postReposts
+              reposts: postReposts,
+              isLiked: isLiked
             };
 
             switch (event.type) {
