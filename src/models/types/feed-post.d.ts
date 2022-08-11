@@ -15,7 +15,7 @@ export interface FeedPost {
   likes: number,
   comments: number,
   reposts: number,
-  isLiked?: boolean
+  isLiked: boolean
 }
 
 export interface FeedDisplay {

@@ -248,7 +248,7 @@ export async function looksoRoute (fastify: FastifyInstance) {
 
 			try {
 				const posts: Post[] = await queryPostsOfUser(address, limit, offset);
-				const feed = await constructFeed(posts);
+				const feed = await constructFeed(posts, address);
 
 				return reply.code(200).send(feed);
 				/* eslint-disable */
