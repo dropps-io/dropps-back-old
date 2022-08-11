@@ -37,7 +37,7 @@ export async function constructFeed(posts: Post[], profile?: string): Promise<Fe
                 {
                   address: post.author,
                   name: authorName,
-                  image: authorPic.url
+                  image: authorPic ? authorPic.url : ''
                 },
               type: 'event',
               name: event.type,
