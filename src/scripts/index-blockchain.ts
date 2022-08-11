@@ -40,6 +40,8 @@ import {insertDecodedFunctionParameter} from "../bin/db/decoded-function-paramet
 
 const web3 = new Web3('https://rpc.l16.lukso.network');
 
+indexBlockchain(60000);
+
 async function sleep(ms: number) {
     return new Promise<void>((resolve) => {
        setTimeout(() => {
@@ -77,7 +79,7 @@ export async function indexBlockchain(latestBlockIndexed: number) {
             }
         });
 
-        // await sleep(10000);
+        await sleep(10000);
         await indexBlockchain(lastBlock);
     } catch (e) {
         console.error(e);
