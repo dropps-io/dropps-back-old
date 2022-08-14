@@ -16,7 +16,7 @@ import {
 import {queryContract} from "../../bin/db/contract.table";
 import {queryImages, queryImagesByType} from "../../bin/db/image.table";
 import {Post} from "../../models/types/post";
-import {queryPostsOfUser, queryPostsOfUsers} from "../../bin/db/post.table";
+import {queryPosts, queryPostsOfUser, queryPostsOfUsers} from "../../bin/db/post.table";
 import {constructFeed} from "../../bin/lookso/feed/construct-feed";
 import {queryContractMetadata} from "../../bin/db/contract-metadata.table";
 import {queryTags} from "../../bin/db/tag.table";
@@ -232,6 +232,35 @@ export async function looksoRoute (fastify: FastifyInstance) {
 
 	fastify.route({
 		method: 'GET',
+		url: '/feed',
+		schema: {
+			description: 'Get posts linked to a profile.',
+			tags: ['lookso'],
+			querystring: {
+				limit: { type: 'number' },
+				offset: { type: 'number' },
+				postType: { type: 'string' },
+			},
+			summary: 'Get profile feed.',
+		},
+		handler: async (request, reply) => {
+			const {limit, offset, postType} = request.query as { limit: number, offset: number, postType?: 'event' | 'post' };
+
+			try {
+				const posts: Post[] = await queryPosts(limit, offset, postType);
+				const feed = await constructFeed(posts);
+
+				return reply.code(200).send(feed);
+				/* eslint-disable */
+			} catch (e: any) {
+				logError(e);
+				reply.code(500).send(error(500, ERROR_INTERNAL));
+			}
+		}
+	});
+
+	fastify.route({
+		method: 'GET',
 		url: '/profile/:address/activity',
 		schema: {
 			description: 'Get posts linked to a profile.',
@@ -246,8 +275,6 @@ export async function looksoRoute (fastify: FastifyInstance) {
 		handler: async (request, reply) => {
 			const {address} = request.params as { address: string };
 			const {limit, offset, postType} = request.query as { limit: number, offset: number, postType?: 'event' | 'post' };
-
-			console.log(postType)
 
 			try {
 				const posts: Post[] = await queryPostsOfUser(address, limit, offset, postType);

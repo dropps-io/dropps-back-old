@@ -16,10 +16,18 @@ export async function queryPostRepostsCount(hash: string): Promise<number> {
 	return parseInt(res.rows[0].count);
 }
 
-export async function queryPostsOfUser(address: string, limit: number, offset: number, type?: 'event' | 'post'): Promise<Post[]> {
-	let query = 'SELECT * FROM "post" WHERE "author" = $1 AND "parentHash"';
+export async function queryPosts(limit: number, offset: number, type?: 'event' | 'post'): Promise<Post[]> {
+	let query = 'SELECT * FROM "post" INNER JOIN "contract" ON post.author=contract.address WHERE "interfaceCode" = \'LSP0\' AND "parentHash" IS NULL';
 	if (type) query +=  type === 'event' ? ' AND "eventId" IS NOT NULL' : ' AND "eventId" IS NULL';
-	query += ' IS NULL ORDER BY "date" DESC LIMIT $2 OFFSET $3';
+	query += ' ORDER BY "date" DESC LIMIT $1 OFFSET $2';
+	const res = await executeQuery(query, [limit, offset]);
+	return res.rows as Post[];
+}
+
+export async function queryPostsOfUser(address: string, limit: number, offset: number, type?: 'event' | 'post'): Promise<Post[]> {
+	let query = 'SELECT * FROM "post" WHERE "author" = $1 AND "parentHash" IS NULL';
+	if (type) query +=  type === 'event' ? ' AND "eventId" IS NOT NULL' : ' AND "eventId" IS NULL';
+	query += ' ORDER BY "date" DESC LIMIT $2 OFFSET $3';
 	const res = await executeQuery(query, [address, limit, offset]);
 	return res.rows as Post[];
 }
