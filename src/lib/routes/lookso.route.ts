@@ -239,15 +239,18 @@ export async function looksoRoute (fastify: FastifyInstance) {
 			querystring: {
 				limit: { type: 'number' },
 				offset: { type: 'number' },
+				postType: { type: 'string' },
 			},
 			summary: 'Get profile feed.',
 		},
 		handler: async (request, reply) => {
 			const {address} = request.params as { address: string };
-			const {limit, offset} = request.query as { limit: number, offset: number };
+			const {limit, offset, postType} = request.query as { limit: number, offset: number, postType?: 'event' | 'post' };
+
+			console.log(postType)
 
 			try {
-				const posts: Post[] = await queryPostsOfUser(address, limit, offset);
+				const posts: Post[] = await queryPostsOfUser(address, limit, offset, postType);
 				const feed = await constructFeed(posts, address);
 
 				return reply.code(200).send(feed);
@@ -268,16 +271,17 @@ export async function looksoRoute (fastify: FastifyInstance) {
 			querystring: {
 				limit: { type: 'number' },
 				offset: { type: 'number' },
+				postType: { type: 'string' },
 			},
 			summary: 'Get profile feed.',
 		},
 		handler: async (request, reply) => {
 			const {address} = request.params as { address: string };
-			const {limit, offset} = request.query as { limit: number, offset: number };
+			const {limit, offset, postType} = request.query as { limit: number, offset: number, postType?: 'event' | 'post' };
 
 			try {
 				const followingList = await queryFollowing(address);
-				const posts: Post[] = await queryPostsOfUsers(followingList, limit, offset);
+				const posts: Post[] = await queryPostsOfUsers(followingList, limit, offset, postType);
 				const feed = await constructFeed(posts, address);
 
 				return reply.code(200).send(feed);
