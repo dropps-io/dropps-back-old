@@ -308,6 +308,7 @@ export async function looksoRoute (fastify: FastifyInstance) {
 
 			try {
 				const followingList = await queryFollowing(address);
+				if (followingList.length === 0) return reply.code(200).send([]);
 				const posts: Post[] = await queryPostsOfUsers(followingList, limit, offset, postType);
 				const feed = await constructFeed(posts, address);
 
