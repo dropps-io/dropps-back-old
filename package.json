@@ -13,7 +13,8 @@
     "test": "npm run build&&set NODE_ENV=test&&mocha ./dist/test/**/* --exit",
     "coverage": "nyc npm run test",
     "release": "standard-version",
-    "run script": "npm run build&&set NODE_ENV=development&& node dist/scripts/index.js -- exit"
+    "run script": "npm run build&&set NODE_ENV=development&& node dist/scripts/index.js -- exit",
+    "run fill-db": "npm run build&&set NODE_ENV=development&& node dist/scripts/fill-db.js -- exit"
   },
   "repository": {
     "type": "git",

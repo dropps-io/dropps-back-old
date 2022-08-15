@@ -1,7 +1,7 @@
 import {executeQuery} from "./database";
-import {Erc725ySchema} from "../../models/types/erc725y-schema";
+import {ERC725JSONSchema} from "@erc725/erc725.js";
 
-export async function queryErc725ySchema(key: string): Promise<Erc725ySchema> {
+export async function queryErc725ySchema(key: string): Promise<ERC725JSONSchema> {
   const res = await executeQuery('SELECT * FROM "erc725y_schema" WHERE "key" = $1', [key]);
   if (res.rows.length > 0) return res.rows[0];
   else throw 'No schema found for the key: ' + key;
