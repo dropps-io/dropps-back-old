@@ -63,7 +63,11 @@ export async function constructFeed(posts: Post[], profile?: string): Promise<Fe
                 case 'Executed':
                     const [selector, executionContract] = [parameters.get('selector'), parameters.get('to')];
                     const transactionParameters: Map<string, DecodedParameter> = new Map((await queryDecodedFunctionParameters(event.transactionHash)).map(x => {return [x.name, x]}));
-                    feedObject.display = await generateEventDisplay(selector ? selector.value : '', transactionParameters, {executionContract: executionContract ? executionContract.value : '', senderProfile: event.address});
+                    try {
+                      feedObject.display = await generateEventDisplay(selector ? selector.value : '', transactionParameters, {executionContract: executionContract ? executionContract.value : '', senderProfile: event.address});
+                    } catch (e) {
+                      feedObject.display = await generateEventDisplay(event.topic.slice(0, 10), parameters);
+                    }
                     break;
                 case 'DataChanged':
                   feedObject.display = await generateDataChangedDisplay(event, parameters);

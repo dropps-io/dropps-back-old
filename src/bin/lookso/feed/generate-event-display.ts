@@ -23,7 +23,7 @@ export async function generateEventDisplay(methodId: string, params: Map<string,
     let image: string = '';
     let displayParams: {[key: string]: FeedDisplayParam} = {}
 
-    if (!methodDisplay) return {text:'', params: {}, image, tags};
+    if (!methodDisplay) throw 'Unknown function';
 
     for (let word of getWordsBetweenCurlies(methodDisplay.text)) {
         const param = params.get(word);
