@@ -142,13 +142,13 @@ async function indexEvent(log: Log): Promise<void> {
                 const dataChanged = decodeSetDataValue(th.input);
 
                 for (let keyValue of dataChanged) {
-                    // await analyseKey(log.address, keyValue.key, keyValue.value);
+                    await analyseKey(log.address, keyValue.key, keyValue.value);
                     await tryExecuting(insertDataChanged(log.address, keyValue.key, keyValue.value, th.blockNumber as number));
                 }
                 break;
         }
     } catch (e) {
-
+        // console.log(e);
     }
 }
 
