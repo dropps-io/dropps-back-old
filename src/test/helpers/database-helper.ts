@@ -23,6 +23,7 @@ const clearDBQueries = [
 	'delete from "contract_interface"',
 	'delete from "method_interface"',
 	'delete from "transaction"',
+	'delete from "key_display"',
 ];
 
 // before(async () => {
