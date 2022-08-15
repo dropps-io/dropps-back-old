@@ -13,14 +13,15 @@ export const KeyDisplayTests = () => {
       });
 
       it('should be able to insert values', async () => {
-          assert(!await shouldThrow(insertKeyDisplay('0x5f6c557f', 'text')));
+          assert(!await shouldThrow(insertKeyDisplay('0x5f6c557f', 'text', 'text2')));
       });
 
       it('should be able to query a key display', async () => {
-          await insertKeyDisplay('0x5f6c557f', 'text');
+          await insertKeyDisplay('0x5f6c557f', 'text', 'text2');
           const res = await queryKeyDisplay('0x5f6c557f');
 
-          expect(res).to.equal('text');
+          expect(res.display).to.equal('text');
+          expect(res.displayWithoutValue).to.equal('text2');
       });
 
   });
