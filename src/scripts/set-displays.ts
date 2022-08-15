@@ -1,6 +1,10 @@
 import {insertMethodDisplay} from "../bin/db/method-display.table";
+import {executeQuery} from "../bin/db/database";
+import {insertKeyDisplay} from "../bin/db/key-display.table";
 
 async function setDisplays() {
+  await executeQuery('delete from "key_display"');
+  await executeQuery('delete from "method_display"');
   await insertMethodDisplay('0x4e71e0c8', 'Claimed ownership on the {executionContract} contract', '', '', '');
   await insertMethodDisplay('0x715018a6', 'Renounced ownership on the {executionContract} contract', '', '', '');
   await insertMethodDisplay('0x14a6e293', 'Set the value {dataValue} for the key {dataKey}  on {executionContract}', '', '', '');
@@ -31,10 +35,11 @@ async function setDisplays() {
   await insertMethodDisplay('0x42966c68', 'Burned {executionContract} {tokenId}', 'executionContract:tokenId', '', 'executionContract');
   await insertMethodDisplay('0x40c10f19', 'Minted {amount} {executionContract}', 'executionContract:tokenId', '', 'executionContract');
   await insertMethodDisplay('0x01c42bd7', 'Created {contractAddress}', 'contractAddress', '', 'contractAddress');
-  await insertMethodDisplay('0xcdf4e344', 'Changed the value of the key {dataKey}', '', '', '');
+  await insertMethodDisplay('0xcdf4e344', 'Value of {dataKey} changed', '', '', '');
   await insertMethodDisplay('0x48108744', 'Executed an unknown function on {to}', 'to', '', 'to');
   await insertMethodDisplay('0x8be0079c', 'Transferred ownership from {previousOwner} to {newOwner}', '', '', '');
   await insertMethodDisplay('0x7e71433d', 'Received {value}{nativeToken} from {sender}', '', '', '');
+  await insertKeyDisplay('0x5ef83ad9559033e6e941db7d7c495acdce616347d28e90c7ce47cbfcfcad3bc5', 'Profile metadata updated', 'Profile metadata updated');
 }
 
 setDisplays();

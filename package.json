@@ -14,7 +14,9 @@
     "coverage": "nyc npm run test",
     "release": "standard-version",
     "run script": "npm run build&&set NODE_ENV=development&& node dist/scripts/index.js -- exit",
-    "run fill-db": "npm run build&&set NODE_ENV=development&& node dist/scripts/fill-db.js -- exit"
+    "run fill-db": "npm run build&&set NODE_ENV=development&& node dist/scripts/fill-db.js -- exit",
+    "run set-displays": "npm run build&&set NODE_ENV=development&& node dist/scripts/set-displays.js -- exit",
+    "run index-blockchain": "npm run build&&set NODE_ENV=development&& node dist/scripts/index-blockchain.js -- exit"
   },
   "repository": {
     "type": "git",
