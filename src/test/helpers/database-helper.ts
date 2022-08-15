@@ -24,6 +24,7 @@ const clearDBQueries = [
 	'delete from "method_interface"',
 	'delete from "transaction"',
 	'delete from "key_display"',
+	'delete from "erc725y_schema"',
 ];
 
 // before(async () => {

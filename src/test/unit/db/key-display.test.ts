@@ -3,6 +3,7 @@ import {clearDB} from "../../helpers/database-helper";
 import {shouldThrow} from "../../helpers/should-throw";
 import {assert, expect} from "chai";
 import {insertKeyDisplay, queryKeyDisplay} from "../../../bin/db/key-display.table";
+import {insertErc725ySchema} from "../../../bin/db/erc725y-schema.table";
 
 
 export const KeyDisplayTests = () => {
@@ -10,6 +11,7 @@ export const KeyDisplayTests = () => {
 
       beforeEach(async () => {
           await clearDB();
+          insertErc725ySchema('0x5f6c557f', 'text', 'text2', 'text3', 'text4');
       });
 
       it('should be able to insert values', async () => {
