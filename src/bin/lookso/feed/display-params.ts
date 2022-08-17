@@ -10,6 +10,8 @@ export async function getDisplayParam(value: string, type: string): Promise<Feed
             return {...await queryAddressDisplayParam(value)};
         case 'native':
             return {display: Web3.utils.fromWei(value, 'ether'), value, type, additionalProperties: {}};
+        case 'tokenAmount':
+            return {display: Web3.utils.fromWei(value, 'ether'), value, type, additionalProperties: {}};
         default:
             return {value, display: '', type, additionalProperties: {}};
     }
