@@ -24,9 +24,15 @@ import {queryLinks} from "../../bin/db/link.table";
 import {selectImage} from "../../bin/utils/select-image";
 import {insertLike, queryPostLike, queryPostLikesWithNames, removeLike} from "../../bin/db/like.table";
 import {Like} from "../../models/types/like";
+import {LSPXXProfilePost} from "../../bin/lookso/SocialMedia/types/profile-post";
+import {ArweaveClient} from "../../bin/arweave/ArweaveClient.class";
+import {arweaveTxToUrl} from "../../bin/arweave/arweave-utils";
+import {arrayBufferKeccak256Hash} from "../../bin/utils/file-converters";
+import {Buffer} from "buffer";
+
+const arweave = new ArweaveClient();
 
 export async function looksoRoute (fastify: FastifyInstance) {
-
 	fastify.route({
 		method: 'POST',
 		url: '/follow',
@@ -384,5 +390,41 @@ export async function looksoRoute (fastify: FastifyInstance) {
 			}
 		}
 	});
+
+	fastify.route({
+		method: 'POST',
+		url: '/post/request-object',
+		schema: {
+			description: 'Upload a media to arweave.',
+			tags: ['lookso'],
+			summary: 'Upload a media to arweave.'
+		},
+		handler: async (request, reply) => {
+			const body = request.body as { lspXXProfilePost: LSPXXProfilePost, fileType:string, base64File: string };
+			await verifyJWT(request, reply, body.lspXXProfilePost.author);
+
+			const post: LSPXXProfilePost = body.lspXXProfilePost;
+
+			const buffer = Buffer.from(body.base64File.split(',')[0], 'base64url');
+			const txId = await arweave.upload(buffer, body.fileType);
+			const fileUrl = arweaveTxToUrl(txId);
+
+			post.asset = {
+				fileType: body.fileType,
+				hash: '0x' + arrayBufferKeccak256Hash(buffer),
+				hashFunction: 'keccak256(bytes)',
+				url: fileUrl
+			};
+
+			try {
+				return reply.code(200).send({LSPXXProfilePost: post});
+				/* eslint-disable */
+			} catch (e: any) {
+				logError(e);
+				reply.code(500).send(error(500, ERROR_INTERNAL));
+			}
+		}
+	});
+
 
 }
