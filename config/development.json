@@ -1,5 +1,6 @@
 {
   "env": "development",
   "logger": true,
-  "jwt_validity_time": 6
+  "jwt_validity_time": 6,
+  "max_image_size": 1000
 }
