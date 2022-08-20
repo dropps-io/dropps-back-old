@@ -24,12 +24,14 @@ import {queryLinks} from "../../bin/db/link.table";
 import {selectImage} from "../../bin/utils/select-image";
 import {insertLike, queryPostLike, queryPostLikesWithNames, removeLike} from "../../bin/db/like.table";
 import {Like} from "../../models/types/like";
-import {LSPXXProfilePost, ProfilePost} from "../../bin/lookso/SocialMedia/types/profile-post";
+import {LSPXXProfilePost, ProfilePost} from "../../bin/lookso/registry/types/profile-post";
 import {ArweaveClient} from "../../bin/arweave/ArweaveClient.class";
 import {arweaveTxToUrl} from "../../bin/arweave/arweave-utils";
 import {arrayBufferKeccak256Hash, objectToBuffer, objectToKeccak256Hash} from "../../bin/utils/file-converters";
 import {Buffer} from "buffer";
 import {buildJsonUrl} from "../../bin/utils/json-url";
+import {Registry} from "../../bin/lookso/registry/Registry.class";
+import {getProfileRegistry} from "../../bin/lookso/registry/utils/get-address-registry";
 
 const arweave = new ArweaveClient();
 
@@ -444,12 +446,15 @@ export async function looksoRoute (fastify: FastifyInstance) {
 				LSPXXProfilePostHash: '0x' + objectToKeccak256Hash(body.lspXXProfilePost),
 				LSPXXProfilePostEOASignature: body.signature
 			}
+			const postUrl = arweaveTxToUrl(await arweave.upload(objectToBuffer(post), 'application/json'));
 
-			const txId = await arweave.upload(objectToBuffer(post), 'application/json');
-			const fileUrl = arweaveTxToUrl(txId);
+			const registy: Registry = await getProfileRegistry(post.LSPXXProfilePost.author);
+			registy.addPost(postUrl, post.LSPXXProfilePostHash);
+
+			const newRegistryUrl = arweaveTxToUrl(await arweave.upload(registy.toData(), 'application/json'));
 
 			try {
-				return reply.code(200).send({jsonUrl: buildJsonUrl(post, fileUrl)});
+				return reply.code(200).send({jsonUrl: buildJsonUrl(registy.toJson(), newRegistryUrl), postHash: post.LSPXXProfilePostHash});
 				/* eslint-disable */
 			} catch (e: any) {
 				logError(e);
