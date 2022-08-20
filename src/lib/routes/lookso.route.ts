@@ -24,11 +24,12 @@ import {queryLinks} from "../../bin/db/link.table";
 import {selectImage} from "../../bin/utils/select-image";
 import {insertLike, queryPostLike, queryPostLikesWithNames, removeLike} from "../../bin/db/like.table";
 import {Like} from "../../models/types/like";
-import {LSPXXProfilePost} from "../../bin/lookso/SocialMedia/types/profile-post";
+import {LSPXXProfilePost, ProfilePost} from "../../bin/lookso/SocialMedia/types/profile-post";
 import {ArweaveClient} from "../../bin/arweave/ArweaveClient.class";
 import {arweaveTxToUrl} from "../../bin/arweave/arweave-utils";
-import {arrayBufferKeccak256Hash} from "../../bin/utils/file-converters";
+import {arrayBufferKeccak256Hash, objectToBuffer, objectToKeccak256Hash} from "../../bin/utils/file-converters";
 import {Buffer} from "buffer";
+import {buildJsonUrl} from "../../bin/utils/json-url";
 
 const arweave = new ArweaveClient();
 
@@ -405,7 +406,7 @@ export async function looksoRoute (fastify: FastifyInstance) {
 
 			const post: LSPXXProfilePost = body.lspXXProfilePost;
 
-			const buffer = Buffer.from(body.base64File.split(',')[0], 'base64url');
+			const buffer = Buffer.from(body.base64File.split(',')[1], 'base64url');
 			const txId = await arweave.upload(buffer, body.fileType);
 			const fileUrl = arweaveTxToUrl(txId);
 
@@ -426,5 +427,35 @@ export async function looksoRoute (fastify: FastifyInstance) {
 		}
 	});
 
+	fastify.route({
+		method: 'POST',
+		url: '/post/upload',
+		schema: {
+			description: 'Upload a post to arweave.',
+			tags: ['lookso'],
+			summary: 'Upload a post to arweave.'
+		},
+		handler: async (request, reply) => {
+			const body = request.body as { lspXXProfilePost: LSPXXProfilePost, signature: string };
+			await verifyJWT(request, reply, body.lspXXProfilePost.author);
+
+			const post: ProfilePost = {
+				LSPXXProfilePost: body.lspXXProfilePost,
+				LSPXXProfilePostHash: '0x' + objectToKeccak256Hash(body.lspXXProfilePost),
+				LSPXXProfilePostEOASignature: body.signature
+			}
+
+			const txId = await arweave.upload(objectToBuffer(post), 'application/json');
+			const fileUrl = arweaveTxToUrl(txId);
+
+			try {
+				return reply.code(200).send({jsonUrl: buildJsonUrl(post, fileUrl)});
+				/* eslint-disable */
+			} catch (e: any) {
+				logError(e);
+				reply.code(500).send(error(500, ERROR_INTERNAL));
+			}
+		}
+	});
 
 }

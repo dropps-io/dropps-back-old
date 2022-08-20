@@ -42,5 +42,5 @@ export function objectToBuffer(object: any): Buffer {
 }
 
 export function objectToKeccak256Hash(object: any): string {
-  return keccak256(object).toString('hex');
+  return keccak256(JSON.stringify(object)).toString('hex');
 }
