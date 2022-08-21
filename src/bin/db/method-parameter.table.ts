@@ -17,3 +17,7 @@ export async function insertMethodParameter(methodId: string, name: string, type
 	const res = await executeQuery('INSERT INTO "method_parameter" VALUES ($1, $2, $3, $4)', [methodId, name, type, indexedValue]);
 	return res.rows[0] as MethodParameter;
 }
+
+export async function insertMethodParameterDisplayType(methodId: string, name: string, displayType: string): Promise<void> {
+	await executeQuery('UPDATE method_parameter SET "displayType" = $3 WHERE "methodId" = $1 AND name = $2', [methodId, name, displayType]);
+}

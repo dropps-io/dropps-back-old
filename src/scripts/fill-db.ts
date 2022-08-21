@@ -10,7 +10,6 @@ import ERC20 from "../assets/artifacts/ERC20PresetMinterPauser.json";
 import ERC777 from "../assets/artifacts/ERC777PresetFixedSupply.json";
 import ERC721 from "../assets/artifacts/ERC721PresetMinterPauserAutoId.json";
 import {AbiItem} from "web3-utils";
-import {clearDB} from "../test/helpers/database-helper";
 import {insertContractInterface} from "../bin/db/contract-interface.table";
 import {generateAndPersistMethodInterfaces} from "./generate-method-interfaces";
 import {insertInDbJsonSchemas} from "./insert-in-db-json-schemas";
@@ -24,6 +23,7 @@ import JSONSCHEMALSP10 from '@erc725/erc725.js/schemas/LSP10ReceivedVaults.json'
 import JSONSCHEMALSP12 from '@erc725/erc725.js/schemas/LSP12IssuedAssets.json';
 import {ERC725JSONSchema} from "@erc725/erc725.js";
 import {tryExecuting} from "../bin/utils/try-executing";
+import {insertMethodParameterDisplayType} from "../bin/db/method-parameter.table";
 
 
 const standardInterfaces = [
@@ -36,8 +36,6 @@ const standardInterfaces = [
 fillDb();
 
 async function fillDb() {
-  await clearDB();
-
   for (let standardInterface of standardInterfaces) {
       await tryExecuting(insertContractInterface(standardInterface.code, standardInterface.id, standardInterface.name));
   }
@@ -67,6 +65,8 @@ async function fillDb() {
           ERC721.abi as AbiItem[],
           ERC20.abi as AbiItem[],
       ]);
+
+  await insertMethodParameterDisplayType('0x7580d920', 'amount', 'tokenAmount');
 
   return;
 }
