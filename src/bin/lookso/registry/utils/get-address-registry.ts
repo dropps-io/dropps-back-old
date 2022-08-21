@@ -1,26 +1,19 @@
 import {UniversalProfileReader} from "../../../UniversalProfile/UniversalProfileReader.class";
-import {IPFS_GATEWAY} from "../../../utils/constants";
+import {IPFS_GATEWAY, KEY_LSPXXSocialRegistry} from "../../../utils/constants";
 import {web3} from "../../../web3/web3";
-import {URLDataWithHash} from "@erc725/erc725.js/build/main/src/types/encodeData/JSONURL";
-import {ArweaveClient} from "../../../arweave/ArweaveClient.class";
-import {Registry} from "../Registry.class";
+import {SocialRegistry} from "../types/social-registry";
+import axios from "axios";
+import {formatUrl} from "../../../utils/format-url";
+import {decodeJsonUrl} from "../../../utils/json-url";
 
-const arweave = new ArweaveClient();
-
-export async function getProfileRegistry(address: string): Promise<Registry> {
+export async function getProfileRegistry(address: string): Promise<SocialRegistry> {
   const universalProfile = new UniversalProfileReader(address, IPFS_GATEWAY, web3);
-  const data = await universalProfile.getDataUnverified([web3.utils.keccak256("LSPXXPostRegistry")]);
-  let urlObject = (data[0].value as URLDataWithHash);
-  let registryId = urlObject ? urlObject.url.slice(5) : '';
-
-  if (!registryId) return new Registry();
-
+  const jsonUrl: string = (await universalProfile.getDataUnverified([KEY_LSPXXSocialRegistry]))[0] as string;
   try {
-    let registryJson = await arweave.downloadJson(registryId);
-    return new Registry(registryJson);
+    return (await axios.get(formatUrl(decodeJsonUrl(jsonUrl)))).data as SocialRegistry;
   }
   catch (error:any) {
     if (error.message) console.log("Unable to fetch Social Registry. " + error.message);
-    return new Registry();
+    return {posts: [], likes: [], follows: []};
   }
 }

@@ -30,8 +30,8 @@ import {arweaveTxToUrl} from "../../bin/arweave/arweave-utils";
 import {arrayBufferKeccak256Hash, objectToBuffer, objectToKeccak256Hash} from "../../bin/utils/file-converters";
 import {Buffer} from "buffer";
 import {buildJsonUrl} from "../../bin/utils/json-url";
-import {Registry} from "../../bin/lookso/registry/Registry.class";
 import {getProfileRegistry} from "../../bin/lookso/registry/utils/get-address-registry";
+import {SocialRegistry} from "../../bin/lookso/registry/types/social-registry";
 
 const arweave = new ArweaveClient();
 
@@ -448,13 +448,14 @@ export async function looksoRoute (fastify: FastifyInstance) {
 			}
 			const postUrl = arweaveTxToUrl(await arweave.upload(objectToBuffer(post), 'application/json'));
 
-			const registy: Registry = await getProfileRegistry(post.LSPXXProfilePost.author);
-			registy.addPost(postUrl, post.LSPXXProfilePostHash);
+			const registry: SocialRegistry = await getProfileRegistry(post.LSPXXProfilePost.author);
+			console.log(registry)
+			registry.posts.push({url: postUrl, hash: post.LSPXXProfilePostHash});
 
-			const newRegistryUrl = arweaveTxToUrl(await arweave.upload(registy.toData(), 'application/json'));
+			const newRegistryUrl = arweaveTxToUrl(await arweave.upload(objectToBuffer(registry), 'application/json'));
 
 			try {
-				return reply.code(200).send({jsonUrl: buildJsonUrl(registy.toJson(), newRegistryUrl), postHash: post.LSPXXProfilePostHash});
+				return reply.code(200).send({jsonUrl: buildJsonUrl(registry, newRegistryUrl), postHash: post.LSPXXProfilePostHash});
 				/* eslint-disable */
 			} catch (e: any) {
 				logError(e);
