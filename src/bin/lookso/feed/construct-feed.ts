@@ -80,6 +80,32 @@ export async function constructFeed(posts: Post[], profile?: string): Promise<Fe
                     break;
             }
             feed.push(feedObject);
+        } else {
+          const feedObject: FeedPost = {
+            hash: post.hash,
+            author:
+              {
+                address: post.author,
+                name: authorName,
+                image: authorPic ? authorPic.url : ''
+              },
+            type: 'post',
+            name: '',
+            date: post.date,
+            blockNumber: 0,
+            transactionHash: '',
+            display: {
+              text: post.text,
+              params: {},
+              image: post.mediaUrl ? post.mediaUrl.split(';')[1] : '',
+              tags: {copies: null, standardType: null, standard: null}
+            },
+            likes: postLikes,
+            comments: postComments,
+            reposts: postReposts,
+            isLiked: isLiked
+          };
+          feed.push(feedObject);
         }
     }
 
