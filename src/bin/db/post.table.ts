@@ -3,7 +3,8 @@ import {executeQuery} from './database';
 
 export async function queryPost(hash: string): Promise<Post> {
 	const res = await executeQuery('SELECT * FROM "post" WHERE "hash" = $1', [hash]);
-	return res.rows[0] as Post;
+	if (res.rows.length > 0) return res.rows[0] as Post;
+	else throw 'No post found';
 }
 
 export async function queryPostCommentsCount(hash: string): Promise<number> {
