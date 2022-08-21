@@ -12,8 +12,8 @@ import {FastifyInstance} from 'fastify';
 import {JWT_VALIDITY_TIME} from '../../environment/config';
 import {logError} from '../../bin/logger';
 import {UniversalProfileReader} from "../../bin/UniversalProfile/UniversalProfileReader.class";
-import {LUKSO_IPFS_GATEWAY} from "../../bin/utils/constants";
 import {web3} from "../../bin/web3/web3";
+import {IPFS_GATEWAY} from "../../bin/utils/constants";
 
 export async function authRoute (fastify: FastifyInstance) {
 
@@ -108,7 +108,7 @@ export async function authRoute (fastify: FastifyInstance) {
                 let nonce: string = await queryNonce(userAddress);
 
                 const controllerAddress = generateAddressWithSignature('I want to log in to lookso.io. \nMy address: ' + userAddress + '\nMy nonce: ' + nonce, signedNonce);
-                const profile = new UniversalProfileReader(userAddress, LUKSO_IPFS_GATEWAY, web3);
+                const profile = new UniversalProfileReader(userAddress, IPFS_GATEWAY, web3);
 
                 if (!await profile.fetchPermissionsOf(controllerAddress)) return reply.code(403).send(error(403, ERROR_INCORRECT_SIGNED_NONCE));
                 // User is auth
