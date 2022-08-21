@@ -1,5 +1,4 @@
 import {Log} from "../../../models/types/log";
-import {queryEventByTh} from "../../../bin/db/event.table";
 import {Transaction} from "../../../models/types/transaction";
 import {queryTransaction} from "../../../bin/db/transaction.table";
 import {MethodParameter} from "../../../models/types/method-parameter";
@@ -16,9 +15,6 @@ import {extractDataFromKey} from "./extract-key-data";
 import {indexDataChanged} from "../data-indexing/index-data-changed";
 
 export async function extractDataFromLog(log: Log) {
-  const logIndexed = !!(await queryEventByTh(log.transactionHash, (log.id as string).slice(4, 12)));
-  if (logIndexed) return;
-
   await extractContract(log.address);
 
   let transaction: Transaction = await queryTransaction(log.transactionHash);
@@ -65,10 +61,10 @@ async function extractEvent(log: Log): Promise<void> {
       case 'DataChanged':
         const th = await web3.eth.getTransaction(log.transactionHash);
         const dataChanged = decodeSetDataValueFromInput(th.input);
-        if (dataChanged.length === 0) await extractDataFromKey(log.address, log.topics[0]);
+        if (dataChanged.length === 0) await extractDataFromKey(log, decodedParameters['dataKey']);
 
         for (let keyValue of dataChanged) {
-          await extractDataFromKey(log.address, keyValue.key, keyValue.value);
+          await extractDataFromKey(log, keyValue.key, keyValue.value);
           await indexDataChanged(log.address, keyValue.key, keyValue.value, th.blockNumber as number)
         }
         break;

@@ -45,10 +45,10 @@ export async function indexBlockchain(latestBlockIndexed: number) {
 }
 
 
-// export async function indexTx(txHash: string) {
-//   const receipt = await web3.eth.getTransactionReceipt(txHash);
-//   for (const log in receipt.logs) {
-//     await  extractDataFromLog(JSON.parse(log));
-//   }
-// }
+export async function indexTx(txHash: string) {
+  const receipt = await web3.eth.getTransactionReceipt(txHash);
+  for (const log of receipt.logs) {
+    await extractDataFromLog(log);
+  }
+}
 
