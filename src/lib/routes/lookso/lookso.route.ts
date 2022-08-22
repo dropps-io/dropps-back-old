@@ -10,12 +10,13 @@ import {
 } from "../../../bin/db/follow.table";
 import {queryContract} from "../../../bin/db/contract.table";
 import {Post} from "../../../models/types/post";
-import {queryPosts} from "../../../bin/db/post.table";
+import {queryPost, queryPosts} from "../../../bin/db/post.table";
 import {constructFeed} from "../../../bin/lookso/feed/construct-feed";
 import {insertLike, queryPostLike, removeLike} from "../../../bin/db/like.table";
 import {Like} from "../../../models/types/like";
 import {looksoPostRoutes} from "./lookso-post.route";
 import {looksoProfileRoutes} from "./lookso-profile.route";
+import {insertNotification} from "../../../bin/db/notification.table";
 
 export async function looksoRoute (fastify: FastifyInstance) {
 	fastify.route({
@@ -35,6 +36,7 @@ export async function looksoRoute (fastify: FastifyInstance) {
 				const contract = await queryContract(body.following);
 				if (contract && contract.interfaceCode !== 'LSP0') return reply.code(400).send(error(400, 'The following address is not an LSP0'));
 				await insertFollow(body.follower, body.following);
+				await insertNotification(body.following, body.following, new Date(), 'follow');
 				return reply.code(200).send();
 				/* eslint-disable */
 			} catch (e: any) {
@@ -92,6 +94,8 @@ export async function looksoRoute (fastify: FastifyInstance) {
 					await removeLike(body.sender, body.postHash)
 				} else {
 					await insertLike(body.sender, body.postHash);
+					const post = await queryPost(body.postHash);
+					await insertNotification(post.author, body.sender, new Date(), 'like', post.hash);
 				}
 
 				return reply.code(200).send();
