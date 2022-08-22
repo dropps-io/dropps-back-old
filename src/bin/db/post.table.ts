@@ -51,7 +51,7 @@ export async function queryPostsOfUsers(addresses: string[], limit: number, offs
 }
 
 //TODO Add to table mediaType to know how to display or not a media
-export async function insertPost(hash: string, author: string, date: Date, text: string, mediaUrl: string, parentHash: string | null, childHash: string | null, eventId: number | null): Promise<Post> {
-	const res = await executeQuery('INSERT INTO "post" VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', [hash, author, date, text, mediaUrl, parentHash, childHash, eventId]);
+export async function insertPost(hash: string, author: string, date: Date, text: string, mediaUrl: string, parentHash: string | null, childHash: string | null, eventId: number | null, inRegistry?: boolean, txHash?: string): Promise<Post> {
+	const res = await executeQuery('INSERT INTO "post" VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)', [hash, author, date, text, mediaUrl, parentHash, childHash, eventId, inRegistry, txHash]);
 	return res.rows[0] as Post;
 }

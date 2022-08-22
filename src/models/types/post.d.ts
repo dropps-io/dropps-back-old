@@ -7,4 +7,6 @@ export interface Post {
     parentHash?: string;
     childHash?: string;
     eventId?: number;
+    inRegistry?: boolean;
+    transactionHash?: string;
 }

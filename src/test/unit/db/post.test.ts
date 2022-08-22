@@ -5,7 +5,7 @@ import {shouldThrow} from "../../helpers/should-throw";
 import {insertPost, queryPost} from "../../../bin/db/post.table";
 import {UNIVERSAL_PROFILE_1} from "../../helpers/constants";
 import {insertContract} from "../../../bin/db/contract.table";
-import {insertEvent, queryEvent} from "../../../bin/db/event.table";
+import {insertEvent} from "../../../bin/db/event.table";
 import {insertTransaction} from "../../../bin/db/transaction.table";
 
 export const PostTests = () => {
@@ -103,6 +103,22 @@ export const PostTests = () => {
                   null,
                   id
               )));
+      });
+
+      it('should be able to insert values with transactionHash and/or inRegistry', async () => {
+          assert(!await shouldThrow(
+            insertPost(
+              '0xb097de0f7a884906c66qw0c5f42d8a27ae841af2fa68a05343cd1333d2435428',
+              UNIVERSAL_PROFILE_1,
+              new Date(),
+              'Text',
+              'url',
+              null,
+              null,
+              null,
+              false,
+              '0x00000000000000000000000000000'
+            )));
       });
 
       it('should not be able to insert values with parentHash not referring to a post', async () => {
