@@ -7,7 +7,7 @@ export async function queryNotificationsOfAddress(address: string, limit: number
 }
 
 export async function queryNotificationsCountOfAddress(address: string): Promise<number> {
-	const res = await executeQuery('SELECT COUNT(*) FROM "notification" WHERE "address" = $1', [address]);
+	const res = await executeQuery('SELECT COUNT(*) FROM notification WHERE address = $1 AND viewed = false', [address]);
 	return parseInt(res.rows[0].count);
 }
 

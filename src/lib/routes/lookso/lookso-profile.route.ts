@@ -15,6 +15,8 @@ import {queryImages, queryImagesByType} from "../../../bin/db/image.table";
 import {selectImage} from "../../../bin/utils/select-image";
 import {FastifyInstance} from "fastify";
 import {isAddress} from "../../../bin/utils/validators";
+import {queryNotificationsCountOfAddress, queryNotificationsOfAddress} from "../../../bin/db/notification.table";
+import {NotificationWithSenderDetails} from "../../../models/types/notification";
 
 export function looksoProfileRoutes(fastify: FastifyInstance) {
   fastify.route({
@@ -226,4 +228,79 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
       }
     }
   });
+
+  fastify.route({
+    method: 'GET',
+    url: '/profile/:address/notifications',
+    schema: {
+      description: 'Get notifications of an address.',
+      tags: ['lookso'],
+      querystring: {
+        limit: { type: 'number' },
+        offset: { type: 'number' },
+      },
+      summary: 'Get notifications of an address.',
+    },
+    handler: async (request, reply) => {
+      const {address} = request.params as { address: string };
+      const {limit, offset} = request.query as {limit: number, offset: number};
+
+      try {
+        const notifications = await queryNotificationsOfAddress(address, limit, offset);
+        const response: NotificationWithSenderDetails[] = [];
+
+        for (const notification of notifications) {
+          let name: string;
+          try {
+            name = (await queryContractMetadata(notification.sender)).name;
+          } catch (e) {
+            name = '';
+          }
+          const images = await queryImagesByType(notification.sender, 'profile');
+          response.push({
+            address: notification.address,
+            date: notification.date,
+            postHash: notification.postHash,
+            viewed: notification.viewed,
+            type: notification.type,
+            sender: {
+              address: notification.sender,
+              name: name,
+              image: selectImage(images, {minWidthExpected: 50}).url
+            }
+          });
+        }
+
+        return reply.code(200).send(response);
+        /* eslint-disable */
+      } catch (e: any) {
+        logError(e);
+        reply.code(500).send(error(500, ERROR_INTERNAL));
+      }
+    }
+  });
+
+  fastify.route({
+    method: 'GET',
+    url: '/profile/:address/notifications/count',
+    schema: {
+      description: 'Get unviewed notifications count of an address.',
+      tags: ['lookso'],
+      summary: 'Get unviewed notifications count of an address.',
+    },
+    handler: async (request, reply) => {
+      const {address} = request.params as { address: string };
+
+      try {
+        const notificationsCount: number = await queryNotificationsCountOfAddress(address);
+
+        return reply.code(200).send(notificationsCount);
+        /* eslint-disable */
+      } catch (e: any) {
+        logError(e);
+        reply.code(500).send(error(500, ERROR_INTERNAL));
+      }
+    }
+  });
+
 }

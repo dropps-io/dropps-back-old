@@ -4,7 +4,8 @@ import {ERROR_NOT_FOUND} from '../utils/error-messages';
 
 export async function queryContractMetadata(address: string): Promise<ContractMetadata> {
 	const res = await executeQuery('SELECT * FROM "contract_metadata" WHERE "address" = $1', [address]);
-	return res.rows[0] as ContractMetadata;
+	if (res.rows[0]) return res.rows[0] as ContractMetadata;
+	else throw 'No metadata found';
 }
 
 export async function queryContractName(address: string): Promise<string> {
