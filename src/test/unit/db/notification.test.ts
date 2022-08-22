@@ -4,7 +4,11 @@ import {assert, expect} from "chai";
 import {UNIVERSAL_PROFILE_1, UNIVERSAL_PROFILE_2} from "../../helpers/constants";
 import {insertContract} from "../../../bin/db/contract.table";
 import {shouldThrow} from "../../helpers/should-throw";
-import {insertNotification, queryNotificationsOfAddress, setViewedToAddressNotifications} from "../../../bin/db/notification.table";
+import {
+    insertNotification, queryNotificationsCountOfAddress,
+    queryNotificationsOfAddress,
+    setViewedToAddressNotifications
+} from "../../../bin/db/notification.table";
 import {insertPost} from "../../../bin/db/post.table";
 
 export const NotificationTests = () => {
@@ -54,6 +58,16 @@ export const NotificationTests = () => {
           const res = await queryNotificationsOfAddress(UNIVERSAL_PROFILE_1);
 
           expect(res.length).to.be.equal(4);
+      });
+
+      it ('should be able to query address notifications count', async () => {
+          await insertNotification(UNIVERSAL_PROFILE_1, UNIVERSAL_PROFILE_2, new Date(), 'like');
+          await insertNotification(UNIVERSAL_PROFILE_1, UNIVERSAL_PROFILE_2, new Date(), 'like');
+          await insertNotification(UNIVERSAL_PROFILE_1, UNIVERSAL_PROFILE_2, new Date(), 'like');
+          await insertNotification(UNIVERSAL_PROFILE_1, UNIVERSAL_PROFILE_2, new Date(), 'like');
+          const res = await queryNotificationsCountOfAddress(UNIVERSAL_PROFILE_1);
+
+          expect(res).to.be.equal(4);
       });
 
       it ('should be able to set all notifications to viewed', async () => {

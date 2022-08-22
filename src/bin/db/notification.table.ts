@@ -6,6 +6,11 @@ export async function queryNotificationsOfAddress(address: string): Promise<Noti
 	return res.rows as Notification[];
 }
 
+export async function queryNotificationsCountOfAddress(address: string): Promise<number> {
+	const res = await executeQuery('SELECT COUNT(*) FROM "notification" WHERE "address" = $1', [address]);
+	return parseInt(res.rows[0].count);
+}
+
 export async function insertNotification(address: string, sender: string, date: Date, type: 'like' | 'follow' | 'comment' | 'repost', postHash?: string): Promise<void> {
 	await executeQuery('INSERT INTO "notification" VALUES ($1, $2, $3, $4, $5, $6)', [address, sender, date, false, type, postHash]);
 }
