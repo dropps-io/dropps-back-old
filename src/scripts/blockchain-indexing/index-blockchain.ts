@@ -1,7 +1,7 @@
 import Web3 from "web3";
 import {extractDataFromLog} from "./data-extraction/extract-log";
-import {sleep} from "./utils/sleep";
-import {BLOCK_ITERATION, SLEEP_BETWEEN_ITERATION} from "./config";
+import {BLOCK_ITERATION} from "./config";
+import {Log} from "../../models/types/log";
 
 const web3 = new Web3('https://rpc.l16.lukso.network');
 
@@ -25,16 +25,15 @@ export async function indexBlockchain(latestBlockIndexed: number) {
             '0xcdf4e344c0d23d4cdd0474039d176c55b19d531070dbe17856bfb993a5b5720b',
             '0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0'
         ];
-        await web3.eth.getPastLogs({fromBlock: latestBlockIndexed, toBlock: lastBlock
-        }, async (error, logsRes) => {
-            if (logsRes) {
-                for (let log of logsRes) {
-                    if (topicsWanted.includes(log.topics[0])) await extractDataFromLog(log);
-                }
-            }
-        });
 
-        await sleep(SLEEP_BETWEEN_ITERATION);
+        const logsRes = await getLogs(latestBlockIndexed, lastBlock);
+
+        if (logsRes) {
+            for (let log of logsRes) {
+                if (topicsWanted.includes(log.topics[0])) await extractDataFromLog(log);
+            }
+        }
+
         await indexBlockchain(lastBlock);
     } catch (e) {
         console.error(e);
@@ -44,11 +43,19 @@ export async function indexBlockchain(latestBlockIndexed: number) {
     }
 }
 
+async function getLogs(fromBlock: number, toBlock: number): Promise<Log[]> {
+    return new Promise<Log[]> (async (resolve) => {
+        await web3.eth.getPastLogs({fromBlock: fromBlock, toBlock: toBlock
+        }, async (error, logsRes) => {
+            resolve(logsRes);
+        });
+    })
+}
+
 
 export async function indexTx(txHash: string) {
   const receipt = await web3.eth.getTransactionReceipt(txHash);
-  for (const log of receipt.logs) {
-    await extractDataFromLog(log);
-  }
+  await extractDataFromLog(receipt.logs[0]);
+
 }
 

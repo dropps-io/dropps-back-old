@@ -67,6 +67,8 @@ async function fillDb() {
       ]);
 
   await insertMethodParameterDisplayType('0x7580d920', 'amount', 'tokenAmount');
+  await insertMethodParameterDisplayType('0x760d9bba', 'amount', 'tokenAmount');
+  await insertMethodParameterDisplayType('0x7e71433d', 'value', 'native');
 
   return;
 }
