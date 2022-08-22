@@ -9,6 +9,10 @@ import {IPFS_GATEWAY, KEY_LSPXXSocialRegistry} from "../../../../bin/utils/const
 import {web3} from "../../../../bin/web3/web3";
 import {decodeJsonUrl} from "../../../../bin/utils/json-url";
 import {Log} from "../../../../models/types/log";
+import {Contract} from "web3-eth-contract";
+import PostValidatorContract from '../../../../assets/artifacts/ValidatorContractArtifact.json';
+import {POST_VALIDATOR_ADDRESS} from "../../../../environment/config";
+import {AbiItem} from "web3-utils";
 
 export async function extractRegistry(log: Log, _jsonUrl?: string) {
   const profile: UniversalProfileReader = new UniversalProfileReader(log.address, IPFS_GATEWAY, web3);
@@ -22,7 +26,11 @@ async function extractRegistryPosts(log: Log, posts: {hash: string, url: string}
   for (const post of posts) {
     if (!postHashes.includes(post.hash)) {
       const profilePost: ProfilePost = (await axios.get(formatUrl(post.url))).data as ProfilePost;
-      await indexRegistryPost(log, profilePost.LSPXXProfilePost, profilePost.LSPXXProfilePostHash);
+
+      const postValidatorContract: Contract = new web3.eth.Contract(PostValidatorContract.abi as AbiItem[], POST_VALIDATOR_ADDRESS);
+      const postTimestamp: string = await postValidatorContract.methods.getTimestamp(post.hash).call();
+
+      await indexRegistryPost(log, profilePost.LSPXXProfilePost, profilePost.LSPXXProfilePostHash, new Date(parseInt(postTimestamp) * 1000));
     }
   }
 }

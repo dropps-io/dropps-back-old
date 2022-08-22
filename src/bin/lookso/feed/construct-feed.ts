@@ -93,7 +93,7 @@ export async function constructFeed(posts: Post[], profile?: string): Promise<Fe
             name: '',
             date: post.date,
             blockNumber: 0,
-            transactionHash: '',
+            transactionHash: post.transactionHash ? post.transactionHash : '',
             display: {
               text: post.text,
               params: {},
@@ -103,7 +103,8 @@ export async function constructFeed(posts: Post[], profile?: string): Promise<Fe
             likes: postLikes,
             comments: postComments,
             reposts: postReposts,
-            isLiked: isLiked
+            isLiked: isLiked,
+            inRegistry: post.inRegistry
           };
           feed.push(feedObject);
         }
