@@ -1,8 +1,8 @@
 import {Notification} from '../../models/types/notification';
 import {executeQuery} from './database';
 
-export async function queryNotificationsOfAddress(address: string): Promise<Notification[]> {
-	const res = await executeQuery('SELECT * FROM "notification" WHERE "address" = $1', [address]);
+export async function queryNotificationsOfAddress(address: string, limit: number, offset: number): Promise<Notification[]> {
+	const res = await executeQuery('SELECT * FROM "notification" WHERE "address" = $1 ORDER BY date LIMIT $2 OFFSET $3;', [address, limit, offset]);
 	return res.rows as Notification[];
 }
 

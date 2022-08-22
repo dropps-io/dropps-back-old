@@ -55,7 +55,7 @@ export const NotificationTests = () => {
           await insertNotification(UNIVERSAL_PROFILE_1, UNIVERSAL_PROFILE_2, new Date(), 'like');
           await insertNotification(UNIVERSAL_PROFILE_1, UNIVERSAL_PROFILE_2, new Date(), 'like');
           await insertNotification(UNIVERSAL_PROFILE_1, UNIVERSAL_PROFILE_2, new Date(), 'like');
-          const res = await queryNotificationsOfAddress(UNIVERSAL_PROFILE_1);
+          const res = await queryNotificationsOfAddress(UNIVERSAL_PROFILE_1, 30, 0);
 
           expect(res.length).to.be.equal(4);
       });
@@ -76,7 +76,7 @@ export const NotificationTests = () => {
           await insertNotification(UNIVERSAL_PROFILE_1, UNIVERSAL_PROFILE_2, new Date(), 'like');
           await insertNotification(UNIVERSAL_PROFILE_1, UNIVERSAL_PROFILE_2, new Date(), 'like');
           await setViewedToAddressNotifications(UNIVERSAL_PROFILE_1);
-          const res = await queryNotificationsOfAddress(UNIVERSAL_PROFILE_1);
+          const res = await queryNotificationsOfAddress(UNIVERSAL_PROFILE_1, 30, 0);
 
           assert(res.every(n => n.viewed));
       });
