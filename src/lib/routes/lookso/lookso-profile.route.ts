@@ -294,7 +294,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
       try {
         const notificationsCount: number = await queryNotificationsCountOfAddress(address);
 
-        return reply.code(200).send(notificationsCount);
+        return reply.code(200).send({notifications: notificationsCount});
         /* eslint-disable */
       } catch (e: any) {
         logError(e);

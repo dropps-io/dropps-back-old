@@ -2,7 +2,7 @@ export interface Notification {
   address: string,
   sender: string,
   date: Date,
-  type: string,
+  type: 'like' | 'follow' | 'comment' | 'repost',
   viewed: boolean,
   postHash?: string
 }
@@ -15,7 +15,7 @@ export interface NotificationWithSenderDetails {
     image: string,
   },
   date: Date,
-  type: string,
+  type: 'like' | 'follow' | 'comment' | 'repost',
   viewed: boolean,
   postHash?: string
 }

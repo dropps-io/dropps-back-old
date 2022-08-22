@@ -36,7 +36,7 @@ export async function looksoRoute (fastify: FastifyInstance) {
 				const contract = await queryContract(body.following);
 				if (contract && contract.interfaceCode !== 'LSP0') return reply.code(400).send(error(400, 'The following address is not an LSP0'));
 				await insertFollow(body.follower, body.following);
-				await insertNotification(body.following, body.following, new Date(), 'follow');
+				await insertNotification(body.following, body.follower, new Date(), 'follow');
 				return reply.code(200).send();
 				/* eslint-disable */
 			} catch (e: any) {
