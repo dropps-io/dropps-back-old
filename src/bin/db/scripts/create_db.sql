@@ -5,7 +5,7 @@
 -- Dumped from database version 14.4
 -- Dumped by pg_dump version 14.4
 
--- Started on 2022-08-20 14:59:36
+-- Started on 2022-08-23 15:35:51
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -364,8 +364,10 @@ ALTER TABLE public.nonces OWNER TO postgres;
 
 CREATE TABLE public.notification (
     address character(42) NOT NULL,
-    date date NOT NULL,
     sender character(42) NOT NULL,
+    date timestamp with time zone NOT NULL,
+    viewed boolean NOT NULL,
+    type character varying NOT NULL,
     "postHash" character(66)
 );
 
@@ -385,7 +387,9 @@ CREATE TABLE public.post (
     "mediaUrl" character varying NOT NULL,
     "parentHash" character(66),
     "childHash" character(66),
-    "eventId" integer
+    "eventId" integer,
+    "inRegistry" boolean,
+    "transactionHash" character(66)
 );
 
 
@@ -809,12 +813,12 @@ ALTER TABLE ONLY public.notification
 
 
 --
--- TOC entry 3329 (class 2606 OID 144335)
+-- TOC entry 3329 (class 2606 OID 157637)
 -- Name: notification notification_postHash_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.notification
-    ADD CONSTRAINT "notification_postHash_fkey" FOREIGN KEY ("postHash") REFERENCES public.post(hash);
+    ADD CONSTRAINT "notification_postHash_fkey" FOREIGN KEY ("postHash") REFERENCES public.post(hash) NOT VALID;
 
 
 --
@@ -880,7 +884,7 @@ ALTER TABLE ONLY public.user_profile_relations
     ADD CONSTRAINT "user_profile_relations_userAddress_fkey" FOREIGN KEY ("userAddress") REFERENCES public.users(address);
 
 
--- Completed on 2022-08-20 14:59:36
+-- Completed on 2022-08-23 15:35:52
 
 --
 -- PostgreSQL database dump complete
