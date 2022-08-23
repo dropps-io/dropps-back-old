@@ -15,8 +15,9 @@ import {queryImages, queryImagesByType} from "../../../bin/db/image.table";
 import {selectImage} from "../../../bin/utils/select-image";
 import {FastifyInstance} from "fastify";
 import {isAddress} from "../../../bin/utils/validators";
-import {queryNotificationsCountOfAddress, queryNotificationsOfAddress} from "../../../bin/db/notification.table";
+import {queryNotificationsCountOfAddress, queryNotificationsOfAddress, setViewedToAddressNotifications} from "../../../bin/db/notification.table";
 import {NotificationWithSenderDetails} from "../../../models/types/notification";
+import {verifyJWT} from "../../../bin/json-web-token";
 
 export function looksoProfileRoutes(fastify: FastifyInstance) {
   fastify.route({
@@ -295,6 +296,30 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
         const notificationsCount: number = await queryNotificationsCountOfAddress(address);
 
         return reply.code(200).send({notifications: notificationsCount});
+        /* eslint-disable */
+      } catch (e: any) {
+        logError(e);
+        reply.code(500).send(error(500, ERROR_INTERNAL));
+      }
+    }
+  });
+
+  fastify.route({
+    method: 'PUT',
+    url: '/profile/:address/notifications',
+    schema: {
+      description: 'Set all the notifications as viewed.',
+      tags: ['lookso'],
+      summary: 'Set all the notifications as viewed.',
+    },
+    handler: async (request, reply) => {
+      const {address} = request.params as { address: string };
+      await verifyJWT(request, reply, address);
+
+      try {
+        await setViewedToAddressNotifications(address);
+
+        return reply.code(200).send();
         /* eslint-disable */
       } catch (e: any) {
         logError(e);
