@@ -12,6 +12,7 @@ export async function queryNotificationsCountOfAddress(address: string): Promise
 }
 
 export async function insertNotification(address: string, sender: string, date: Date, type: 'like' | 'follow' | 'comment' | 'repost', postHash?: string): Promise<void> {
+	if (address === sender) return;
 	await executeQuery('INSERT INTO "notification" VALUES ($1, $2, $3, $4, $5, $6)', [address, sender, date, false, type, postHash]);
 }
 
