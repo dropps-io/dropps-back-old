@@ -16,7 +16,8 @@ export interface FeedPost {
   comments: number,
   reposts: number,
   isLiked: boolean,
-  inRegistry?: boolean
+  inRegistry?: boolean,
+  childPost?: FeedPost
 }
 
 export interface FeedDisplay {
