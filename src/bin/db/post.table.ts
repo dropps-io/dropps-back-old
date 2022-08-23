@@ -25,6 +25,12 @@ export async function queryPosts(limit: number, offset: number, type?: 'event' |
 	return res.rows as Post[];
 }
 
+export async function queryPostComments(hash: string, limit: number, offset: number): Promise<Post[]> {
+	let query = 'SELECT * FROM "post" WHERE "parentHash" = $1 ORDER BY "date" DESC LIMIT $2 OFFSET $3';
+	const res = await executeQuery(query, [hash, limit, offset]);
+	return res.rows as Post[];
+}
+
 export async function queryPostsOfUser(address: string, limit: number, offset: number, type?: 'event' | 'post'): Promise<Post[]> {
 	let query = 'SELECT * FROM "post" WHERE "author" = $1 AND "parentHash" IS NULL';
 	if (type) query +=  type === 'event' ? ' AND "eventId" IS NOT NULL' : ' AND "eventId" IS NULL';

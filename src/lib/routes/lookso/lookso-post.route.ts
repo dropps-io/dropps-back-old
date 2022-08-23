@@ -13,6 +13,10 @@ import {getProfileRegistry} from "../../../bin/lookso/registry/utils/get-address
 import {buildJsonUrl} from "../../../bin/utils/json-url";
 import {FastifyInstance} from "fastify";
 import {ArweaveClient} from "../../../bin/arweave/ArweaveClient.class";
+import {queryPost, queryPostComments} from "../../../bin/db/post.table";
+import {FeedPost} from "../../../models/types/feed-post";
+import {constructFeed} from "../../../bin/lookso/feed/construct-feed";
+import {Post} from "../../../models/types/post";
 
 const arweave = new ArweaveClient();
 
@@ -41,6 +45,63 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
           response.push({...like, image: selectImage(images, {minWidthExpected: 50})});
         }
         return reply.code(200).send(response);
+        /* eslint-disable */
+      } catch (e: any) {
+        logError(e);
+        reply.code(500).send(error(500, ERROR_INTERNAL));
+      }
+    }
+  });
+
+  fastify.route({
+    method: 'GET',
+    url: '/post/:hash',
+    schema: {
+      description: 'Get a post information.',
+      tags: ['lookso'],
+      summary: 'Get a post information.',
+      querystring: {
+        viewOf: { type: 'string' },
+      },
+    },
+    handler: async (request, reply) => {
+      const {hash} = request.params as { hash: string};
+      const {viewOf} = request.query as { viewOf?: string };
+
+      try {
+        const post = await queryPost(hash);
+        const feedPost: FeedPost = (await constructFeed([post], viewOf))[0];
+        return reply.code(200).send(feedPost);
+        /* eslint-disable */
+      } catch (e: any) {
+        logError(e);
+        reply.code(500).send(error(500, ERROR_INTERNAL));
+      }
+    }
+  });
+
+  fastify.route({
+    method: 'GET',
+    url: '/post/:hash/comments',
+    schema: {
+      description: 'Get post comments.',
+      tags: ['lookso'],
+      querystring: {
+        limit: { type: 'number' },
+        offset: { type: 'number' },
+        viewOf: { type: 'string' },
+      },
+      summary: 'Get post comments.',
+    },
+    handler: async (request, reply) => {
+      const {hash} = request.params as { hash: string };
+      const {limit, offset, viewOf} = request.query as { limit: number, offset: number, viewOf?: string };
+
+      try {
+        const posts: Post[] = await queryPostComments(hash, limit, offset);
+        const feed = await constructFeed(posts, viewOf);
+
+        return reply.code(200).send(feed);
         /* eslint-disable */
       } catch (e: any) {
         logError(e);
