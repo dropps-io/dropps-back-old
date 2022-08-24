@@ -267,7 +267,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
             sender: {
               address: notification.sender,
               name: name,
-              image: selectImage(images, {minWidthExpected: 50}).url
+              image: images.length > 0 ? selectImage(images, {minWidthExpected: 50}).url : ''
             }
           });
         }
