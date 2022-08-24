@@ -10,5 +10,5 @@ export async function extractLSP7Data(address: string): Promise<void> {
   const lsp7contract = new web3.eth.Contract(LSP7DigitalAsset.abi as AbiItem[], address);
   const isNFT: boolean = (await lsp7contract.methods.decimals().call()) === '0';
 
-  await indexLSP4Data(address, lsp4, isNFT, '0');
+  indexLSP4Data(address, lsp4, isNFT, '0');
 }

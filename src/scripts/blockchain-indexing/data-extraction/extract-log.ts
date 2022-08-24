@@ -55,8 +55,8 @@ async function extractEvent(log: Log): Promise<void> {
         }
         break;
       case 'OwnershipTransferred':
-        await extractContract(decodedParameters['previousOwner']);
-        await extractContract(decodedParameters['newOwner']);
+        extractContract(decodedParameters['previousOwner']);
+        extractContract(decodedParameters['newOwner']);
         break;
       case 'DataChanged':
         const th = await web3.eth.getTransaction(log.transactionHash);
@@ -65,7 +65,7 @@ async function extractEvent(log: Log): Promise<void> {
 
         for (let keyValue of dataChanged) {
           await extractDataFromKey(log, keyValue.key, keyValue.value);
-          await indexDataChanged(log.address, keyValue.key, keyValue.value, th.blockNumber as number)
+          indexDataChanged(log.address, keyValue.key, keyValue.value, th.blockNumber as number)
         }
         break;
     }

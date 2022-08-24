@@ -1,7 +1,8 @@
 import Web3 from "web3";
 import {extractDataFromLog} from "./data-extraction/extract-log";
-import {BLOCK_ITERATION} from "./config";
+import {BLOCK_ITERATION, SLEEP_BETWEEN_ITERATION} from "./config";
 import {Log} from "../../models/types/log";
+import {sleep} from "./utils/sleep";
 
 const web3 = new Web3('https://rpc.l16.lukso.network');
 
@@ -30,10 +31,11 @@ export async function indexBlockchain(latestBlockIndexed: number) {
 
         if (logsRes) {
             for (let log of logsRes) {
-                if (topicsWanted.includes(log.topics[0])) await extractDataFromLog(log);
+                if (topicsWanted.includes(log.topics[0])) extractDataFromLog(log);
             }
         }
 
+        await sleep(SLEEP_BETWEEN_ITERATION);
         await indexBlockchain(lastBlock);
     } catch (e) {
         console.error(e);

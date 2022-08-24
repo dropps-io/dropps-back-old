@@ -22,5 +22,5 @@ export async function extractLSP3Data(address: string): Promise<void> {
     lsp3 = initialUniversalProfile();
   }
 
-  await indexLsp3Data(address, lsp3);
+  indexLsp3Data(address, lsp3);
 }

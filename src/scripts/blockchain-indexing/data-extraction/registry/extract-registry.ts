@@ -30,7 +30,7 @@ async function extractRegistryPosts(log: Log, posts: {hash: string, url: string}
       const postValidatorContract: Contract = new web3.eth.Contract(PostValidatorContract.abi as AbiItem[], POST_VALIDATOR_ADDRESS);
       const postTimestamp: string = await postValidatorContract.methods.getTimestamp(post.hash).call();
 
-      await indexRegistryPost(log, profilePost.LSPXXProfilePost, profilePost.LSPXXProfilePostHash, new Date(parseInt(postTimestamp) * 1000));
+      indexRegistryPost(log, profilePost.LSPXXProfilePost, profilePost.LSPXXProfilePostHash, new Date(parseInt(postTimestamp) * 1000));
     }
   }
 }
