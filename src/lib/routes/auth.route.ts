@@ -10,7 +10,7 @@ import {generateAddressWithSignature} from '../../bin/web3/auth';
 import {generateJWT} from '../../bin/json-web-token';
 import {FastifyInstance} from 'fastify';
 import {JWT_VALIDITY_TIME} from '../../environment/config';
-import {logError} from '../../bin/logger';
+import {logError, logMessage} from '../../bin/logger';
 import {UniversalProfileReader} from "../../bin/UniversalProfile/UniversalProfileReader.class";
 import {web3} from "../../bin/web3/web3";
 import {IPFS_GATEWAY} from "../../bin/utils/constants";
@@ -59,7 +59,7 @@ export async function authRoute (fastify: FastifyInstance) {
       const {userAddress} = request.params as { userAddress: string };
       const {signedNonce} = request.body as { signedNonce: string };
 
-      console.log(signedNonce);
+      logMessage(signedNonce);
 
       try {
         if (!isAddress(userAddress)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));

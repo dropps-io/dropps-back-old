@@ -5,6 +5,7 @@ import {insertAsset} from "../../../../bin/db/asset.table";
 import {insertImage} from "../../../../bin/db/image.table";
 import {insertLink} from "../../../../bin/db/link.table";
 import {INDEX_DATA} from "../../config";
+import {logError} from "../../../../bin/logger";
 
 export async function indexLSP4Data(address: string, lsp4: LSP4DigitalAsset, isNFT: boolean, supply: string) {
   if (!INDEX_DATA) return;
@@ -15,6 +16,6 @@ export async function indexLSP4Data(address: string, lsp4: LSP4DigitalAsset, isN
     for (let link of lsp4.metadata.links) await tryExecuting(insertLink(address, link.title, link.url));
     for (let icon of lsp4.metadata.icon) await tryExecuting(insertImage(address, icon.url, icon.width, icon.height, 'icon', icon.hash));
   } catch (e) {
-    console.log(e);
+    logError(e);
   }
 }

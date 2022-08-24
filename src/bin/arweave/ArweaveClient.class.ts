@@ -1,6 +1,7 @@
 import _arweaveWallet from "./arweaveAddress.json";
 import Arweave from "arweave";
-import { JWK } from "./types/JWK";
+import {JWK} from "./types/JWK";
+import {logMessage} from "../logger";
 
 
 export class ArweaveClient {
@@ -42,11 +43,10 @@ export class ArweaveClient {
         // Sign
         await this._provider.transactions.sign(tx, this._wallet);
         const response = await this._provider.transactions.post(tx);
-        console.log(response);
 
         switch (response.status) {
             case 200:
-                console.log("Transaction " + tx.id + " submitted successfully");
+                logMessage("Transaction " + tx.id + " submitted successfully");
                 return tx.id;
             default:
                 throw new Error("uploadPost: Failed to upload post data")
@@ -74,10 +74,7 @@ export class ArweaveClient {
         switch (response.status) {
             case 200:
                 try {
-                    console.log(response);
-                    let responseJson = await response.json();
-                    console.log(responseJson);
-                    return responseJson;
+                    return await response.json();
                 } catch (err: any) {
                     throw new Error(`https://arweave.net/${txId}`+": Not a valid JSON object");
                 }
@@ -89,7 +86,7 @@ export class ArweaveClient {
         }
     }
 
-    public async getTxTags(txId:string): Promise<any> {
+    public async getTxTags(): Promise<any> {
         let response = await fetch('https://arweave.net/graphql', {
             method: 'POST',
             headers: {
@@ -120,7 +117,6 @@ export class ArweaveClient {
         const response = await this._provider.api.get(`/price/${byteSize}`);
         switch (response.status) {
             case 200:
-                console.log(response.data);
                 return await this.winstonToDollar(response.data);
             default:
                 throw new Error("Request failed: estimateCost")

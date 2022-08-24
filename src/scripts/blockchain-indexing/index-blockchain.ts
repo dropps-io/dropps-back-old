@@ -3,6 +3,7 @@ import {extractDataFromLog} from "./data-extraction/extract-log";
 import {BLOCK_ITERATION, SLEEP_BETWEEN_ITERATION} from "./config";
 import {Log} from "../../models/types/log";
 import {sleep} from "./utils/sleep";
+import {logMessage} from "../../bin/logger";
 
 const web3 = new Web3('https://rpc.l16.lukso.network');
 
@@ -12,7 +13,7 @@ export async function indexBlockchain(latestBlockIndexed: number) {
         lastBlock = await web3.eth.getBlockNumber();
         if (lastBlock - latestBlockIndexed > BLOCK_ITERATION) lastBlock = latestBlockIndexed + BLOCK_ITERATION;
 
-        console.log('Indexing from block ' + latestBlockIndexed + ' to block ' + lastBlock);
+        logMessage('Indexing from block ' + latestBlockIndexed + ' to block ' + lastBlock);
 
         const topicsWanted = [
             '0xece574603820d07bc9b91f2a932baadf4628aabcb8afba49776529c14a6104b2',
@@ -40,7 +41,7 @@ export async function indexBlockchain(latestBlockIndexed: number) {
     } catch (e) {
         console.error(e);
         // await sleep(30000);
-        console.log('GOT ERROR');
+        logMessage('GOT ERROR');
         await indexBlockchain(lastBlock);
     }
 }

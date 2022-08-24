@@ -105,7 +105,6 @@ export async function generateDataChangedDisplay(event: Event, parameters: Map<s
   try {
     value = await queryDataKeyValueAtBlockNumber(event.address, dataKey ? dataKey.value : '', event.blockNumber);
     const decodedData = ERC725.decodeData([{value: value, keyName: schema.name}], [schema])[schema.name];
-    console.log(decodedData);
 
     for (let word of getWordsBetweenCurlies(display.display)) {
       if (word === 'dataValue') displayParams['dataValue'] = await getDisplayParam(decodedData, schema.displayValueType ? schema.displayValueType : schema.valueType);

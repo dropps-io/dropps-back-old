@@ -1,7 +1,7 @@
 import {queryPostLikesWithNames} from "../../../bin/db/like.table";
 import {queryImagesByType} from "../../../bin/db/image.table";
 import {selectImage} from "../../../bin/utils/select-image";
-import {logError} from "../../../bin/logger";
+import {logError, logMessage} from "../../../bin/logger";
 import {error, ERROR_INTERNAL} from "../../../bin/utils/error-messages";
 import {LSPXXProfilePost, ProfilePost} from "../../../bin/lookso/registry/types/profile-post";
 import {verifyJWT} from "../../../bin/json-web-token";
@@ -174,7 +174,7 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
       const postUrl = arweaveTxToUrl(await arweave.upload(objectToBuffer(post), 'application/json'));
 
       const registry: SocialRegistry = await getProfileRegistry(post.LSPXXProfilePost.author);
-      console.log(registry)
+      logMessage(registry)
       registry.posts.push({url: postUrl, hash: post.LSPXXProfilePostHash});
 
       const newRegistryUrl = arweaveTxToUrl(await arweave.upload(objectToBuffer(registry), 'application/json'));

@@ -5,6 +5,7 @@ import {SocialRegistry} from "../types/social-registry";
 import axios from "axios";
 import {formatUrl} from "../../../utils/format-url";
 import {decodeJsonUrl} from "../../../utils/json-url";
+import {logError} from "../../../logger";
 
 export async function getProfileRegistry(address: string): Promise<SocialRegistry> {
   const universalProfile = new UniversalProfileReader(address, IPFS_GATEWAY, web3);
@@ -13,7 +14,7 @@ export async function getProfileRegistry(address: string): Promise<SocialRegistr
     return (await axios.get(formatUrl(decodeJsonUrl(jsonUrl)))).data as SocialRegistry;
   }
   catch (error:any) {
-    if (error.message) console.log("Unable to fetch Social Registry. " + error.message);
+    if (error.message) logError("Unable to fetch Social Registry. " + error.message);
     return {posts: [], likes: [], follows: []};
   }
 }

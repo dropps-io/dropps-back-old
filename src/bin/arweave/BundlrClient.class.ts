@@ -1,6 +1,5 @@
 import NodeBundlr from "@bundlr-network/client";
 import { FundData } from "@bundlr-network/client/build/common/types";
-import { AxiosResponse } from "axios";
 import _arweaveWallet from "./arweaveAddress.json";
 
 export class BundlrClient {
@@ -29,7 +28,6 @@ export class BundlrClient {
         // Sign
         await transaction.sign();
         const response = await transaction.upload();
-        console.log(response);
         return response.data.id;
     }
 

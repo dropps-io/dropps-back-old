@@ -4,6 +4,7 @@ import {extractLSP8Data} from "./contract-metatata/extract-lsp8";
 import {extractLSP7Data} from "./contract-metatata/extract-lsp7";
 import {extractLSP3Data} from "./contract-metatata/extract-lsp3";
 import {indexContract} from "../data-indexing/index-contract";
+import {logError} from "../../../bin/logger";
 
 export async function extractContract(address: string) {
   let contract = await queryContract(address);
@@ -25,7 +26,7 @@ export async function extractContract(address: string) {
         break;
     }
   } catch (e) {
-    console.log(e);
+    logError(e);
   }
   return {address, interfaceCode: contractInterface?.code ? contractInterface?.code : null}
 }

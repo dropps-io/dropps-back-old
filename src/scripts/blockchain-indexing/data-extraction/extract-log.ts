@@ -13,6 +13,7 @@ import {indexEvent} from "../data-indexing/index-event";
 import {decodeSetDataValueFromInput} from "../utils/set-data-from-input";
 import {extractDataFromKey} from "./extract-key-data";
 import {indexDataChanged} from "../data-indexing/index-data-changed";
+import {logError} from "../../../bin/logger";
 
 export async function extractDataFromLog(log: Log) {
   await extractContract(log.address);
@@ -70,6 +71,6 @@ async function extractEvent(log: Log): Promise<void> {
         break;
     }
   } catch (e) {
-    // console.log(e);
+    logError(e);
   }
 }
