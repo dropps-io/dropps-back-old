@@ -17,8 +17,10 @@ import {queryPost, queryPostComments} from "../../../bin/db/post.table";
 import {FeedPost} from "../../../models/types/feed-post";
 import {constructFeed} from "../../../bin/lookso/feed/construct-feed";
 import {Post} from "../../../models/types/post";
+import { BundlrClient } from "../../../bin/arweave/BundlrClient.class";
 
 const arweave = new ArweaveClient();
+const bundlr = new BundlrClient();
 
 export function looksoPostRoutes(fastify: FastifyInstance) {
   fastify.route({
@@ -125,9 +127,16 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
       const post: LSPXXProfilePost = body.lspXXProfilePost;
 
       const buffer = Buffer.from(body.base64File.split(',')[1], 'base64url');
-      const txId = await arweave.upload(buffer, body.fileType);
-      const fileUrl = arweaveTxToUrl(txId);
 
+      let txId;
+      try {
+        txId = await bundlr.upload(buffer, body.fileType);
+      } catch (error:any) {
+        console.error(error.message? error.message : "Bundlr upload failed");
+        txId = await arweave.upload(buffer, body.fileType);
+      }
+
+      const fileUrl = arweaveTxToUrl(txId);
       post.asset = {
         fileType: body.fileType,
         hash: '0x' + arrayBufferKeccak256Hash(buffer),

@@ -2,6 +2,7 @@ import _arweaveWallet from "./arweaveAddress.json";
 import Arweave from "arweave";
 import { JWK } from "./types/JWK";
 
+
 export class ArweaveClient {
     protected readonly _urlPrefix = "ar://";
     protected readonly _provider;
