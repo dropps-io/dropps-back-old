@@ -8,7 +8,7 @@ import {
   queryFollowing,
   queryFollowingCount, queryFollowingWithNames
 } from "../../../bin/db/follow.table";
-import {queryContractMetadata} from "../../../bin/db/contract-metadata.table";
+import {queryContractMetadata, queryContractName} from "../../../bin/db/contract-metadata.table";
 import {queryTags} from "../../../bin/db/tag.table";
 import {queryLinks} from "../../../bin/db/link.table";
 import {queryImages, queryImagesByType} from "../../../bin/db/image.table";
@@ -253,7 +253,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
         for (const notification of notifications) {
           let name: string;
           try {
-            name = (await queryContractMetadata(notification.sender)).name;
+            name = (await queryContractName(notification.sender));
           } catch (e) {
             name = '';
           }

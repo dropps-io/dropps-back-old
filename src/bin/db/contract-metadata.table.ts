@@ -14,6 +14,18 @@ export async function queryContractName(address: string): Promise<string> {
 	else return '';
 }
 
+export async function searchContractMetadataByAddress(input: string, limit: number, offset: number): Promise<{address: string, name: string}[]> {
+	const res = await executeQuery('SELECT address,name FROM contract_metadata WHERE address LIKE $1 ORDER BY address LIMIT $2 OFFSET $3', ['%' + input + '%', limit, offset]);
+	if (res.rows[0]) return res.rows;
+	else return [];
+}
+
+export async function searchContractMetadataByName(input: string, limit: number, offset: number): Promise<{address: string, name: string}[]> {
+	const res = await executeQuery("SELECT address,name FROM contract_metadata WHERE name LIKE $1 ORDER BY name LIMIT $2 OFFSET $3", ['%' + input + '%', limit, offset]);
+	if (res.rows[0]) return res.rows;
+	else return [];
+}
+
 export async function queryContractIsNFT(address: string): Promise<boolean> {
 	const res = await executeQuery('SELECT "isNFT" FROM "contract_metadata" WHERE "address" = $1', [address]);
 	if (res.rows[0]) return res.rows[0].isNFT

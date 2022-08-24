@@ -17,6 +17,7 @@ import {Like} from "../../../models/types/like";
 import {looksoPostRoutes} from "./lookso-post.route";
 import {looksoProfileRoutes} from "./lookso-profile.route";
 import {insertNotification} from "../../../bin/db/notification.table";
+import {search} from "../../../bin/lookso/search";
 
 export async function looksoRoute (fastify: FastifyInstance) {
 	fastify.route({
@@ -130,6 +131,29 @@ export async function looksoRoute (fastify: FastifyInstance) {
 				const feed = await constructFeed(posts);
 
 				return reply.code(200).send(feed);
+				/* eslint-disable */
+			} catch (e: any) {
+				logError(e);
+				reply.code(500).send(error(500, ERROR_INTERNAL));
+			}
+		}
+	});
+
+	fastify.route({
+		method: 'GET',
+		url: '/search/:input',
+		schema: {
+			description: 'Search in our database with an input.',
+			tags: ['lookso'],
+			summary: 'Search in our database with an input.',
+		},
+		handler: async (request, reply) => {
+			const {input} = request.params as { input: string };
+
+			try {
+				const profiles = await search(input);
+
+				return reply.code(200).send(profiles);
 				/* eslint-disable */
 			} catch (e: any) {
 				logError(e);
