@@ -4,5 +4,9 @@ import {INDEX_DATA} from "../config";
 
 export async function indexDataChanged(address: string, key: string, value: string, blockNumber: number) {
   if (!INDEX_DATA) return;
-  await tryExecuting(insertDataChanged(address, key, value, blockNumber));
+  try {
+    await tryExecuting(insertDataChanged(address, key, value, blockNumber));
+  } catch (e) {
+    console.error(e);
+  }
 }

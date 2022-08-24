@@ -12,30 +12,34 @@ export async function updateLSP3Profile(address: string, lsp3: LSP3UniversalProf
   if (!INDEX_DATA) return;
   if (!lsp3) return;
 
-  const images: Image[] = await queryImages(address);
-  const links: Link[] = await queryLinks(address);
-  const tags: string[] = await queryTags(address);
+  try {
+    const images: Image[] = await queryImages(address);
+    const links: Link[] = await queryLinks(address);
+    const tags: string[] = await queryTags(address);
 
-  await updateContractDescription(address, lsp3.description);
-  await updateContractName(address, lsp3.name);
+    await updateContractDescription(address, lsp3.description);
+    await updateContractName(address, lsp3.name);
 
-  const imagesToDelete = images.filter(i => !lsp3.profileImage.map(x => x.hash).includes(i.hash) && !lsp3.backgroundImage.map(x => x.hash).includes(i.hash));
-  const profileImagesToAdd = lsp3.profileImage.filter(i => !images.map(x => x.hash).includes(i.hash));
-  const backgroundImagesToAdd = lsp3.backgroundImage.filter(i => !images.map(x => x.hash).includes(i.hash));
+    const imagesToDelete = images.filter(i => !lsp3.profileImage.map(x => x.hash).includes(i.hash) && !lsp3.backgroundImage.map(x => x.hash).includes(i.hash));
+    const profileImagesToAdd = lsp3.profileImage.filter(i => !images.map(x => x.hash).includes(i.hash));
+    const backgroundImagesToAdd = lsp3.backgroundImage.filter(i => !images.map(x => x.hash).includes(i.hash));
 
-  for (let image of imagesToDelete) await deleteImage(address, image.url);
-  for (let image of profileImagesToAdd) await insertImage(address, image.url, image.width, image.height, 'profile', image.hash);
-  for (let image of backgroundImagesToAdd) await insertImage(address, image.url, image.width, image.height, 'background', image.hash);
+    for (let image of imagesToDelete) await deleteImage(address, image.url);
+    for (let image of profileImagesToAdd) await insertImage(address, image.url, image.width, image.height, 'profile', image.hash);
+    for (let image of backgroundImagesToAdd) await insertImage(address, image.url, image.width, image.height, 'background', image.hash);
 
-  const linksToDelete = links.filter(i => !lsp3.links.map(x => x.url).includes(i.url));
-  const linksToAdd = lsp3.links.filter(i => !links.map(x => x.url).includes(i.url));
+    const linksToDelete = links.filter(i => !lsp3.links.map(x => x.url).includes(i.url));
+    const linksToAdd = lsp3.links.filter(i => !links.map(x => x.url).includes(i.url));
 
-  for (let link of linksToDelete) await deleteLink(address, link.title, link.url);
-  for (let link of linksToAdd) await insertLink(address, link.title, link.url);
+    for (let link of linksToDelete) await deleteLink(address, link.title, link.url);
+    for (let link of linksToAdd) await insertLink(address, link.title, link.url);
 
-  const tagsToDelete = tags.filter(i => !lsp3.tags.includes(i));
-  const tagsToAdd = lsp3.tags.filter(i => !tags.includes(i));
+    const tagsToDelete = tags.filter(i => !lsp3.tags.includes(i));
+    const tagsToAdd = lsp3.tags.filter(i => !tags.includes(i));
 
-  for (let tag of tagsToDelete) await deleteTag(address, tag);
-  for (let tag of tagsToAdd) await insertTag(address, tag);
+    for (let tag of tagsToDelete) await deleteTag(address, tag);
+    for (let tag of tagsToAdd) await insertTag(address, tag);
+  } catch (e) {
+    console.error(e);
+  }
 }

@@ -8,8 +8,12 @@ import {INDEX_DATA} from "../config";
 
 export async function indexTransaction(transaction: Transaction ,log: Log, parameters: MethodParameter[], decodedParameters: {[p: string]: any}) {
   if (!INDEX_DATA) return;
-  await tryExecuting(insertTransaction(log.transactionHash, transaction.from, transaction.to as string, transaction.value, transaction.input, transaction.blockNumber as number));
-  for (let parameter of parameters) {
-    await tryExecuting(insertDecodedFunctionParameter(log.transactionHash, decodedParameters[parameter.name] as string, parameter.name, parameter.type, parameter.displayType));
+  try {
+    await tryExecuting(insertTransaction(log.transactionHash, transaction.from, transaction.to as string, transaction.value, transaction.input, transaction.blockNumber as number));
+    for (let parameter of parameters) {
+      await tryExecuting(insertDecodedFunctionParameter(log.transactionHash, decodedParameters[parameter.name] as string, parameter.name, parameter.type, parameter.displayType));
+    }
+  } catch (e) {
+    console.error(e);
   }
 }
