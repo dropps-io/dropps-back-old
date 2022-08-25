@@ -1,26 +1,20 @@
 import {queryPostLike, queryPostLikesWithNames} from "../../../bin/db/like.table";
 import {queryImagesByType} from "../../../bin/db/image.table";
 import {selectImage} from "../../../bin/utils/select-image";
-import {logError, logMessage} from "../../../bin/logger";
+import {logError} from "../../../bin/logger";
 import {error, ERROR_INTERNAL} from "../../../bin/utils/error-messages";
 import {LSPXXProfilePost, ProfilePost} from "../../../bin/lookso/registry/types/profile-post";
 import {verifyJWT} from "../../../bin/json-web-token";
 import {Buffer} from "buffer";
-import {arweaveTxToUrl} from "../../../bin/arweave/arweave-utils";
 import {arrayBufferKeccak256Hash, objectToBuffer, objectToKeccak256Hash} from "../../../bin/utils/file-converters";
-import {SocialRegistry} from "../../../bin/lookso/registry/types/social-registry";
-import {getProfileRegistry} from "../../../bin/lookso/registry/utils/get-address-registry";
 import {buildJsonUrl} from "../../../bin/utils/json-url";
 import {FastifyInstance} from "fastify";
-import {ArweaveClient} from "../../../bin/arweave/ArweaveClient.class";
 import {queryPost, queryPostComments} from "../../../bin/db/post.table";
 import {FeedPost} from "../../../models/types/feed-post";
 import {constructFeed} from "../../../bin/lookso/feed/construct-feed";
 import {Post} from "../../../models/types/post";
-import { BundlrClient } from "../../../bin/arweave/BundlrClient.class";
-
-const arweave = new ArweaveClient();
-const bundlr = new BundlrClient();
+import {applyChangesToRegistry} from "../../../bin/lookso/registry/apply-changes-to-registry";
+import {upload} from "../../../bin/arweave/utils/upload";
 
 export function looksoPostRoutes(fastify: FastifyInstance) {
   fastify.route({
@@ -134,15 +128,7 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
 
       const buffer = Buffer.from(body.base64File.split(',')[1], 'base64url');
 
-      let txId;
-      try {
-        txId = await bundlr.upload(buffer, body.fileType);
-      } catch (error:any) {
-        console.error(error.message? error.message : "Bundlr upload failed");
-        txId = await arweave.upload(buffer, body.fileType);
-      }
-
-      const fileUrl = arweaveTxToUrl(txId);
+      const fileUrl = await upload(buffer, body.fileType);
       post.asset = {
         fileType: body.fileType,
         hash: '0x' + arrayBufferKeccak256Hash(buffer),
@@ -177,13 +163,13 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
         LSPXXProfilePostHash: '0x' + objectToKeccak256Hash(body.lspXXProfilePost),
         LSPXXProfilePostEOASignature: body.signature
       }
-      const postUrl = arweaveTxToUrl(await arweave.upload(objectToBuffer(post), 'application/json'));
 
-      const registry: SocialRegistry = await getProfileRegistry(post.LSPXXProfilePost.author);
-      logMessage(registry)
+      const postUrl = await upload(objectToBuffer(post), 'application/json');
+
+      const registry = await applyChangesToRegistry(body.lspXXProfilePost.author);
       registry.posts.push({url: postUrl, hash: post.LSPXXProfilePostHash});
 
-      const newRegistryUrl = arweaveTxToUrl(await arweave.upload(objectToBuffer(registry), 'application/json'));
+      const newRegistryUrl = await upload(objectToBuffer(registry), 'application/json');
 
       try {
         return reply.code(200).send({jsonUrl: buildJsonUrl(registry, newRegistryUrl), postHash: post.LSPXXProfilePostHash});

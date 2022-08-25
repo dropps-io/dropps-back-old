@@ -18,6 +18,12 @@ import {isAddress} from "../../../bin/utils/validators";
 import {queryNotificationsCountOfAddress, queryNotificationsOfAddress, setViewedToAddressNotifications} from "../../../bin/db/notification.table";
 import {NotificationWithSenderDetails} from "../../../models/types/notification";
 import {verifyJWT} from "../../../bin/json-web-token";
+import {applyChangesToRegistry} from "../../../bin/lookso/registry/apply-changes-to-registry";
+import {objectToBuffer} from "../../../bin/utils/file-converters";
+import {upload} from "../../../bin/arweave/utils/upload";
+import {buildJsonUrl} from "../../../bin/utils/json-url";
+import {deleteAddressRegistryChanges} from "../../../bin/db/registry-change.table";
+
 
 export function looksoProfileRoutes(fastify: FastifyInstance) {
   fastify.route({
@@ -328,4 +334,52 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
     }
   });
 
+  fastify.route({
+    method: 'POST',
+    url: '/profile/:address/registry',
+    schema: {
+      description: 'Upload and get the new registry JSONURL.',
+      tags: ['lookso'],
+      summary: 'Upload and get the new registry JSONURL.',
+    },
+    handler: async (request, reply) => {
+      const {address} = request.params as { address: string };
+      await verifyJWT(request, reply, address);
+
+      try {
+        const registry = applyChangesToRegistry(address);
+        const newRegistryUrl = await upload(objectToBuffer(registry), 'application/json');
+
+        return reply.code(200).send({jsonUrl: buildJsonUrl(registry, newRegistryUrl)});
+        /* eslint-disable */
+      } catch (e: any) {
+        logError(e);
+        reply.code(500).send(error(500, ERROR_INTERNAL));
+      }
+    }
+  });
+
+  fastify.route({
+    method: 'POST',
+    url: '/profile/:address/registry/uploaded',
+    schema: {
+      description: 'Remove all the current registry pending changes.',
+      tags: ['lookso'],
+      summary: 'Remove all the current registry pending changes.',
+    },
+    handler: async (request, reply) => {
+      const {address} = request.params as { address: string };
+      await verifyJWT(request, reply, address);
+
+      try {
+        await deleteAddressRegistryChanges(address);
+
+        return reply.code(200).send();
+        /* eslint-disable */
+      } catch (e: any) {
+        logError(e);
+        reply.code(500).send(error(500, ERROR_INTERNAL));
+      }
+    }
+  });
 }
