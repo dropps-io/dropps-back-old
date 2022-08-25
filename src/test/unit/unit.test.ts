@@ -21,6 +21,7 @@ import {DecodedFunctionParametersTests} from "./db/decoded-function-parameter.te
 import {KeyDisplayTests} from "./db/key-display.test";
 import {Erc725ySchemaTests} from "./db/erc725y-schema.test";
 import {NotificationTests} from "./db/notification.test";
+import {RegistryChangeTests} from "./db/registry-changes.test";
 
 export const UnitTests = () => {
     describe('Unit Tests', () => {
@@ -47,6 +48,7 @@ export const UnitTests = () => {
             KeyDisplayTests();
             Erc725ySchemaTests();
             NotificationTests();
+            RegistryChangeTests();
         });
     });
 }
