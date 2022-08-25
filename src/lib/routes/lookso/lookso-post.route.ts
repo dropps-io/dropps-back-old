@@ -1,4 +1,4 @@
-import {queryPostLikesWithNames} from "../../../bin/db/like.table";
+import {queryPostLike, queryPostLikesWithNames} from "../../../bin/db/like.table";
 import {queryImagesByType} from "../../../bin/db/image.table";
 import {selectImage} from "../../../bin/utils/select-image";
 import {logError, logMessage} from "../../../bin/logger";
@@ -25,38 +25,6 @@ const bundlr = new BundlrClient();
 export function looksoPostRoutes(fastify: FastifyInstance) {
   fastify.route({
     method: 'GET',
-    url: '/post/:hash/likes',
-    schema: {
-      description: 'Get profile likes list.',
-      tags: ['lookso'],
-      summary: 'Get profile likes list.',
-      querystring: {
-        limit: { type: 'number' },
-        offset: { type: 'number' }
-      }
-    },
-    handler: async (request, reply) => {
-      const {hash} = request.params as { hash: string};
-      const {limit, offset} = request.query as {sender:string, limit: number, offset: number};
-
-      try {
-        const response = [];
-        const likes = await queryPostLikesWithNames(hash, limit, offset);
-        for (let like of likes) {
-          const images = await queryImagesByType(like.address, 'profile');
-          response.push({...like, image: selectImage(images, {minWidthExpected: 50})});
-        }
-        return reply.code(200).send(response);
-        /* eslint-disable */
-      } catch (e: any) {
-        logError(e);
-        reply.code(500).send(error(500, ERROR_INTERNAL));
-      }
-    }
-  });
-
-  fastify.route({
-    method: 'GET',
     url: '/post/:hash',
     schema: {
       description: 'Get a post information.',
@@ -74,6 +42,44 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
         const post = await queryPost(hash);
         const feedPost: FeedPost = (await constructFeed([post], viewOf))[0];
         return reply.code(200).send(feedPost);
+        /* eslint-disable */
+      } catch (e: any) {
+        logError(e);
+        reply.code(500).send(error(500, ERROR_INTERNAL));
+      }
+    }
+  });
+
+  fastify.route({
+    method: 'GET',
+    url: '/post/:hash/likes',
+    schema: {
+      description: 'Get profile likes list.',
+      tags: ['lookso'],
+      summary: 'Get profile likes list.',
+      querystring: {
+        limit: { type: 'number' },
+        offset: { type: 'number' }
+      }
+    },
+    handler: async (request, reply) => {
+      const {hash} = request.params as { hash: string};
+      const {sender, limit, offset} = request.query as {sender?:string, limit: number, offset: number};
+
+      try {
+        if (sender) {
+          const isLiking = await queryPostLike(sender, hash);
+          reply.code(200).send(isLiking ? [sender] : []);
+        } else {
+          const response = [];
+
+          const likes = await queryPostLikesWithNames(hash, limit, offset);
+          for (let like of likes) {
+            const images = await queryImagesByType(like.address, 'profile');
+            response.push({...like, image: selectImage(images, {minWidthExpected: 50})});
+          }
+          return reply.code(200).send(response);
+        }
         /* eslint-disable */
       } catch (e: any) {
         logError(e);
