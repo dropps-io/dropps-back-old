@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import {isAddress} from '../../../bin/utils/validators';
 import {verifyJWT} from '../../../bin/json-web-token';
-import {error, ERROR_ADR_INVALID, ERROR_INTERNAL, ERROR_NOT_FOUND, RESOURCE_EXISTS} from '../../../bin/utils/error-messages';
+import {error, ERROR_ADR_INVALID, ERROR_INTERNAL, ERROR_NOT_FOUND, PUSH_REGISTRY_REQUIRED, RESOURCE_EXISTS} from '../../../bin/utils/error-messages';
 import {logError} from '../../../bin/logger';
 import {Follow} from "../../../models/types/follow";
 import {
@@ -18,6 +18,8 @@ import {looksoPostRoutes} from "./lookso-post.route";
 import {looksoProfileRoutes} from "./lookso-profile.route";
 import {insertNotification} from "../../../bin/db/notification.table";
 import {search} from "../../../bin/lookso/search";
+import {insertRegistryChange, queryRegistryChangesCountOfAddress} from "../../../bin/db/registry-change.table";
+import {MAX_OFFCHAIN_REGISTRY_CHANGES} from "../../../environment/config";
 
 export async function looksoRoute (fastify: FastifyInstance) {
 	fastify.route({
@@ -33,10 +35,14 @@ export async function looksoRoute (fastify: FastifyInstance) {
 			verifyJWT(request, reply, body.follower);
 			if (!isAddress(body.following)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
 
+			const registryChangesCount = await queryRegistryChangesCountOfAddress(body.follower);
+			if (registryChangesCount >= MAX_OFFCHAIN_REGISTRY_CHANGES) return reply.code(409).send(error(409, PUSH_REGISTRY_REQUIRED));
+
 			try {
 				const contract = await queryContract(body.following);
 				if (contract && contract.interfaceCode !== 'LSP0') return reply.code(400).send(error(400, 'The following address is not an LSP0'));
 				await insertFollow(body.follower, body.following);
+				await insertRegistryChange(body.follower, 'follow', 'add', body.following, new Date());
 				await insertNotification(body.following, body.follower, new Date(), 'follow');
 				return reply.code(200).send();
 				/* eslint-disable */
@@ -62,10 +68,14 @@ export async function looksoRoute (fastify: FastifyInstance) {
 			verifyJWT(request, reply, body.follower);
 			if (!isAddress(body.following)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
 
+			const registryChangesCount = await queryRegistryChangesCountOfAddress(body.follower);
+			if (registryChangesCount >= MAX_OFFCHAIN_REGISTRY_CHANGES) return reply.code(409).send(error(409, PUSH_REGISTRY_REQUIRED));
+
 			try {
 				const contract = await queryContract(body.following);
 				if (contract && contract.interfaceCode !== 'LSP0') return reply.code(400).send(error(400, 'The following address is not an LSP0'));
 				await removeFollow(body.follower, body.following);
+				await insertRegistryChange(body.follower, 'follow', 'remove', body.following, new Date());
 				return reply.code(200).send();
 				/* eslint-disable */
 			} catch (e: any) {
@@ -89,12 +99,17 @@ export async function looksoRoute (fastify: FastifyInstance) {
 			const body = request.body as Like;
 			verifyJWT(request, reply, body.sender);
 
+			const registryChangesCount = await queryRegistryChangesCountOfAddress(body.sender);
+			if (registryChangesCount >= MAX_OFFCHAIN_REGISTRY_CHANGES) return reply.code(409).send(error(409, PUSH_REGISTRY_REQUIRED));
+
 			try {
 				const liked: boolean = await queryPostLike(body.sender, body.postHash);
 				if (liked) {
-					await removeLike(body.sender, body.postHash)
+					await removeLike(body.sender, body.postHash);
+					await insertRegistryChange(body.sender, 'like', 'remove', body.postHash, new Date());
 				} else {
 					await insertLike(body.sender, body.postHash);
+					await insertRegistryChange(body.sender, 'like', 'add', body.postHash, new Date());
 					const post = await queryPost(body.postHash);
 					await insertNotification(post.author, body.sender, new Date(), 'like', post.hash);
 				}
@@ -103,7 +118,7 @@ export async function looksoRoute (fastify: FastifyInstance) {
 				/* eslint-disable */
 			} catch (e: any) {
 				logError(e);
-				if(e.code === '23503' && e.detail.includes('present')) return reply.code(409).send(error(404, ERROR_NOT_FOUND));
+				if(e.code === '23503' && e.detail.includes('present')) return reply.code(404).send(error(404, ERROR_NOT_FOUND));
 				if(e.code === '23505' && e.detail.includes('exists')) return reply.code(409).send(error(409, RESOURCE_EXISTS));
 				return reply.code(500).send(error(500, ERROR_INTERNAL));
 			}

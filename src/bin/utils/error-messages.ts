@@ -25,6 +25,8 @@ export const ERROR_PROFILE_NOT_FOUND = 'Cannot find the Universal Profile';
 
 export const RESOURCE_EXISTS = 'Resource already exists';
 
+export const PUSH_REGISTRY_REQUIRED = 'Push to registry required';
+
 export function error(code: number, message: string): { code: number, message: string } {
 	return {
 		code,
