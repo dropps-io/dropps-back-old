@@ -2,7 +2,7 @@ import {queryContractName, searchContractMetadataByAddress, searchContractMetada
 import {queryImagesByType} from "../db/image.table";
 import {selectImage} from "../utils/select-image";
 
-export async function search(input: string): Promise<{address: string, name: string, image: string}[]> {
+export async function search(input: string, limit: number, offset: number): Promise<{address: string, name: string, image: string}[]> {
   if (input.length > 2 && input.slice(0, 2) === '0x') {
     if (input.length < 42) {
       const response = [];
@@ -31,7 +31,7 @@ export async function search(input: string): Promise<{address: string, name: str
     }
   } else {
     const response = [];
-    const contracts = await searchContractMetadataByName(input, 5, 0);
+    const contracts = await searchContractMetadataByName(input, limit, offset);
     for (const contract of contracts) {
       const images = await queryImagesByType(contract.address, 'profile');
       response.push({...contract, image: images.length > 0 ? selectImage(images, {minWidthExpected: 50}).url : ''});
