@@ -5,6 +5,7 @@ export const ERROR_NOT_FOUND = 'Table not found';
 export const ERROR_EXISTS = 'Table already exists';
 
 export const ERROR_ADR_INVALID = 'Invalid address format';
+export const ERROR_HASH_INVALID = 'Invalid hash format';
 export const ERROR_ADR_NOT_EQUAL_PARAM_BODY = 'Body and param address should be equal';
 
 export const ERROR_UP_NO_PERMISSIONS = 'User do not have permissions on this universal profile';

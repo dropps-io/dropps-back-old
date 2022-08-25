@@ -22,15 +22,23 @@ export async function extractRegistry(log: Log, _jsonUrl?: string) {
 }
 
 async function extractRegistryPosts(log: Log, posts: {hash: string, url: string}[]) {
-  const postHashes = await queryPostHashesOfUser(log.address, 99999, 0, 'post');
-  for (const post of posts) {
-    if (!postHashes.includes(post.hash)) {
-      const profilePost: ProfilePost = (await axios.get(formatUrl(post.url))).data as ProfilePost;
 
-      const postValidatorContract: Contract = new web3.eth.Contract(PostValidatorContract.abi as AbiItem[], POST_VALIDATOR_ADDRESS);
-      const postTimestamp: string = await postValidatorContract.methods.getTimestamp(post.hash).call();
+    const postHashes = await queryPostHashesOfUser(log.address, 99999, 0, 'post');
+    for (const post of posts) {
+      try {
+      if (!postHashes.includes(post.hash)) {
+        const profilePost: ProfilePost = (await axios.get(formatUrl(post.url))).data as ProfilePost;
 
-      indexRegistryPost(log, profilePost.LSPXXProfilePost, profilePost.LSPXXProfilePostHash, new Date(parseInt(postTimestamp) * 1000));
+        let trusted: boolean = POST_VALIDATOR_ADDRESS.includes(profilePost.LSPXXProfilePost.validator);
+
+        const postValidatorContract: Contract = new web3.eth.Contract(PostValidatorContract.abi as AbiItem[], profilePost.LSPXXProfilePost.validator);
+        const postTimestamp: string = await postValidatorContract.methods.getTimestamp(post.hash).call();
+
+        indexRegistryPost(log, profilePost.LSPXXProfilePost, profilePost.LSPXXProfilePostHash, new Date(parseInt(postTimestamp) * 1000), trusted);
+      }
+      } catch (e) {
+        console.error(e);
+      }
     }
-  }
+
 }

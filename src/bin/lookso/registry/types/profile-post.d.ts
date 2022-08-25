@@ -3,9 +3,10 @@ import {Link} from "../../../../models/types/metadata-objects";
 export type LSPXXProfilePost = {
   version: string,
   author: string, // Address (UP)
-  eoa: string,
+  validator: string,
   message: string,
-  links: Link[],
+  links?: Link[],
+  tags?: string[],
   asset?: {
     hashFunction: 'keccak256(bytes)',
     hash: string,

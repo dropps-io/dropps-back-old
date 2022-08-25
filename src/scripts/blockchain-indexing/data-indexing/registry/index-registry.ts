@@ -8,7 +8,7 @@ import {logError} from "../../../../bin/logger";
 
 
 //TODO Add in post DB Table a visibility value (so if a post is deleted from the registry, we still keep it)
-export async function indexRegistryPost(log: Log, post: LSPXXProfilePost, hash: string, date: Date) {
+export async function indexRegistryPost(log: Log, post: LSPXXProfilePost, hash: string, date: Date, trusted: boolean) {
   if (!INDEX_DATA) return;
   try {
     await insertPost(
@@ -21,7 +21,8 @@ export async function indexRegistryPost(log: Log, post: LSPXXProfilePost, hash: 
       post.childHash ? post.childHash : null,
       null,
       true,
-      log.transactionHash
+      log.transactionHash,
+      trusted
     );
     if (post.childHash) {
       const childPost = await queryPost(post.childHash);
