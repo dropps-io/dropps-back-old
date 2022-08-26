@@ -36,16 +36,17 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
         limit: { type: 'number' },
         offset: { type: 'number' },
         postType: { type: 'string' },
+        viewOf: { type: 'string' },
       },
       summary: 'Get profile feed.',
     },
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
-      const {limit, offset, postType} = request.query as { limit: number, offset: number, postType?: 'event' | 'post' };
+      const {limit, offset, postType, viewOf} = request.query as { limit: number, offset: number, postType?: 'event' | 'post', viewOf?: string };
 
       try {
         const posts: Post[] = await queryPostsOfUser(address, limit, offset, postType);
-        const feed = await constructFeed(posts, address);
+        const feed = await constructFeed(posts, viewOf);
 
         return reply.code(200).send(feed);
         /* eslint-disable */
@@ -347,8 +348,11 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
       await verifyJWT(request, reply, address);
 
       try {
-        const registry = applyChangesToRegistry(address);
+        const registry = await applyChangesToRegistry(address);
+        console.log('NEW REGISTRY REGISTRY : ')
+        console.log(registry)
         const newRegistryUrl = await upload(objectToBuffer(registry), 'application/json');
+        console.log('newRegistryUrl: ' + newRegistryUrl);
 
         return reply.code(200).send({jsonUrl: buildJsonUrl(registry, newRegistryUrl)});
         /* eslint-disable */

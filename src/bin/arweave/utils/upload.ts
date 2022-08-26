@@ -8,14 +8,15 @@ const bundlr = new BundlrClient();
 export async function upload(buffer: Buffer, contentType: string) {
   let postUrl;
   try {
-    postUrl = arweaveTxToUrl(await bundlr.upload(buffer, contentType));
+    postUrl = await bundlr.upload(buffer, contentType);
   } catch (error:any) {
     console.error(error.message? error.message : "Bundlr upload failed");
     try {
-      postUrl = arweaveTxToUrl(await arweave.upload(buffer, contentType));
+      postUrl = await arweave.upload(buffer, contentType);
     } catch (e) {
       throw 'Failed to upload';
     }
   }
-  return postUrl
+
+  return arweaveTxToUrl(postUrl)
 }

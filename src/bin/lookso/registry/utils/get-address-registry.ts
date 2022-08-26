@@ -9,9 +9,15 @@ import {logError} from "../../../logger";
 
 export async function getProfileRegistry(address: string): Promise<SocialRegistry> {
   const universalProfile = new UniversalProfileReader(address, IPFS_GATEWAY, web3);
-  const jsonUrl: string = (await universalProfile.getDataUnverified([KEY_LSPXXSocialRegistry]))[0] as string;
+  const unverifiedData = await universalProfile.getDataUnverified([KEY_LSPXXSocialRegistry]);
+  const jsonUrl: string = unverifiedData[0] as string;
   try {
-    return (await axios.get(formatUrl(decodeJsonUrl(jsonUrl)))).data as SocialRegistry;
+    const registry = (await axios.get(formatUrl(decodeJsonUrl(jsonUrl)))).data as any;
+    return {
+      posts: registry.posts ? registry.posts : [],
+      likes: registry.likes ? registry.likes : [],
+      follows: registry.follows ? registry.follows : [],
+    }
   }
   catch (error:any) {
     if (error.message) logError("Unable to fetch Social Registry. " + error.message);
