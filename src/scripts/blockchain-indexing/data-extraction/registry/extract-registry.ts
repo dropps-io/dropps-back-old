@@ -15,10 +15,14 @@ import {POST_VALIDATOR_ADDRESS} from "../../../../environment/config";
 import {AbiItem} from "web3-utils";
 
 export async function extractRegistry(log: Log, _jsonUrl?: string) {
-  const profile: UniversalProfileReader = new UniversalProfileReader(log.address, IPFS_GATEWAY, web3);
-  const jsonUrl: string = _jsonUrl ? _jsonUrl : (await profile.getDataUnverified([KEY_LSPXXSocialRegistry]))[0] as string;
-  const registry: SocialRegistry = (await axios.get(formatUrl(decodeJsonUrl(jsonUrl)))).data as SocialRegistry;
-  await extractRegistryPosts(log, registry.posts);
+  try {
+    const profile: UniversalProfileReader = new UniversalProfileReader(log.address, IPFS_GATEWAY, web3);
+    const jsonUrl: string = _jsonUrl ? _jsonUrl : (await profile.getDataUnverified([KEY_LSPXXSocialRegistry]))[0] as string;
+    const registry: SocialRegistry = (await axios.get(formatUrl(decodeJsonUrl(jsonUrl)))).data as SocialRegistry;
+    await extractRegistryPosts(log, registry.posts);
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 async function extractRegistryPosts(log: Log, posts: {hash: string, url: string}[]) {
