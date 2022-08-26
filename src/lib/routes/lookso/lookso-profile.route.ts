@@ -347,8 +347,11 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
       await verifyJWT(request, reply, address);
 
       try {
-        const registry = applyChangesToRegistry(address);
+        const registry = await applyChangesToRegistry(address);
+        console.log('NEW REGISTRY REGISTRY : ')
+        console.log(registry)
         const newRegistryUrl = await upload(objectToBuffer(registry), 'application/json');
+        console.log('newRegistryUrl: ' + newRegistryUrl);
 
         return reply.code(200).send({jsonUrl: buildJsonUrl(registry, newRegistryUrl)});
         /* eslint-disable */
