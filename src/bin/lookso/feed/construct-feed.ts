@@ -13,7 +13,7 @@ import {queryPost, queryPostCommentsCount, queryPostRepostsCount} from "../../db
 import {FeedPost} from "../../../models/types/feed-post";
 
 
-export async function constructFeed(posts: Post[], profile?: string): Promise<FeedPost[]> {
+export async function constructFeed(posts: Post[], profile?: string, noRecursive?: boolean): Promise<FeedPost[]> {
     const feed: FeedPost[] = [];
 
     for (let post of posts) {
@@ -107,9 +107,13 @@ export async function constructFeed(posts: Post[], profile?: string): Promise<Fe
           inRegistry: post.inRegistry
         };
 
-        if (post.childHash){
+        if (!noRecursive && post.childHash){
           const childPost = await queryPost(post.childHash);
-          feedObject.childPost = (await constructFeed([childPost], profile))[0];
+          feedObject.childPost = (await constructFeed([childPost], profile, true))[0];
+        }
+        else if (!noRecursive && post.parentHash){
+          const parentPost = await queryPost(post.parentHash);
+          feedObject.parentPost = (await constructFeed([parentPost], profile, true))[0];
         }
 
         feed.push(feedObject);

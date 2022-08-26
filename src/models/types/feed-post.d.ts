@@ -18,6 +18,8 @@ export interface FeedPost {
   isLiked: boolean,
   inRegistry?: boolean,
   childPost?: FeedPost
+  parentPost?: FeedPost,
+  trusted?: boolean
 }
 
 export interface FeedDisplay {

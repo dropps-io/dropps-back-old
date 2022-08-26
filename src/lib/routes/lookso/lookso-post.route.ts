@@ -101,7 +101,7 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
 
       try {
         const posts: Post[] = await queryPostComments(hash, limit, offset);
-        const feed = await constructFeed(posts, viewOf);
+        const feed = await constructFeed(posts, viewOf, true);
 
         return reply.code(200).send(feed);
         /* eslint-disable */
