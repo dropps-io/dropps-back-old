@@ -1,6 +1,8 @@
 {
   "$id": "user.json",
   "$schema": "http://json-schema.org/schema",
+  "title": "User",
+  "description": "Lookso user. Capable of producing and viewing social media content like posts, follows and likes.",
   "type": "object",
   "required": [
     "address",
