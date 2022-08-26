@@ -20,6 +20,10 @@ import {insertNotification} from "../../../bin/db/notification.table";
 import {search} from "../../../bin/lookso/search";
 import {insertRegistryChange, queryRegistryChangesCountOfAddress} from "../../../bin/db/registry-change.table";
 import {MAX_OFFCHAIN_REGISTRY_CHANGES} from "../../../environment/config";
+import {applyChangesToRegistry} from "../../../bin/lookso/registry/apply-changes-to-registry";
+import {buildJsonUrl} from "../../../bin/utils/json-url";
+import {upload} from "../../../bin/arweave/utils/upload";
+import {objectToBuffer} from "../../../bin/utils/file-converters";
 
 export async function looksoRoute (fastify: FastifyInstance) {
 	fastify.route({
@@ -44,7 +48,15 @@ export async function looksoRoute (fastify: FastifyInstance) {
 				await insertFollow(body.follower, body.following);
 				await insertRegistryChange(body.follower, 'follow', 'add', body.following, new Date());
 				await insertNotification(body.following, body.follower, new Date(), 'follow');
-				return reply.code(200).send();
+
+				if (registryChangesCount  + 1 >= MAX_OFFCHAIN_REGISTRY_CHANGES) {
+					const newRegistry = await applyChangesToRegistry(body.follower);
+					const url = await upload(objectToBuffer(newRegistry), 'application/json');
+					const jsonUrl = buildJsonUrl(newRegistry, url);
+					return reply.code(200).send({jsonUrl});
+				} else {
+					return reply.code(200).send({});
+				}
 				/* eslint-disable */
 			} catch (e: any) {
 				logError(e);
@@ -76,7 +88,15 @@ export async function looksoRoute (fastify: FastifyInstance) {
 				if (contract && contract.interfaceCode !== 'LSP0') return reply.code(400).send(error(400, 'The following address is not an LSP0'));
 				await removeFollow(body.follower, body.following);
 				await insertRegistryChange(body.follower, 'follow', 'remove', body.following, new Date());
-				return reply.code(200).send();
+
+				if (registryChangesCount  + 1 >= MAX_OFFCHAIN_REGISTRY_CHANGES) {
+					const newRegistry = await applyChangesToRegistry(body.follower);
+					const url = await upload(objectToBuffer(newRegistry), 'application/json');
+					const jsonUrl = buildJsonUrl(newRegistry, url);
+					return reply.code(200).send({jsonUrl});
+				} else {
+					return reply.code(200).send({});
+				}
 				/* eslint-disable */
 			} catch (e: any) {
 				logError(e);
@@ -114,7 +134,15 @@ export async function looksoRoute (fastify: FastifyInstance) {
 					await insertNotification(post.author, body.sender, new Date(), 'like', post.hash);
 				}
 
-				return reply.code(200).send();
+				if (registryChangesCount  + 1 >= MAX_OFFCHAIN_REGISTRY_CHANGES) {
+					const newRegistry = await applyChangesToRegistry(body.sender);
+					const url = await upload(objectToBuffer(newRegistry), 'application/json');
+					const jsonUrl = buildJsonUrl(newRegistry, url);
+					return reply.code(200).send({jsonUrl});
+				}
+				else {
+					return reply.code(200).send({});
+				}
 				/* eslint-disable */
 			} catch (e: any) {
 				logError(e);
