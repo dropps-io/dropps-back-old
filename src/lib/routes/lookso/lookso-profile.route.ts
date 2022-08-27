@@ -164,7 +164,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
         if (followerAddress) {
           if (!isAddress(followerAddress)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
           const isFollower = await queryFollow(followerAddress, address);
-          return reply.code(200).send({followers: isFollower ? [followerAddress] : []});
+          return reply.code(200).send(isFollower ? [followerAddress] : []);
         }
         else {
           const response = [];
@@ -172,7 +172,8 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
           for (let follower of followers) {
             const images = await queryImagesByType(follower.address, 'profile');
             const following = await queryFollow(address, follower.address);
-            response.push({...follower, image: selectImage(images, {minWidthExpected: 50}), following});
+            const selectedImage = selectImage(images, {minWidthExpected: 50});
+            response.push({...follower, image: selectedImage ? selectedImage.url : '', following});
           }
           return reply.code(200).send(response);
         }
@@ -227,7 +228,8 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
         const following = await queryFollowingWithNames(address, limit, offset);
         for (let followingProfile of following) {
           const images = await queryImagesByType(followingProfile.address, 'profile');
-          response.push({...followingProfile, images, following: true});
+          const selectedImage = selectImage(images, {minWidthExpected: 50});
+          response.push({...followingProfile, image: selectedImage ? selectedImage.url : '', following: true});
         }
         return reply.code(200).send(response);
         /* eslint-disable */
