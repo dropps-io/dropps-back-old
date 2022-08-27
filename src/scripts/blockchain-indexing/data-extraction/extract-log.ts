@@ -14,6 +14,8 @@ import {decodeSetDataValueFromInput} from "../utils/set-data-from-input";
 import {extractDataFromKey} from "./extract-key-data";
 import {indexDataChanged} from "../data-indexing/index-data-changed";
 import {logError} from "../../../bin/logger";
+import {POST_VALIDATOR_ADDRESS} from "../../../environment/config";
+import {KEY_LSPXXSocialRegistry} from "../../../bin/utils/constants";
 
 export async function extractDataFromLog(log: Log) {
   await extractContract(log.address);
@@ -41,7 +43,9 @@ async function extractEvent(log: Log): Promise<void> {
     const eventInterface: SolMethod = await queryMethodInterfaceWithParameters(log.topics[0].slice(0, 10));
     const decodedParameters = !eventInterface.name ? {} : web3.eth.abi.decodeLog(eventInterface.parameters, log.data, log.topics.filter((x, i) => i !== 0));
 
-    await indexEvent(log, decodedParameters, eventInterface);
+    if (!(POST_VALIDATOR_ADDRESS.includes(decodedParameters['to']) || (decodedParameters['dataKey'] && decodedParameters['dataKey'] === KEY_LSPXXSocialRegistry))) {
+      await indexEvent(log, decodedParameters, eventInterface);
+    }
 
     switch (eventInterface.name) {
       case 'ContractCreated':
@@ -61,7 +65,7 @@ async function extractEvent(log: Log): Promise<void> {
         break;
       case 'DataChanged':
         const th = await web3.eth.getTransaction(log.transactionHash);
-        const dataChanged = decodeSetDataValueFromInput(th.input);
+        const dataChanged: {key: string, value: string}[] = decodeSetDataValueFromInput(th.input);
         if (dataChanged.length === 0) await extractDataFromKey(log, decodedParameters['dataKey']);
 
         for (let keyValue of dataChanged) {

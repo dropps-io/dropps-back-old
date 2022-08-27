@@ -19,7 +19,8 @@ export interface FeedPost {
   inRegistry?: boolean,
   childPost?: FeedPost
   parentPost?: FeedPost,
-  trusted?: boolean
+  trusted?: boolean,
+  hided?: boolean
 }
 
 export interface FeedDisplay {
