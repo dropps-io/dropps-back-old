@@ -4,6 +4,7 @@ export type LSPXXProfilePost = {
   version: string,
   author: string, // Address (UP)
   validator: string,
+  nonce: string,
   message: string,
   links?: Link[],
   tags?: string[],
