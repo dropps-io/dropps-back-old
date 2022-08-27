@@ -171,7 +171,8 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
           const followers = await queryFollowersWithNames(address, limit, offset);
           for (let follower of followers) {
             const images = await queryImagesByType(follower.address, 'profile');
-            response.push({...follower, image: selectImage(images, {minWidthExpected: 50})});
+            const following = await queryFollow(address, follower.address);
+            response.push({...follower, image: selectImage(images, {minWidthExpected: 50}), following});
           }
           return reply.code(200).send(response);
         }
@@ -226,7 +227,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
         const following = await queryFollowingWithNames(address, limit, offset);
         for (let followingProfile of following) {
           const images = await queryImagesByType(followingProfile.address, 'profile');
-          response.push({...followingProfile, images});
+          response.push({...followingProfile, images, following: true});
         }
         return reply.code(200).send(response);
         /* eslint-disable */
