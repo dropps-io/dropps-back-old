@@ -154,11 +154,12 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
         limit: { type: 'number' },
         offset: { type: 'number' },
         followerAddress: { type: 'string' },
+        viewOf: { type: 'string' },
       }
     },
     handler: async (request, reply) => {
       const {address} = request.params as { address: string};
-      const {followerAddress, limit, offset} = request.query as {followerAddress:string, limit: number, offset: number};
+      const {followerAddress, limit, offset, viewOf} = request.query as {followerAddress?:string, limit: number, offset: number, viewOf?: string};
 
       try {
         if (followerAddress) {
@@ -171,8 +172,8 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
           const followers = await queryFollowersWithNames(address, limit, offset);
           for (let follower of followers) {
             const images = await queryImagesByType(follower.address, 'profile');
-            const following = await queryFollow(address, follower.address);
             const selectedImage = selectImage(images, {minWidthExpected: 50});
+            const following = viewOf ? await queryFollow(viewOf, follower.address) : undefined;
             response.push({...follower, image: selectedImage ? selectedImage.url : '', following});
           }
           return reply.code(200).send(response);
@@ -216,12 +217,13 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
       querystring: {
         limit: { type: 'number' },
         offset: { type: 'number' },
+        viewOf: { type: 'string' },
       },
       summary: 'Get all the profiles a user is following.',
     },
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
-      const {limit, offset} = request.query as {limit: number, offset: number};
+      const {limit, offset, viewOf} = request.query as {limit: number, offset: number, viewOf?: string};
 
       try {
         const response = [];
@@ -229,7 +231,8 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
         for (let followingProfile of following) {
           const images = await queryImagesByType(followingProfile.address, 'profile');
           const selectedImage = selectImage(images, {minWidthExpected: 50});
-          response.push({...followingProfile, image: selectedImage ? selectedImage.url : '', following: true});
+          const following = viewOf ? await queryFollow(viewOf, followingProfile.address) : undefined;
+          response.push({...followingProfile, image: selectedImage ? selectedImage.url : '', following});
         }
         return reply.code(200).send(response);
         /* eslint-disable */
