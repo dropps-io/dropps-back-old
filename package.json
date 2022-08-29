@@ -55,6 +55,7 @@
     "ethereumjs-util": "^7.1.4",
     "fastify": "^3.27.1",
     "fastify-cors": "^6.1.0",
+    "fastify-multer": "^2.0.3",
     "fastify-swagger": "^4.15.0",
     "jsonwebtoken": "^8.5.1",
     "keccak256": "^1.0.6",
