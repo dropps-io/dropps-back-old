@@ -1,6 +1,6 @@
 # LOOKSO SOCIAL FEED BACKEND
 
-This is application that serves the social media feed, indexing Social media content, data about Universal Profiles and blockchain events.
+This is the application that serves the social media feed, indexing Social media content, data about Universal Profiles and blockchain events.
 * Indexes all Universal Profiles and their metadata.
 * Indexes all Universal Profile events.
 * Translates known blockchain events and their parameters to an informative, meaningful sentence.
