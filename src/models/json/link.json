@@ -1,0 +1,31 @@
+{
+    "$id": "link.json",
+    "$schema": "http://json-schema.org/schema",
+    "title": "Link",
+    "description": "A Universal Profile link",
+    "type": "object",
+    "required": [
+      "address",
+      "title",
+      "url"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "address": {
+        "type": "string",
+        "pattern": "^0x[a-fA-F0-9]{40}$",
+        "description": "Address of the Universal Profile this link belongs to."
+      },
+      "title": {
+        "type": "string",
+        "pattern": "^.{1,20}$",
+        "description": "Link text"
+      },
+      "url": {
+        "type": "string",
+        "pattern": "^https?:\/\/(www\\.)?\\w+\\.\\w+$",
+        "description": "The url the link points to"
+      }
+    }
+  }
+  

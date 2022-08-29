@@ -1,4 +1,4 @@
-import {User} from '../../lib/models/types/user';
+import {User} from '../../models/types/user';
 import {executeQuery} from './database';
 import {ERROR_USER_NOT_FOUND} from '../utils/error-messages';
 

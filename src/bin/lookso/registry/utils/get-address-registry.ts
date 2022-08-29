@@ -1,0 +1,26 @@
+import {UniversalProfileReader} from "../../../UniversalProfile/UniversalProfileReader.class";
+import {IPFS_GATEWAY, KEY_LSPXXSocialRegistry} from "../../../utils/constants";
+import {web3} from "../../../web3/web3";
+import {SocialRegistry} from "../types/social-registry";
+import axios from "axios";
+import {formatUrl} from "../../../utils/format-url";
+import {decodeJsonUrl} from "../../../utils/json-url";
+import {logError} from "../../../logger";
+
+export async function getProfileRegistry(address: string): Promise<SocialRegistry> {
+  const universalProfile = new UniversalProfileReader(address, IPFS_GATEWAY, web3);
+  const unverifiedData = await universalProfile.getDataUnverified([KEY_LSPXXSocialRegistry]);
+  const jsonUrl: string = unverifiedData[0] as string;
+  try {
+    const registry = (await axios.get(formatUrl(decodeJsonUrl(jsonUrl)))).data as any;
+    return {
+      posts: registry.posts ? registry.posts : [],
+      likes: registry.likes ? registry.likes : [],
+      follows: registry.follows ? registry.follows : [],
+    }
+  }
+  catch (error:any) {
+    if (error.message) logError("Unable to fetch Social Registry. " + error.message);
+    return {posts: [], likes: [], follows: []};
+  }
+}
