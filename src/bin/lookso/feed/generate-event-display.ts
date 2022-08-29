@@ -5,7 +5,7 @@ import {getWordsBetweenCurlies} from "../../utils/words-between-curlies";
 import {getDisplayParam} from "./display-params";
 import {queryContract} from "../../db/contract.table";
 import {queryContractIsNFT} from "../../db/contract-metadata.table";
-import {queryImages} from "../../db/image.table";
+import {insertImage, queryImages} from "../../db/image.table";
 import {queryMethodParameterDisplayType} from "../../db/method-parameter.table";
 import {FeedDisplay, FeedDisplayParam} from "../../../models/types/feed-post";
 import {selectImage} from "../../utils/select-image";
@@ -13,9 +13,17 @@ import {Event} from "../../../models/types/event";
 import {queryDataKeyValueAtBlockNumber} from "../../db/data-changed.table";
 import {KeyDisplay} from "../../../models/types/key-display";
 import {queryKeyDisplay} from "../../db/key-display.table";
-import {ERC725} from "@erc725/erc725.js";
+import {ERC725, ERC725JSONSchema} from "@erc725/erc725.js";
 import {queryErc725ySchema} from "../../db/erc725y-schema.table";
 import {Erc725ySchema} from "../../../models/types/erc725y-schema";
+import {formatUrl} from "../../utils/format-url";
+import {URLDataWithHash} from "@erc725/erc725.js/build/main/src/types/encodeData/JSONURL";
+import {web3} from "../../web3/web3";
+import {IPFS_GATEWAY} from "../../utils/constants";
+import LSP4DigitalAssetJSON from '@erc725/erc725.js/schemas/LSP4DigitalAsset.json';
+import axios from "axios";
+import {LSP4DigitalAsset} from "../../UniversalProfile/models/lsp4-digital-asset.model";
+import {MetadataImage} from "../../../models/types/metadata-objects";
 
 export async function generateEventDisplay(methodId: string, params: Map<string, DecodedParameter>, context?: {senderProfile?: string, executionContract?: string}): Promise<FeedDisplay> {
     const methodDisplay: MethodDisplay = await queryMethodDisplay(methodId);
@@ -74,8 +82,24 @@ export async function generateEventDisplay(methodId: string, params: Map<string,
         else if (methodDisplay.imageFrom === 'executionContract' && context?.executionContract) address = context.executionContract;
 
         if (address) {
-          const pickedImage = selectImage(await queryImages(address), {minWidthExpected: 100});
+          let pickedImage = selectImage(await queryImages(address), {minWidthExpected: 100});
           image = pickedImage ? pickedImage.url : '';
+
+          if (image === '' && (tags.standard === 'LSP7' || tags.standard === 'LSP8')) {
+            try {
+              const erc725Y = new ERC725(LSP4DigitalAssetJSON as ERC725JSONSchema[], address, web3.currentProvider, {ipfsGateway: IPFS_GATEWAY});
+              const metadataData = await erc725Y.getData('LSP4Metadata');
+              const url = formatUrl((metadataData.value as URLDataWithHash).url);
+              const lsp4Metadata: LSP4DigitalAsset = (await axios.get(url)).data;
+              if (lsp4Metadata.metadata.images.length > 0) {
+                tryInsertingImages(address, lsp4Metadata.metadata.images);
+                pickedImage = selectImage(await queryImages(address), {minWidthExpected: 100});
+                image = pickedImage ? pickedImage.url : '';
+              }
+            } catch (e) {
+
+            }
+          }
         }
     }
     return {text: methodDisplay.text, params: displayParams, image, tags};
@@ -111,9 +135,13 @@ export async function generateDataChangedDisplay(event: Event, parameters: Map<s
     }
     return {text: display.display, params: displayParams, image: '', tags: {standard: 'ERC725Y', standardType: null, copies: null}};
   } catch (e) {
-    console.error('Failed to fetch the value of the key ' + dataKey + ' at the block ' + event.blockNumber + ' for the address ' + event.address);
+    console.error('Failed to fetch the value of the key ' + dataKey.value + ' at the block ' + event.blockNumber + ' for the address ' + event.address);
     return {text: display.displayWithoutValue, params: displayParams, image: '', tags: {standard: null, standardType: null, copies: null}};
   }
+}
 
-
+async function tryInsertingImages(address: string, images: MetadataImage[]) {
+  for (const image of images) {
+    await insertImage(address, image.url, image.width, image.height, '', image.hash);
+  }
 }
