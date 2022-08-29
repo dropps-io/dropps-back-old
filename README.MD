@@ -6,13 +6,6 @@ This is application that serves the social media feed, indexing Social media con
 * Translates known blockchain events and their parameters to an informative, meaningful sentence.
 * Indexes social media content
 
-## Table of contents:
-
-# Pre-reqs
-
-- Install [Node.js](https://nodejs.org/en/)
-- Install Yarn
-- An IDE (Intellij/Webstorm or VS Code)
 
 # Installation
 
