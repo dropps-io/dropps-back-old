@@ -48,7 +48,15 @@ npm run build
 
 # Usage
 
-Before running the server, you need to run the script to index blockchain data. 
+Before running the server, you need to run a few scripts in the following order, to prepare the database and fetch data from the blockchain.
+
+```
+npm run "run fill-db"
+```
+
+```
+npm run "run set-displays"
+```
 
 ```
 npm run "run index-blockchain"
