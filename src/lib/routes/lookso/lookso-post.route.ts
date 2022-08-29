@@ -6,6 +6,7 @@ import {error, ERROR_INTERNAL} from "../../../bin/utils/error-messages";
 import {LSPXXProfilePost, ProfilePost} from "../../../bin/lookso/registry/types/profile-post";
 import {verifyJWT} from "../../../bin/json-web-token";
 import {Buffer} from "buffer";
+import sharp from "sharp";
 import {arrayBufferKeccak256Hash, objectToBuffer, objectToKeccak256Hash} from "../../../bin/utils/file-converters";
 import {buildJsonUrl} from "../../../bin/utils/json-url";
 import {FastifyInstance} from "fastify";
@@ -126,9 +127,15 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
 
       const post: LSPXXProfilePost = body.lspXXProfilePost;
 
-      const buffer = Buffer.from(body.base64File.split(',')[1], 'base64url');
+      let buffer = Buffer.from(body.base64File.split(',')[1], 'base64url');
+      let fileType = body.fileType;
 
-      const fileUrl = await upload(buffer, body.fileType);
+      if (fileType.includes('image')) {
+        buffer = await sharp(buffer).resize(800, 800, {withoutEnlargement: true}).resize().webp({quality: 50}).toBuffer();
+        fileType = 'image/webp'
+      }
+
+      const fileUrl = await upload(buffer, fileType);
       post.asset = {
         fileType: body.fileType,
         hash: '0x' + arrayBufferKeccak256Hash(buffer),
