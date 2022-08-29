@@ -1,6 +1,6 @@
 # LOOKSO SOCIAL FEED BACKEND
 
-This is the application that serves the social media feed, indexing Social media content, data about Universal Profiles and blockchain events.
+This is the application that serves the social media eed, indexing content, data about Universal Profiles and blockchain events.
 * Indexes all Universal Profiles and their metadata.
 * Indexes all Universal Profile events.
 * Translates known blockchain events and their parameters to an informative, meaningful sentence.
@@ -12,12 +12,13 @@ This is the application that serves the social media feed, indexing Social media
 1. Install postgreSQL 
 2. Create a database
 3. Use a postgres client to run the script under src/bin/db/scripts/create_db.sql
+4. Install dependencies with:
 
 ```
 npm install
 ```
 
-- Create the `.env`, `.env.prod` and `.env.test` files and add the followings values inside:
+5. Create the `.env`, `.env.prod` and `.env.test` files and add the followings values inside:
 ```
 DB_HOST="MYDATABASEHOST"
 DB_NAME="MYDATABASENAME"
@@ -39,7 +40,7 @@ JWT_SECRET = "YOURJWTSECRET"
 
 ***NOTE: `.env.test` need to contain only local config***
 
-- Compile the typescript
+- Compile the typescript // <------------ Needed?
 ```
 npm run build
 ```
