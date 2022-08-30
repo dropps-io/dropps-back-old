@@ -4,6 +4,7 @@ import {generateNewRegistry, getRegistryUpdatesToPush} from "./utils/generate-ne
 import {insertLike, querySenderLikes, removeLike} from "../../db/like.table";
 import {insertFollow, queryFollowing, removeFollow} from "../../db/follow.table";
 import {getProfileRegistry} from "./utils/get-address-registry";
+import {tryExecuting} from "../../utils/try-executing";
 
 export async function applyChangesToRegistry(address: string): Promise<SocialRegistry> {
   let registry: SocialRegistry = await getProfileRegistry(address);
@@ -16,10 +17,10 @@ export async function applyChangesToRegistry(address: string): Promise<SocialReg
   }
   const toPush = getRegistryUpdatesToPush(centralizedRegistry, newRegistry);
 
-  for (const hash of toPush.toAdd.likes) await insertLike(address, hash);
-  for (const following of toPush.toAdd.follows) await insertFollow(address, following);
-  for (const hash of toPush.toRemove.likes) await removeLike(address, hash);
-  for (const following of toPush.toRemove.follows) await removeFollow(address, following);
+  for (const hash of toPush.toAdd.likes) await tryExecuting(insertLike(address, hash));
+  for (const following of toPush.toAdd.follows) await tryExecuting(insertFollow(address, following));
+  for (const hash of toPush.toRemove.likes) await tryExecuting(removeLike(address, hash));
+  for (const following of toPush.toRemove.follows) await tryExecuting(removeFollow(address, following));
 
   return newRegistry;
 }
