@@ -39,6 +39,7 @@ DB_USER="postgres"
 DB_PASSWORD="admin "
 HOST="127.0.0.1"
 JWT_SECRET = "YOURJWTSECRET"
+ARWEAVE_WALLET="{"kty": "RSA", "n": "", "e": "", etc...}"
 ```
 
 # Usage
