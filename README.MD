@@ -1,153 +1,64 @@
-# Dropps back
+# LOOKSO Social Media Feed Backend
 
-## Table of contents:
+This is the application that serves the social media feed, indexing created content and data about Universal Profiles and blockchain events. It:
 
-# Pre-reqs
+* Indexes all Universal Profiles and their metadata.
+* Indexes all Universal Profile events.
+* Translates known blockchain events and their parameters to an informative, meaningful sentence.
+* Indexes social media content
 
-- Install [Node.js](https://nodejs.org/en/)
-- Install Yarn
-- An IDE (Intellij/Webstorm or VS Code)
+The API Documentation can be found [here](https://api.lookso.io/documentation/static/index.html).
 
-# Getting started
+# Installation
 
-- Install dependencies
+1. Install postgreSQL 
+2. Create a database
+3. Use a postgres client to run the script under src/bin/db/scripts/create_db.sql
+4. Install dependencies with:
 
 ```
 npm install
 ```
-- Create the `.env`, `.env.prod` and `.env.test` files and add the followings values inside:
+
+5. Create the `.env`, `.env.prod` and `.env.test` files and add the followings values inside:
 ```
 DB_HOST="MYDATABASEHOST"
 DB_NAME="MYDATABASENAME"
 DB_USER="MYDATABASEUSER"
 DB_PASSWORD="MYDATABASEPASSWORD"
 HOST="HOSTURL"
+JWT_SECRET = "YOURJWTSECRET"
 ARWEAVE_WALLET="YOURWALLETOBJECT"
 ```
-***NOTE: `.env.test` need to contain only local config***
 
-- Compile the typescript
+For example:
 ```
-yarn run build
-```
-
-- Serve the project to run it locally
-
-```
-yarn run "run dev"
+DB_HOST="127.0.0.1"
+DB_NAME="lookso_dev"
+DB_USER="postgres"
+DB_PASSWORD="admin "
+HOST="127.0.0.1"
+JWT_SECRET = "YOURJWTSECRET"
 ```
 
-# Dev guidelines
+# Usage
 
-1) Create a new branch from develop following commit conventions (eg. feat/new-button)
-2) Before commit, make sure to run `yarn run lint:fix` (fix errors and warnings) and `yarn run prettier`
-3) When the work is done, create a pull request from your branch to the `develop` branch
-4) Ask for some code review and approvals before accepting the pull request
-5) Delete the branch you created if it's not used anymore
-
-# Environments
-
-### Development
-
-The default environment that you use when you're developing and running the backend locally.
-
-### Test
-
-Local environment to run unit an automated tests.
-
-### Staging
-
-Environment used for our staging app (hosted and used for manual test).
-
-**DO NOT RUN THIS ENVIRONMENT LOCALLY**
-
-### Production
-
-Production environment.
-
-**DO NOT RUN THIS ENVIRONMENT LOCALLY**
-# Release
-
-- Create release branch `release/vX.X.X`
-
-- Update the changelog file
+Before running the server, you need to run a few scripts in the following order, to prepare the database and fetch data from the blockchain.
 
 ```
-yarn run release
+npm run "run fill-db"
 ```
 
-- Check commit created and push
-- Merge to the `main` branch
+```
+npm run "run set-displays"
+```
 
-# Project Structure
+```
+npm run "run index-blockchain"
+```
 
-## Dependencies
+After this process is complete, fire up the server:
 
-Dependencies are managed through `package.json`.
-The package manager is yarn v1.
-In that file you'll find two sections:
-
-## `dependencies`
-
-| Package                                | Description                                         |
-| -------------------------------------- | --------------------------------------------------- |
-| tslib                                  |                                                     |
-| zone.js                                |                                                     |
-
-## `devDependencies`
-
-_This list is incomplete._
-
-| Package                   | Description                                                          |
-| ------------------------- | -------------------------------------------------------------------- |
-| eslint                    | Linter for JavaScript and TypeScript files                           |
-| prettier                  | File formatting                                                      |
-| standard-version          | Utility for versioning using Semver and generating CHANGELOG.        |
-| typescript                | JavaScript compiler/type checker that boosts JavaScript productivity |
-
-To install or update these dependencies you can use `yarn`.
-
-## Testing
-
-## Lint and format
-
-### Formatting with Prettier
-
-The format of the files is handled by Prettier.
-
-- Run prettier
-
-`yarn run prettier`
-
-### Linting with ESLint
-
-You can lint all files using ESLint.
-The lint is included in the CI process.
-
-- Lint
-
-`yarn run lint`
-- Lint with auto fix
-
-`yarn run lint:fix`
-
-## Commit conventions
-
-The project adheres to the [conventional commit](https://www.conventionalcommits.org/en/v1.0.0/) guidelines.
-
-### TLDR:
-
-- `<type>[optional scope]: <description>`
-- Start your commit messages with `[type]:`
-    - Type can be:
-        - "fix" for patches
-        - "feat" for features
-        - "refactor" for refactors
-        - "docs" for documentation
-        - "test" for tests
-        - "perf" for code performance improvements
-        - "style" for style
-        - Other types are build, chore and ci
-- If you introduce a breaking change, add "!" before the ":"
-    - Eg. `refactor!: drop support for Node 6`
-    - You can also add "BREAKING CHANGE: <description>" at the end of the commit message
+```
+npm run "run dev"
+```
