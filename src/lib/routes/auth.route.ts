@@ -9,11 +9,10 @@ import {insertNonce, queryNonce, updateNonce} from '../../bin/db/nonces.table';
 import {generateAddressWithSignature} from '../../bin/web3/auth';
 import {generateJWT} from '../../bin/json-web-token';
 import {FastifyInstance} from 'fastify';
-import {JWT_VALIDITY_TIME} from '../../environment/config';
+import {IPFS_GATEWAY, JWT_VALIDITY_TIME} from '../../environment/config';
 import {logError, logMessage} from '../../bin/logger';
 import {UniversalProfileReader} from "../../bin/UniversalProfile/UniversalProfileReader.class";
 import {web3} from "../../bin/web3/web3";
-import {IPFS_GATEWAY} from "../../bin/utils/constants";
 
 export async function authRoute (fastify: FastifyInstance) {
 

@@ -1,7 +1,7 @@
-import _arweaveWallet from "./arweaveAddress.json";
 import Arweave from "arweave";
 import {JWK} from "./types/JWK";
 import {logMessage} from "../logger";
+import {ARWEAVE_WALLET} from "../../environment/endpoints";
 
 
 export class ArweaveClient {
@@ -16,7 +16,7 @@ export class ArweaveClient {
             port: 443,
             protocol: 'https'
         });
-        this._wallet = _arweaveWallet;
+        this._wallet = ARWEAVE_WALLET;
     }
 
     get urlPrefix(): string {

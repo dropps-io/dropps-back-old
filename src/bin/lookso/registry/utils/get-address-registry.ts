@@ -1,11 +1,12 @@
 import {UniversalProfileReader} from "../../../UniversalProfile/UniversalProfileReader.class";
-import {IPFS_GATEWAY, KEY_LSPXXSocialRegistry} from "../../../utils/constants";
+import {KEY_LSPXXSocialRegistry} from "../../../utils/constants";
 import {web3} from "../../../web3/web3";
 import {SocialRegistry} from "../types/social-registry";
 import axios from "axios";
 import {formatUrl} from "../../../utils/format-url";
 import {decodeJsonUrl} from "../../../utils/json-url";
 import {logError} from "../../../logger";
+import {IPFS_GATEWAY} from "../../../../environment/config";
 
 export async function getProfileRegistry(address: string): Promise<SocialRegistry> {
   const universalProfile = new UniversalProfileReader(address, IPFS_GATEWAY, web3);

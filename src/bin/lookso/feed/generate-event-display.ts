@@ -19,11 +19,11 @@ import {Erc725ySchema} from "../../../models/types/erc725y-schema";
 import {formatUrl} from "../../utils/format-url";
 import {URLDataWithHash} from "@erc725/erc725.js/build/main/src/types/encodeData/JSONURL";
 import {web3} from "../../web3/web3";
-import {IPFS_GATEWAY} from "../../utils/constants";
 import LSP4DigitalAssetJSON from '@erc725/erc725.js/schemas/LSP4DigitalAsset.json';
 import axios from "axios";
 import {LSP4DigitalAsset} from "../../UniversalProfile/models/lsp4-digital-asset.model";
 import {MetadataImage} from "../../../models/types/metadata-objects";
+import {IPFS_GATEWAY} from "../../../environment/config";
 
 export async function generateEventDisplay(methodId: string, params: Map<string, DecodedParameter>, context?: {senderProfile?: string, executionContract?: string}): Promise<FeedDisplay> {
     const methodDisplay: MethodDisplay = await queryMethodDisplay(methodId);

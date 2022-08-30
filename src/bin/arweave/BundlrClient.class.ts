@@ -1,13 +1,13 @@
 import NodeBundlr from "@bundlr-network/client";
 import { FundData } from "@bundlr-network/client/build/common/types";
-import _arweaveWallet from "./arweaveAddress.json";
+import {ARWEAVE_WALLET} from "../../environment/endpoints";
 
 export class BundlrClient {
     protected readonly _provider;
     protected readonly _urlPrefix = "ar://";
     
     constructor () {
-        this._provider = new NodeBundlr("http://node1.bundlr.network", "arweave", _arweaveWallet);
+        this._provider = new NodeBundlr("http://node1.bundlr.network", "arweave", ARWEAVE_WALLET);
     }
 
     get urlPrefix(): string {

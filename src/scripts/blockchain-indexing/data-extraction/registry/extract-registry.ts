@@ -5,13 +5,13 @@ import axios from "axios";
 import {formatUrl} from "../../../../bin/utils/format-url";
 import {indexRegistryPost} from "../../data-indexing/registry/index-registry";
 import {UniversalProfileReader} from "../../../../bin/UniversalProfile/UniversalProfileReader.class";
-import {IPFS_GATEWAY, KEY_LSPXXSocialRegistry} from "../../../../bin/utils/constants";
+import {KEY_LSPXXSocialRegistry} from "../../../../bin/utils/constants";
 import {web3} from "../../../../bin/web3/web3";
 import {decodeJsonUrl} from "../../../../bin/utils/json-url";
 import {Log} from "../../../../models/types/log";
 import {Contract} from "web3-eth-contract";
 import PostValidatorContract from '../../../../assets/artifacts/ValidatorContractArtifact.json';
-import {POST_VALIDATOR_ADDRESS} from "../../../../environment/config";
+import {IPFS_GATEWAY, POST_VALIDATOR_ADDRESS} from "../../../../environment/config";
 import {AbiItem} from "web3-utils";
 
 export async function extractRegistry(log: Log, _jsonUrl?: string) {

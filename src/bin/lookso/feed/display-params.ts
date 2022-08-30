@@ -5,8 +5,8 @@ import Web3 from "web3";
 import {FeedDisplayParam} from "../../../models/types/feed-post";
 import ERC725, {ERC725JSONSchema} from "@erc725/erc725.js";
 import {web3} from "../../web3/web3";
-import {IPFS_GATEWAY} from "../../utils/constants";
 import LSP4DigitalAssetJSON from '@erc725/erc725.js/schemas/LSP4DigitalAsset.json';
+import {IPFS_GATEWAY} from "../../../environment/config";
 
 
 

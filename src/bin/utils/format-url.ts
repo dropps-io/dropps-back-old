@@ -1,4 +1,4 @@
-import {ARWEAVE_GATEWAY, IPFS_GATEWAY} from "./constants";
+import {ARWEAVE_GATEWAY, IPFS_GATEWAY} from "../../environment/config";
 
 export function formatUrl(url: string) {
     if (url.includes('ipfs://')) return url.replace('ipfs://', IPFS_GATEWAY);

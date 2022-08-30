@@ -6,12 +6,13 @@ import {updateLSP3Profile} from "../data-indexing/contract-metadata/update-lsp3"
 import LSP4DigitalAssetJSON from '@erc725/erc725.js/schemas/LSP4DigitalAsset.json';
 import LSP3UniversalProfileMetadataJSON from '@erc725/erc725.js/schemas/LSP3UniversalProfileMetadata.json';
 import {indexUpdateName, indexUpdateSymbol} from "../data-indexing/contract-metadata/index-update";
-import {IPFS_GATEWAY, KEY_LSPXXSocialRegistry} from "../../../bin/utils/constants";
+import {KEY_LSPXXSocialRegistry} from "../../../bin/utils/constants";
 import {extractRegistry} from "./registry/extract-registry";
 import {Log} from "../../../models/types/log";
 import {web3} from "../../../bin/web3/web3";
 import {URLDataWithHash} from "@erc725/erc725.js/build/main/src/types/encodeData/JSONURL";
 import {LSP3UniversalProfile} from "../../../bin/UniversalProfile/models/lsp3-universal-profile.model";
+import {IPFS_GATEWAY} from "../../../environment/config";
 
 export async function extractDataFromKey(log: Log, key: string, value?: string) {
   const erc725Y = new ERC725((LSP4DigitalAssetJSON as ERC725JSONSchema[]).concat(LSP3UniversalProfileMetadataJSON as ERC725JSONSchema[]), log.address, web3.currentProvider, {ipfsGateway: IPFS_GATEWAY});

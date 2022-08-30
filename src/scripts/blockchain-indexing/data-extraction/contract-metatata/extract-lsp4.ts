@@ -5,7 +5,7 @@ import {URLDataWithHash} from "@erc725/erc725.js/build/main/src/types/encodeData
 import axios from "axios";
 import {web3} from "../../../../bin/web3/web3";
 import LSP4DigitalAssetJSON from '@erc725/erc725.js/schemas/LSP4DigitalAsset.json';
-import {IPFS_GATEWAY} from "../../../../bin/utils/constants";
+import {IPFS_GATEWAY} from "../../../../environment/config";
 
 export async function extractLSP4Data(address: string): Promise<LSP4DigitalAsset> {
   const erc725Y = new ERC725(LSP4DigitalAssetJSON as ERC725JSONSchema[], address, web3.currentProvider, {ipfsGateway: IPFS_GATEWAY});
