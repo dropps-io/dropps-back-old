@@ -39,6 +39,7 @@ async function setDisplays() {
   await insertMethodDisplay('0x48108744', 'Executed an unknown function on {to}', 'to', '', 'to');
   await insertMethodDisplay('0x8be0079c', 'Transferred ownership from {previousOwner} to {newOwner}', '', '', '');
   await insertMethodDisplay('0x7e71433d', 'Received {value}{nativeToken} from {sender}', 'sender', '', '');
+  await insertMethodDisplay('0x9c3ba68e', 'Received {from}', 'from', '', 'from');
   await insertKeyDisplay('0x5ef83ad9559033e6e941db7d7c495acdce616347d28e90c7ce47cbfcfcad3bc5', 'Profile metadata updated', 'Profile metadata updated');
 }
 

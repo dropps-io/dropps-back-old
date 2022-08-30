@@ -72,6 +72,9 @@ export async function constructFeed(posts: Post[], profile?: string, noRecursive
               case 'DataChanged':
                 feedObject.display = await generateDataChangedDisplay(event, parameters);
                 break;
+              case 'UniversalReceiver':
+                feedObject.display = await generateEventDisplay(event.topic.slice(0, 10), parameters);
+                break;
               case 'OwnershipTransferred':
                   feedObject.display = await generateEventDisplay(event.topic.slice(0, 10), parameters);
                   break;
