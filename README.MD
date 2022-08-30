@@ -7,7 +7,7 @@ This is the application that serves the social media feed, indexing created cont
 * Translates known blockchain events and their parameters to an informative, meaningful sentence.
 * Indexes social media content
 
-The API Documentation can be found [here](https://api.lookso.io/documentation/static/index.html)
+The API Documentation can be found [here](https://api.lookso.io/documentation/static/index.html).
 
 # Installation
 
