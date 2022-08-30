@@ -39,14 +39,6 @@ HOST="127.0.0.1"
 JWT_SECRET = "YOURJWTSECRET"
 ```
 
-***NOTE: `.env.test` need to contain only local config***
-
-- Compile the typescript // <------------ Needed?
-```
-npm run build
-```
-
-
 # Usage
 
 Before running the server, you need to run a few scripts in the following order, to prepare the database and fetch data from the blockchain.
