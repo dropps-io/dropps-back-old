@@ -5,7 +5,7 @@
 -- Dumped from database version 14.4
 -- Dumped by pg_dump version 14.4
 
--- Started on 2022-08-23 15:35:51
+-- Started on 2022-08-29 14:31:22
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -159,7 +159,7 @@ CREATE SEQUENCE public."decoded_parameter_eventId_seq"
 ALTER TABLE public."decoded_parameter_eventId_seq" OWNER TO postgres;
 
 --
--- TOC entry 3474 (class 0 OID 0)
+-- TOC entry 3483 (class 0 OID 0)
 -- Dependencies: 214
 -- Name: decoded_parameter_eventId_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -218,7 +218,7 @@ CREATE SEQUENCE public.event_id_seq
 ALTER TABLE public.event_id_seq OWNER TO postgres;
 
 --
--- TOC entry 3475 (class 0 OID 0)
+-- TOC entry 3484 (class 0 OID 0)
 -- Dependencies: 216
 -- Name: event_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -389,11 +389,28 @@ CREATE TABLE public.post (
     "childHash" character(66),
     "eventId" integer,
     "inRegistry" boolean,
-    "transactionHash" character(66)
+    "transactionHash" character(66),
+    trusted boolean
 );
 
 
 ALTER TABLE public.post OWNER TO postgres;
+
+--
+-- TOC entry 236 (class 1259 OID 167725)
+-- Name: registry_change; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.registry_change (
+    address character(42) NOT NULL,
+    type character varying NOT NULL,
+    action character varying NOT NULL,
+    value character varying NOT NULL,
+    date timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public.registry_change OWNER TO postgres;
 
 --
 -- TOC entry 225 (class 1259 OID 18398)
@@ -454,7 +471,7 @@ CREATE TABLE public.users (
 ALTER TABLE public.users OWNER TO postgres;
 
 --
--- TOC entry 3261 (class 2604 OID 18412)
+-- TOC entry 3265 (class 2604 OID 18412)
 -- Name: event id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -462,7 +479,7 @@ ALTER TABLE ONLY public.event ALTER COLUMN id SET DEFAULT nextval('public.event_
 
 
 --
--- TOC entry 3266 (class 2606 OID 18414)
+-- TOC entry 3270 (class 2606 OID 18414)
 -- Name: contract_interface contract-interface_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -471,7 +488,7 @@ ALTER TABLE ONLY public.contract_interface
 
 
 --
--- TOC entry 3268 (class 2606 OID 18416)
+-- TOC entry 3272 (class 2606 OID 18416)
 -- Name: contract_metadata contract_metadata_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -480,7 +497,7 @@ ALTER TABLE ONLY public.contract_metadata
 
 
 --
--- TOC entry 3264 (class 2606 OID 18418)
+-- TOC entry 3268 (class 2606 OID 18418)
 -- Name: contract contract_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -489,7 +506,7 @@ ALTER TABLE ONLY public.contract
 
 
 --
--- TOC entry 3298 (class 2606 OID 19780)
+-- TOC entry 3304 (class 2606 OID 19780)
 -- Name: data_changed data_changed_address_key_value_blockNumber_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -498,7 +515,7 @@ ALTER TABLE ONLY public.data_changed
 
 
 --
--- TOC entry 3270 (class 2606 OID 18344)
+-- TOC entry 3276 (class 2606 OID 18344)
 -- Name: decoded_event_parameter decoded_parameter_eventId_name_type_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -507,7 +524,7 @@ ALTER TABLE ONLY public.decoded_event_parameter
 
 
 --
--- TOC entry 3302 (class 2606 OID 144651)
+-- TOC entry 3308 (class 2606 OID 144651)
 -- Name: erc725y_schema erc725y_schema_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -516,7 +533,7 @@ ALTER TABLE ONLY public.erc725y_schema
 
 
 --
--- TOC entry 3272 (class 2606 OID 18420)
+-- TOC entry 3278 (class 2606 OID 18420)
 -- Name: event event_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -525,7 +542,7 @@ ALTER TABLE ONLY public.event
 
 
 --
--- TOC entry 3274 (class 2606 OID 18352)
+-- TOC entry 3280 (class 2606 OID 18352)
 -- Name: event event_transactionHash_logId_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -534,7 +551,7 @@ ALTER TABLE ONLY public.event
 
 
 --
--- TOC entry 3276 (class 2606 OID 18358)
+-- TOC entry 3282 (class 2606 OID 18358)
 -- Name: follow follow_follower_following_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -543,7 +560,7 @@ ALTER TABLE ONLY public.follow
 
 
 --
--- TOC entry 3278 (class 2606 OID 18365)
+-- TOC entry 3284 (class 2606 OID 18365)
 -- Name: image image_address_url_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -552,7 +569,7 @@ ALTER TABLE ONLY public.image
 
 
 --
--- TOC entry 3300 (class 2606 OID 144654)
+-- TOC entry 3306 (class 2606 OID 144654)
 -- Name: key_display key_display_key_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -561,7 +578,7 @@ ALTER TABLE ONLY public.key_display
 
 
 --
--- TOC entry 3280 (class 2606 OID 18370)
+-- TOC entry 3286 (class 2606 OID 18370)
 -- Name: like like_sender_postHash_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -570,7 +587,7 @@ ALTER TABLE ONLY public."like"
 
 
 --
--- TOC entry 3282 (class 2606 OID 18377)
+-- TOC entry 3288 (class 2606 OID 18377)
 -- Name: link link_address_url_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -579,7 +596,7 @@ ALTER TABLE ONLY public.link
 
 
 --
--- TOC entry 3284 (class 2606 OID 18422)
+-- TOC entry 3290 (class 2606 OID 18422)
 -- Name: method_interface method_interface_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -588,7 +605,7 @@ ALTER TABLE ONLY public.method_interface
 
 
 --
--- TOC entry 3286 (class 2606 OID 18389)
+-- TOC entry 3292 (class 2606 OID 18389)
 -- Name: method_parameter method_parameter_methodId_name_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -597,7 +614,7 @@ ALTER TABLE ONLY public.method_parameter
 
 
 --
--- TOC entry 3288 (class 2606 OID 18424)
+-- TOC entry 3294 (class 2606 OID 18424)
 -- Name: nonces nonces_userAddress_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -606,7 +623,7 @@ ALTER TABLE ONLY public.nonces
 
 
 --
--- TOC entry 3290 (class 2606 OID 18426)
+-- TOC entry 3296 (class 2606 OID 18426)
 -- Name: post post_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -615,7 +632,16 @@ ALTER TABLE ONLY public.post
 
 
 --
--- TOC entry 3292 (class 2606 OID 18404)
+-- TOC entry 3310 (class 2606 OID 167752)
+-- Name: registry_change registry_change_address_value_action_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.registry_change
+    ADD CONSTRAINT registry_change_address_value_action_key UNIQUE (address, value, action);
+
+
+--
+-- TOC entry 3298 (class 2606 OID 18404)
 -- Name: tag tag_address_title_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -624,7 +650,7 @@ ALTER TABLE ONLY public.tag
 
 
 --
--- TOC entry 3296 (class 2606 OID 18598)
+-- TOC entry 3302 (class 2606 OID 18598)
 -- Name: transaction transaction_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -633,7 +659,7 @@ ALTER TABLE ONLY public.transaction
 
 
 --
--- TOC entry 3294 (class 2606 OID 18428)
+-- TOC entry 3300 (class 2606 OID 18428)
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -642,7 +668,23 @@ ALTER TABLE ONLY public.users
 
 
 --
--- TOC entry 3323 (class 2606 OID 33242)
+-- TOC entry 3273 (class 1259 OID 166727)
+-- Name: idx_contract_mt_adr; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX idx_contract_mt_adr ON public.contract_metadata USING btree (address);
+
+
+--
+-- TOC entry 3274 (class 1259 OID 166729)
+-- Name: idx_contract_mt_name; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_contract_mt_name ON public.contract_metadata USING btree (name);
+
+
+--
+-- TOC entry 3331 (class 2606 OID 33242)
 -- Name: asset asset_address_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -651,7 +693,7 @@ ALTER TABLE ONLY public.asset
 
 
 --
--- TOC entry 3303 (class 2606 OID 18429)
+-- TOC entry 3311 (class 2606 OID 18429)
 -- Name: chain_sync chain_sync_address_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -660,7 +702,7 @@ ALTER TABLE ONLY public.chain_sync
 
 
 --
--- TOC entry 3305 (class 2606 OID 18434)
+-- TOC entry 3313 (class 2606 OID 18434)
 -- Name: contract_metadata contract_metadata_address_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -669,7 +711,7 @@ ALTER TABLE ONLY public.contract_metadata
 
 
 --
--- TOC entry 3322 (class 2606 OID 18605)
+-- TOC entry 3330 (class 2606 OID 18605)
 -- Name: data_changed data_changed_address_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -678,7 +720,7 @@ ALTER TABLE ONLY public.data_changed
 
 
 --
--- TOC entry 3325 (class 2606 OID 108678)
+-- TOC entry 3333 (class 2606 OID 108678)
 -- Name: decoded_function_parameter decoded_function_parameter_transactionHash_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -687,7 +729,7 @@ ALTER TABLE ONLY public.decoded_function_parameter
 
 
 --
--- TOC entry 3306 (class 2606 OID 18439)
+-- TOC entry 3314 (class 2606 OID 18439)
 -- Name: decoded_event_parameter decoded_parameter_eventId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -696,7 +738,7 @@ ALTER TABLE ONLY public.decoded_event_parameter
 
 
 --
--- TOC entry 3307 (class 2606 OID 18444)
+-- TOC entry 3315 (class 2606 OID 18444)
 -- Name: event event_address_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -705,7 +747,7 @@ ALTER TABLE ONLY public.event
 
 
 --
--- TOC entry 3308 (class 2606 OID 18610)
+-- TOC entry 3316 (class 2606 OID 18610)
 -- Name: event event_transactionHash_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -714,7 +756,7 @@ ALTER TABLE ONLY public.event
 
 
 --
--- TOC entry 3309 (class 2606 OID 18449)
+-- TOC entry 3317 (class 2606 OID 18449)
 -- Name: follow follow_follower_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -723,7 +765,7 @@ ALTER TABLE ONLY public.follow
 
 
 --
--- TOC entry 3310 (class 2606 OID 18454)
+-- TOC entry 3318 (class 2606 OID 18454)
 -- Name: follow follow_following_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -732,7 +774,7 @@ ALTER TABLE ONLY public.follow
 
 
 --
--- TOC entry 3311 (class 2606 OID 18459)
+-- TOC entry 3319 (class 2606 OID 18459)
 -- Name: image image_address_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -741,7 +783,7 @@ ALTER TABLE ONLY public.image
 
 
 --
--- TOC entry 3304 (class 2606 OID 18464)
+-- TOC entry 3312 (class 2606 OID 18464)
 -- Name: contract interface; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -750,7 +792,7 @@ ALTER TABLE ONLY public.contract
 
 
 --
--- TOC entry 3326 (class 2606 OID 144655)
+-- TOC entry 3334 (class 2606 OID 144655)
 -- Name: key_display key_display_key_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -759,7 +801,7 @@ ALTER TABLE ONLY public.key_display
 
 
 --
--- TOC entry 3312 (class 2606 OID 18469)
+-- TOC entry 3320 (class 2606 OID 18469)
 -- Name: like like_postHash_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -768,7 +810,7 @@ ALTER TABLE ONLY public."like"
 
 
 --
--- TOC entry 3313 (class 2606 OID 18474)
+-- TOC entry 3321 (class 2606 OID 18474)
 -- Name: like like_sender_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -777,7 +819,7 @@ ALTER TABLE ONLY public."like"
 
 
 --
--- TOC entry 3314 (class 2606 OID 18479)
+-- TOC entry 3322 (class 2606 OID 18479)
 -- Name: link link_address_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -786,7 +828,7 @@ ALTER TABLE ONLY public.link
 
 
 --
--- TOC entry 3324 (class 2606 OID 108668)
+-- TOC entry 3332 (class 2606 OID 108668)
 -- Name: method_display method_display_methodId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -795,7 +837,7 @@ ALTER TABLE ONLY public.method_display
 
 
 --
--- TOC entry 3315 (class 2606 OID 18484)
+-- TOC entry 3323 (class 2606 OID 18484)
 -- Name: method_parameter method_parameter_methodId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -804,7 +846,7 @@ ALTER TABLE ONLY public.method_parameter
 
 
 --
--- TOC entry 3327 (class 2606 OID 144325)
+-- TOC entry 3335 (class 2606 OID 144325)
 -- Name: notification notification_address_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -813,7 +855,7 @@ ALTER TABLE ONLY public.notification
 
 
 --
--- TOC entry 3329 (class 2606 OID 157637)
+-- TOC entry 3337 (class 2606 OID 157637)
 -- Name: notification notification_postHash_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -822,7 +864,7 @@ ALTER TABLE ONLY public.notification
 
 
 --
--- TOC entry 3328 (class 2606 OID 144330)
+-- TOC entry 3336 (class 2606 OID 144330)
 -- Name: notification notification_sender_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -831,7 +873,7 @@ ALTER TABLE ONLY public.notification
 
 
 --
--- TOC entry 3316 (class 2606 OID 18489)
+-- TOC entry 3324 (class 2606 OID 18489)
 -- Name: post post_childHash_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -840,7 +882,7 @@ ALTER TABLE ONLY public.post
 
 
 --
--- TOC entry 3317 (class 2606 OID 18494)
+-- TOC entry 3325 (class 2606 OID 18494)
 -- Name: post post_eventId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -849,7 +891,7 @@ ALTER TABLE ONLY public.post
 
 
 --
--- TOC entry 3318 (class 2606 OID 18499)
+-- TOC entry 3326 (class 2606 OID 18499)
 -- Name: post post_parentHash_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -858,7 +900,7 @@ ALTER TABLE ONLY public.post
 
 
 --
--- TOC entry 3319 (class 2606 OID 18504)
+-- TOC entry 3327 (class 2606 OID 18504)
 -- Name: post post_sender_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -867,7 +909,16 @@ ALTER TABLE ONLY public.post
 
 
 --
--- TOC entry 3320 (class 2606 OID 18509)
+-- TOC entry 3338 (class 2606 OID 167730)
+-- Name: registry_change registry_changes_address_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.registry_change
+    ADD CONSTRAINT registry_changes_address_fkey FOREIGN KEY (address) REFERENCES public.contract(address);
+
+
+--
+-- TOC entry 3328 (class 2606 OID 18509)
 -- Name: tag tag_address_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -876,7 +927,7 @@ ALTER TABLE ONLY public.tag
 
 
 --
--- TOC entry 3321 (class 2606 OID 18514)
+-- TOC entry 3329 (class 2606 OID 18514)
 -- Name: user_profile_relations user_profile_relations_userAddress_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -884,7 +935,7 @@ ALTER TABLE ONLY public.user_profile_relations
     ADD CONSTRAINT "user_profile_relations_userAddress_fkey" FOREIGN KEY ("userAddress") REFERENCES public.users(address);
 
 
--- Completed on 2022-08-23 15:35:52
+-- Completed on 2022-08-29 14:31:22
 
 --
 -- PostgreSQL database dump complete

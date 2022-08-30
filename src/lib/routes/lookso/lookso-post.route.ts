@@ -6,6 +6,7 @@ import {error, ERROR_INTERNAL} from "../../../bin/utils/error-messages";
 import {LSPXXProfilePost, ProfilePost} from "../../../bin/lookso/registry/types/profile-post";
 import {verifyJWT} from "../../../bin/json-web-token";
 import {Buffer} from "buffer";
+import sharp from "sharp";
 import {arrayBufferKeccak256Hash, objectToBuffer, objectToKeccak256Hash} from "../../../bin/utils/file-converters";
 import {buildJsonUrl} from "../../../bin/utils/json-url";
 import {FastifyInstance} from "fastify";
@@ -15,6 +16,11 @@ import {constructFeed} from "../../../bin/lookso/feed/construct-feed";
 import {Post} from "../../../models/types/post";
 import {applyChangesToRegistry} from "../../../bin/lookso/registry/apply-changes-to-registry";
 import {upload} from "../../../bin/arweave/utils/upload";
+import multer from "fastify-multer";
+
+interface MulterRequest extends Request {
+  file: any;
+}
 
 export function looksoPostRoutes(fastify: FastifyInstance) {
   fastify.route({
@@ -114,23 +120,31 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
 
   fastify.route({
     method: 'POST',
-    url: '/post/request-object',
+    url: '/post/asset',
+    preHandler: multer().single('asset'),
     schema: {
       description: 'Upload a media to arweave.',
       tags: ['lookso'],
       summary: 'Upload a media to arweave.'
     },
     handler: async (request, reply) => {
-      const body = request.body as { lspXXProfilePost: LSPXXProfilePost, fileType:string, base64File: string };
-      await verifyJWT(request, reply, body.lspXXProfilePost.author);
+      const body = request.body as { lspXXProfilePost: string};
+      const documentFile: any = (request as unknown as MulterRequest).file;
+      const post: LSPXXProfilePost = JSON.parse(body.lspXXProfilePost) as LSPXXProfilePost;
 
-      const post: LSPXXProfilePost = body.lspXXProfilePost;
+      await verifyJWT(request, reply, post.author);
 
-      const buffer = Buffer.from(body.base64File.split(',')[1], 'base64url');
+      let buffer = documentFile.buffer;
+      let fileType = documentFile.mimetype;
 
-      const fileUrl = await upload(buffer, body.fileType);
+      if (fileType.includes('image')) {
+        buffer = await sharp(buffer).rotate().resize(800, null, {withoutEnlargement: true, fit: 'contain'}).webp({quality: 50}).toBuffer();
+        fileType = 'image/webp';
+      }
+
+      const fileUrl = await upload(buffer, fileType);
       post.asset = {
-        fileType: body.fileType,
+        fileType: fileType,
         hash: '0x' + arrayBufferKeccak256Hash(buffer),
         hashFunction: 'keccak256(bytes)',
         url: fileUrl

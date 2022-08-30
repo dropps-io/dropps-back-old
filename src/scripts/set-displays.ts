@@ -10,11 +10,11 @@ async function setDisplays() {
   await insertMethodDisplay('0x14a6e293', 'Set the value {dataValue} for the key {dataKey}  on {executionContract}', '', '', '');
   await insertMethodDisplay('0x7f23690c', 'Set the value {dataValue} for the key {dataKey}  on {executionContract}', '', '', '');
   await insertMethodDisplay('0xf2fde38b', 'Transferred ownership of {executionContract} to {_newOwner}', '', '', '');
-  await insertMethodDisplay('0xcf5182ba', 'Authorized {operator} to manage {executionContract} {tokenId}', 'executionContract:tokenId', '', 'executionContract');
-  await insertMethodDisplay('0xaf255b61', 'Minted {executionContract} {tokenId}', 'executionContract:tokenId', '', 'executionContract');
-  await insertMethodDisplay('0x0b0c6d82', 'Revoked {operator}\'s authorization to manage {executionContract} {tokenId}', 'executionContract:tokenId', '', 'executionContract');
-  await insertMethodDisplay('0x511b6952', 'Transferred {executionContract} {tokenId} to {to}', 'executionContract:tokenId', '', 'executionContract');
-  await insertMethodDisplay('0x55908868', 'Transferred {executionContract} {tokenId} to {to}', 'executionContract:tokenId', '', 'executionContract');
+  await insertMethodDisplay('0xcf5182ba', 'Authorized {operator} to manage {executionContract} {tokenId}', 'executionContract', '', 'executionContract');
+  await insertMethodDisplay('0xaf255b61', 'Minted token {tokenId} on {executionContract} ', 'executionContract', '', 'executionContract');
+  await insertMethodDisplay('0x0b0c6d82', 'Revoked {operator}\'s authorization to manage {executionContract} {tokenId}', 'executionContract', '', 'executionContract');
+  await insertMethodDisplay('0x511b6952', 'Transferred token {tokenId} of {executionContract}  to {to}', 'executionContract', '', 'executionContract');
+  await insertMethodDisplay('0x55908868', 'Transferred token {tokenId} of {executionContract} to {to}', 'executionContract', '', 'executionContract');
   await insertMethodDisplay('0x47980aa3', 'Authorized {operator} to manage {amount} {executionContract}', 'executionContract', '', 'executionContract');
   await insertMethodDisplay('0x7580d920', 'Minted {amount} {executionContract} to {to}', 'executionContract', '', 'executionContract');
   await insertMethodDisplay('0xfad8b32a', 'Revoked {operator}\'s authorization to manage {executionContract}', 'executionContract', '', 'executionContract');
@@ -32,8 +32,8 @@ async function setDisplays() {
   await insertMethodDisplay('0x9bd9bbc6', 'Sent {amount} {executionContract} to {recipient}', 'executionContract', '', 'executionContract');
   await insertMethodDisplay('0xa9059cbb', 'Transferred {amount} {executionContract} to {recipient}', 'executionContract', '', 'executionContract');
   await insertMethodDisplay('0x23b872dd', 'Instructed a transfer of {amount} {executionContract} from {holder} to {recipient}', 'executionContract', '', 'executionContract');
-  await insertMethodDisplay('0x42966c68', 'Burned {executionContract} {tokenId}', 'executionContract:tokenId', '', 'executionContract');
-  await insertMethodDisplay('0x40c10f19', 'Minted {amount} {executionContract}', 'executionContract:tokenId', '', 'executionContract');
+  await insertMethodDisplay('0x42966c68', 'Burned {executionContract} {tokenId}', 'executionContract', '', 'executionContract');
+  await insertMethodDisplay('0x40c10f19', 'Minted {amount} {executionContract}', 'executionContract', '', 'executionContract');
   await insertMethodDisplay('0x01c42bd7', 'Created {contractAddress}', 'contractAddress', '', 'contractAddress');
   await insertMethodDisplay('0xcdf4e344', 'Value of {dataKey} changed', '', '', '');
   await insertMethodDisplay('0x48108744', 'Executed an unknown function on {to}', 'to', '', 'to');
