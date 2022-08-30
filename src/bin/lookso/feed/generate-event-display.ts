@@ -92,7 +92,7 @@ export async function generateEventDisplay(methodId: string, params: Map<string,
               const url = formatUrl((metadataData.value as URLDataWithHash).url);
               const lsp4Metadata: LSP4DigitalAsset = (await axios.get(url)).data;
               if (lsp4Metadata.metadata.images.length > 0) {
-                tryInsertingImages(address, lsp4Metadata.metadata.images);
+                tryInsertingImages(address, lsp4Metadata.metadata.images.concat(lsp4Metadata.metadata.icon));
                 pickedImage = selectImage(await queryImages(address), {minWidthExpected: 100});
                 image = pickedImage ? pickedImage.url : '';
               }
