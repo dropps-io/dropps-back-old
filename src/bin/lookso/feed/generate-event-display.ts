@@ -90,7 +90,7 @@ export async function generateEventDisplay(methodId: string, params: Map<string,
               const erc725Y = new ERC725(LSP4DigitalAssetJSON as ERC725JSONSchema[], address, web3.currentProvider, {ipfsGateway: IPFS_GATEWAY});
               const metadataData = await erc725Y.getData('LSP4Metadata');
               const url = formatUrl((metadataData.value as URLDataWithHash).url);
-              const lsp4Metadata: LSP4DigitalAsset = (await axios.get(url)).data;
+              const lsp4Metadata: LSP4DigitalAsset = (await axios.get(url, {timeout: 300})).data;
               if (lsp4Metadata.metadata.images.length > 0) {
                 tryInsertingImages(address, lsp4Metadata.metadata.images.concat(lsp4Metadata.metadata.icon));
                 pickedImage = selectImage(await queryImages(address), {minWidthExpected: 100});
@@ -139,6 +139,18 @@ export async function generateDataChangedDisplay(event: Event, parameters: Map<s
     return {text: display.displayWithoutValue, params: displayParams, image: '', tags: {standard: null, standardType: null, copies: null}};
   }
 }
+
+// export async function generateUniversalReceiverEventDisplay(params: Map<string, DecodedParameter>, context?: {senderProfile?: string, executionContract?: string}): Promise<FeedDisplay> {
+//   let displayParams: {[key: string]: FeedDisplayParam} = {}
+//   const paramFrom = params.get('from');
+//   const paramTypeId = params.get('typeId');
+//   if (!paramFrom || !paramTypeId) return {text: 'Universal receiver triggered', params: {}, image: '', tags: {copies: '', standardType: '', standard: ''}};
+//   displayParams['from'] = await getDisplayParam(paramFrom.value, 'address');
+//
+//   switch (paramTypeId.value) {
+//     case UNIVERS
+//   }
+// }
 
 async function tryInsertingImages(address: string, images: MetadataImage[]) {
   for (const image of images) {
