@@ -27,6 +27,7 @@ import {IPFS_GATEWAY} from "../../../environment/config";
 import {TYPEID_LSP7_TOKENSRECIPIENT, TYPEID_LSP7_TOKENSSENDER, TYPEID_LSP8_TOKENSRECIPIENT, TYPEID_LSP8_TOKENSSENDER} from "../../utils/constants";
 import {AbiItem} from "web3-utils";
 import LSP7DigitalAsset from "@lukso/lsp-smart-contracts/artifacts/LSP7DigitalAsset.json";
+import Web3 from "web3";
 
 
 export async function generateEventDisplay(methodId: string, params: Map<string, DecodedParameter>, context?: {senderProfile?: string, executionContract?: string}): Promise<FeedDisplay> {
@@ -163,7 +164,7 @@ async function getUniversalReceiverDisplayForLSP7(assetAddress: string, received
   const isNFT: boolean = (await lsp7contract.methods.decimals().call()) === '0';
 
   if (isNFT) displayParams['amount'] = {type: 'uint256', value: amount, display: amount, additionalProperties: {}}
-  else displayParams['amount'] = {type: 'tokenAmount', value: amount, display: amount, additionalProperties: {}}
+  else displayParams['amount'] = {type: 'tokenAmount', value: amount, display: Web3.utils.fromWei(amount, 'ether'), additionalProperties: {}}
   displayParams['from'] = await getDisplayParam(from, 'address');
   displayParams['to'] = await getDisplayParam(to, 'address');
 
