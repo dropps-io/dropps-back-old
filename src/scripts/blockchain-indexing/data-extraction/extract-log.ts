@@ -63,6 +63,8 @@ async function extractEvent(log: Log): Promise<void> {
         extractContract(decodedParameters['previousOwner']);
         extractContract(decodedParameters['newOwner']);
         break;
+      case 'UniversalReceiver':
+        extractContract(decodedParameters['from']);
       case 'DataChanged':
         const th = await web3.eth.getTransaction(log.transactionHash);
         const dataChanged: {key: string, value: string}[] = decodeSetDataValueFromInput(th.input);
