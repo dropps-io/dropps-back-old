@@ -163,7 +163,7 @@ async function getUniversalReceiverDisplayForLSP7(assetAddress: string, received
   const isNFT: boolean = (await lsp7contract.methods.decimals().call()) === '0';
 
   if (isNFT) displayParams['amount'] = {type: 'uint256', value: amount, display: amount, additionalProperties: {}}
-  else displayParams['amount'] = {type: 'token', value: amount, display: amount, additionalProperties: {}}
+  else displayParams['amount'] = {type: 'tokenAmount', value: amount, display: amount, additionalProperties: {}}
   displayParams['from'] = await getDisplayParam(from, 'address');
   displayParams['to'] = await getDisplayParam(to, 'address');
 
