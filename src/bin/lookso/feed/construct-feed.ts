@@ -3,7 +3,7 @@ import {queryEvent} from "../../db/event.table";
 import {Post} from "../../../models/types/post";
 import {DecodedParameter} from "../../../models/types/decoded-parameter";
 import {Event} from "../../../models/types/event";
-import {generateDataChangedDisplay, generateEventDisplay} from "./generate-event-display";
+import {generateDataChangedDisplay, generateEventDisplay, generateUniversalReceiverEventDisplay} from "./generate-event-display";
 import {queryDecodedFunctionParameters} from "../../db/decoded-function-parameter.table";
 import {queryContractName} from "../../db/contract-metadata.table";
 import {queryImagesByType} from "../../db/image.table";
@@ -73,7 +73,7 @@ export async function constructFeed(posts: Post[], profile?: string, noRecursive
                 feedObject.display = await generateDataChangedDisplay(event, parameters);
                 break;
               case 'UniversalReceiver':
-                feedObject.display = await generateEventDisplay(event.topic.slice(0, 10), parameters);
+                feedObject.display = await generateUniversalReceiverEventDisplay(parameters);
                 break;
               case 'OwnershipTransferred':
                   feedObject.display = await generateEventDisplay(event.topic.slice(0, 10), parameters);

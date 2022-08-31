@@ -24,6 +24,10 @@ import axios from "axios";
 import {LSP4DigitalAsset} from "../../UniversalProfile/models/lsp4-digital-asset.model";
 import {MetadataImage} from "../../../models/types/metadata-objects";
 import {IPFS_GATEWAY} from "../../../environment/config";
+import {TYPEID_LSP7_TOKENSRECIPIENT, TYPEID_LSP7_TOKENSSENDER, TYPEID_LSP8_TOKENSRECIPIENT, TYPEID_LSP8_TOKENSSENDER} from "../../utils/constants";
+import {AbiItem} from "web3-utils";
+import LSP7DigitalAsset from "@lukso/lsp-smart-contracts/artifacts/LSP7DigitalAsset.json";
+
 
 export async function generateEventDisplay(methodId: string, params: Map<string, DecodedParameter>, context?: {senderProfile?: string, executionContract?: string}): Promise<FeedDisplay> {
     const methodDisplay: MethodDisplay = await queryMethodDisplay(methodId);
@@ -82,24 +86,7 @@ export async function generateEventDisplay(methodId: string, params: Map<string,
         else if (methodDisplay.imageFrom === 'executionContract' && context?.executionContract) address = context.executionContract;
 
         if (address) {
-          let pickedImage = selectImage(await queryImages(address), {minWidthExpected: 100});
-          image = pickedImage ? pickedImage.url : '';
-
-          if (image === '' && (tags.standard === 'LSP7' || tags.standard === 'LSP8')) {
-            try {
-              const erc725Y = new ERC725(LSP4DigitalAssetJSON as ERC725JSONSchema[], address, web3.currentProvider, {ipfsGateway: IPFS_GATEWAY});
-              const metadataData = await erc725Y.getData('LSP4Metadata');
-              const url = formatUrl((metadataData.value as URLDataWithHash).url);
-              const lsp4Metadata: LSP4DigitalAsset = (await axios.get(url, {timeout: 300})).data;
-              if (lsp4Metadata.metadata.images.length > 0) {
-                tryInsertingImages(address, lsp4Metadata.metadata.images.concat(lsp4Metadata.metadata.icon));
-                pickedImage = selectImage(await queryImages(address), {minWidthExpected: 100});
-                image = pickedImage ? pickedImage.url : '';
-              }
-            } catch (e) {
-
-            }
-          }
+          image = await fetchImageFromAddress(address, tags.standard ? tags.standard : '');
         }
     }
     return {text: methodDisplay.text, params: displayParams, image, tags};
@@ -140,20 +127,95 @@ export async function generateDataChangedDisplay(event: Event, parameters: Map<s
   }
 }
 
-// export async function generateUniversalReceiverEventDisplay(params: Map<string, DecodedParameter>, context?: {senderProfile?: string, executionContract?: string}): Promise<FeedDisplay> {
-//   let displayParams: {[key: string]: FeedDisplayParam} = {}
-//   const paramFrom = params.get('from');
-//   const paramTypeId = params.get('typeId');
-//   if (!paramFrom || !paramTypeId) return {text: 'Universal receiver triggered', params: {}, image: '', tags: {copies: '', standardType: '', standard: ''}};
-//   displayParams['from'] = await getDisplayParam(paramFrom.value, 'address');
-//
-//   switch (paramTypeId.value) {
-//     case UNIVERS
-//   }
-// }
+export async function generateUniversalReceiverEventDisplay(params: Map<string, DecodedParameter>): Promise<FeedDisplay> {
+  try {
+    let displayParams: {[key: string]: FeedDisplayParam} = {}
+    const assetAddress = params.get('from');
+    const typeId = params.get('typeId');
+    const receivedData = params.get('receivedData');
+    if (!assetAddress || !typeId || !receivedData) return {text: 'Universal receiver triggered', params: {}, image: '', tags: {copies: '', standardType: '', standard: ''}};
+    displayParams['asset'] = await getDisplayParam(assetAddress.value, 'address');
+
+    switch (typeId.value) {
+      case TYPEID_LSP7_TOKENSRECIPIENT:
+        return await getUniversalReceiverDisplayForLSP7(assetAddress.value, receivedData.value, displayParams, 'recipient');
+      case TYPEID_LSP7_TOKENSSENDER:
+        return await getUniversalReceiverDisplayForLSP7(assetAddress.value, receivedData.value, displayParams, 'sender');
+      case TYPEID_LSP8_TOKENSRECIPIENT:
+        return await getUniversalReceiverDisplayForLSP8(assetAddress.value, receivedData.value, displayParams, 'recipient');
+      case TYPEID_LSP8_TOKENSSENDER:
+        return await getUniversalReceiverDisplayForLSP8(assetAddress.value, receivedData.value, displayParams, 'sender');
+      default:
+        return {text: 'Universal receiver triggered', params: {}, image: '', tags: {copies: '', standardType: '', standard: ''}};
+    }
+  } catch (e) {
+    console.error(e);
+    return {text: 'Universal receiver triggered', params: {}, image: '', tags: {copies: '', standardType: '', standard: ''}};
+  }
+}
+
+async function getUniversalReceiverDisplayForLSP7(assetAddress: string, receivedData: string, displayParams: any, type: 'sender' | 'recipient') {
+  const from = web3.utils.toChecksumAddress(receivedData.slice(2, 42));
+  const to = web3.utils.toChecksumAddress(receivedData.slice(42, 82));
+  const amount = parseInt(receivedData.slice(82, 146), 16).toString();
+
+  const lsp7contract = new web3.eth.Contract(LSP7DigitalAsset.abi as AbiItem[], assetAddress);
+  const isNFT: boolean = (await lsp7contract.methods.decimals().call()) === '0';
+
+  if (isNFT) displayParams['amount'] = {type: 'uint256', value: amount, display: amount, additionalProperties: {}}
+  else displayParams['amount'] = {type: 'token', value: amount, display: amount, additionalProperties: {}}
+  displayParams['from'] = await getDisplayParam(from, 'address');
+  displayParams['to'] = await getDisplayParam(to, 'address');
+
+  return {text: type === 'recipient' ? 'Received {amount} {asset} from {from}' : 'Sended {amount} {asset} from {to}',
+    params: displayParams,
+    image: await fetchImageFromAddress(assetAddress, 'LSP7'),
+    tags: {copies: '', standardType: isNFT ? 'NFT' : 'token', standard: 'LSP7'}};
+}
+
+async function getUniversalReceiverDisplayForLSP8(assetAddress: string, receivedData: string, displayParams: any, type: 'sender' | 'recipient') {
+  const from = web3.utils.toChecksumAddress(receivedData.slice(2, 42));
+  const to = web3.utils.toChecksumAddress(receivedData.slice(42, 82));
+  const tokenId = receivedData.slice(82, 146);
+
+  displayParams['tokenId'] = {type: 'bytes32', value: tokenId, display: tokenId, additionalProperties: {}}
+  displayParams['from'] = await getDisplayParam(from, 'address');
+  displayParams['to'] = await getDisplayParam(to, 'address');
+
+  return {text: type === 'recipient' ? 'Received token {tokenId} of {asset} from {from}' : 'Sended token {tokenId} of {asset} from {to}',
+    params: displayParams,
+    image: await fetchImageFromAddress(assetAddress, 'LSP8'),
+    tags: {copies: '', standardType: 'NFT', standard: 'LSP8'}};
+}
 
 async function tryInsertingImages(address: string, images: MetadataImage[]) {
   for (const image of images) {
     await insertImage(address, image.url, image.width, image.height, '', image.hash);
+  }
+}
+
+async function fetchImageFromAddress(address: string, standard: string): Promise<string> {
+  try {
+    let pickedImage = selectImage(await queryImages(address), {minWidthExpected: 100});
+    let image = pickedImage ? pickedImage.url : '';
+
+    if (image === '' && (standard === 'LSP7' || standard === 'LSP8')) {
+      try {
+        const erc725Y = new ERC725(LSP4DigitalAssetJSON as ERC725JSONSchema[], address, web3.currentProvider, {ipfsGateway: IPFS_GATEWAY});
+        const metadataData = await erc725Y.getData('LSP4Metadata');
+        const url = formatUrl((metadataData.value as URLDataWithHash).url);
+        const lsp4Metadata: LSP4DigitalAsset = (await axios.get(url, {timeout: 300})).data;
+        if (lsp4Metadata.metadata.images.length > 0) {
+          tryInsertingImages(address, lsp4Metadata.metadata.images.concat(lsp4Metadata.metadata.icon));
+          pickedImage = selectImage(await queryImages(address), {minWidthExpected: 100});
+          image = pickedImage ? pickedImage.url : '';
+        }
+      } catch (e) {
+
+      }
+    }
+    return image;
+  } catch (e) {
+    return '';
   }
 }
