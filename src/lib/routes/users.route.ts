@@ -1,14 +1,13 @@
 import { FastifyInstance } from 'fastify';
 import {isAddress} from '../../bin/utils/validators';
 import {insertUser, queryUser, updateUser} from '../../bin/db/users.table';
-import {User} from '../models/types/user';
-import {getPermissions} from '../../bin/u-profiles';
-import {UserProfileRelation} from '../models/types/user-profile-relation';
+import {User} from '../../models/types/user';
+import {UserProfileRelation} from '../../models/types/user-profile-relation';
 import {throwError} from '../../bin/utils/throw-error';
-import {UserProfile} from '../models/types/user-profile';
+import {UserProfile} from '../../models/types/user-profile';
 import {verifyJWT} from '../../bin/json-web-token';
-import * as userSchema from '../models/json/user.json';
-import * as userProfileRelationSchema from '../models/json/user-profile-relation.json';
+import * as userSchema from '../../models/json/user.json';
+import * as userProfileRelationSchema from '../../models/json/user-profile-relation.json';
 import {
 	ERROR_ADR_INVALID,
 	ERROR_ADR_NOT_EQUAL_PARAM_BODY, error,
@@ -22,6 +21,8 @@ import {
 	queryProfilesOfUser, queryUserProfileRelation, updateUserProfileRelation
 } from '../../bin/db/user-profile-relations.table';
 import {logError} from '../../bin/logger';
+import {UniversalProfileReader} from "../../bin/UniversalProfile/UniversalProfileReader.class";
+import {web3} from "../../bin/web3/web3";
 
 export async function usersRoute (fastify: FastifyInstance) {
 
@@ -39,8 +40,10 @@ export async function usersRoute (fastify: FastifyInstance) {
 			const user = request.body as User;
 			verifyJWT(request, reply, user.address);
 
+			const profile: UniversalProfileReader = new UniversalProfileReader(user.selectedProfile, '', web3);
+
 			try {
-				if (!await getPermissions(user.selectedProfile, user.address)) return reply.code(403).send(error(403, ERROR_UP_NO_PERMISSIONS));
+				if (!await profile.fetchPermissionsOf(user.address)) return reply.code(403).send(error(403, ERROR_UP_NO_PERMISSIONS));
 				await insertUser(user.address, user.selectedProfile);
 				await insertUserProfileRelation(user.selectedProfile, user.address, false);
 				return reply.code(200).send(user);
@@ -93,8 +96,10 @@ export async function usersRoute (fastify: FastifyInstance) {
 			if (userAddress.toUpperCase() !== user.address.toUpperCase()) return reply.code(400).send(error(400, ERROR_ADR_NOT_EQUAL_PARAM_BODY));
 			verifyJWT(request, reply, userAddress);
 
+			const profile: UniversalProfileReader = new UniversalProfileReader(user.selectedProfile, '', web3);
+
 			try {
-				if (!await getPermissions(user.selectedProfile, user.address)) return reply.code(403).send(error(403, ERROR_UP_NO_PERMISSIONS));
+				if (!await profile.fetchPermissionsOf(user.address)) return reply.code(403).send(error(403, ERROR_UP_NO_PERMISSIONS));
 
 				await updateUser(user.address, user.selectedProfile);
 				if (await throwError(queryUserProfileRelation(user.selectedProfile, user.address)))
@@ -148,11 +153,13 @@ export async function usersRoute (fastify: FastifyInstance) {
 			const userProfileRelation = request.body as UserProfileRelation;
 			verifyJWT(request, reply, userAddress);
 
+			const profile: UniversalProfileReader = new UniversalProfileReader(userProfileRelation.profileAddress, '', web3);
+
 			try {
 				if (!isAddress(userAddress)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
 				if (userAddress.toUpperCase() !== userProfileRelation.userAddress.toUpperCase()) return reply.code(400).send(error(400, ERROR_ADR_NOT_EQUAL_PARAM_BODY));
-				if (!await throwError(queryUserProfileRelation(userProfileRelation.profileAddress, userAddress))) return reply.code(422).send(error(422, ERROR_USER_PROFILE_RELATION_EXISTS));
-				if (!await getPermissions(userProfileRelation.profileAddress, userProfileRelation.userAddress)) return reply.code(403).send(error(403, ERROR_UP_NO_PERMISSIONS));
+				if (!await throwError(queryUserProfileRelation(userProfileRelation.userAddress, userAddress))) return reply.code(422).send(error(422, ERROR_USER_PROFILE_RELATION_EXISTS));
+				if (!await profile.fetchPermissionsOf(userProfileRelation.userAddress)) return reply.code(403).send(error(403, ERROR_UP_NO_PERMISSIONS));
 
 				await insertUserProfileRelation(userProfileRelation.profileAddress, userProfileRelation.userAddress, userProfileRelation.archived);
 				return  reply.code(200).send(userProfileRelation);

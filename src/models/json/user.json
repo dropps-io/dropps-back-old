@@ -1,0 +1,24 @@
+{
+  "$id": "user.json",
+  "$schema": "http://json-schema.org/schema",
+  "title": "User",
+  "description": "Lookso user. Capable of producing and viewing social media content like posts, follows and likes.",
+  "type": "object",
+  "required": [
+    "address",
+    "selectedProfile"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "address": {
+      "type": "string",
+      "pattern": "^0x[a-fA-F0-9]{40}$",
+      "description": "Address of the user"
+    },
+    "selectedProfile": {
+      "type": "string",
+      "pattern": "^0x[a-fA-F0-9]{40}$",
+      "description": "Universal profile selected by the user"
+    }
+  }
+}
