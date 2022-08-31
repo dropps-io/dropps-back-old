@@ -9,8 +9,10 @@ import {insertNonce, queryNonce, updateNonce} from '../../bin/db/nonces.table';
 import {generateAddressWithSignature} from '../../bin/web3/auth';
 import {generateJWT} from '../../bin/json-web-token';
 import {FastifyInstance} from 'fastify';
-import {JWT_VALIDITY_TIME} from '../../environment/config';
-import {logError} from '../../bin/logger';
+import {IPFS_GATEWAY, JWT_VALIDITY_TIME} from '../../environment/config';
+import {logError, logMessage} from '../../bin/logger';
+import {UniversalProfileReader} from "../../bin/UniversalProfile/UniversalProfileReader.class";
+import {web3} from "../../bin/web3/web3";
 
 export async function authRoute (fastify: FastifyInstance) {
 
@@ -28,7 +30,7 @@ export async function authRoute (fastify: FastifyInstance) {
 				if (!isAddress(userAddress)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
 				let nonce: string = await queryNonce(userAddress);
 				if (!nonce) nonce = await insertNonce(userAddress);
-				return reply.code(200).send({nonce});
+				return reply.code(200).send({nonce: 'I want to log in to lookso.io. \nMy address: ' + userAddress + '\nMy nonce: ' + nonce});
 				/* eslint-disable */
       } catch (e: any) {
         logError(e);
@@ -37,7 +39,7 @@ export async function authRoute (fastify: FastifyInstance) {
     }
   });
 
-  fastify.route({
+    fastify.route({
     method: 'POST',
     url: '/:userAddress/signature',
     schema: {
@@ -56,11 +58,13 @@ export async function authRoute (fastify: FastifyInstance) {
       const {userAddress} = request.params as { userAddress: string };
       const {signedNonce} = request.body as { signedNonce: string };
 
+      logMessage(signedNonce);
+
       try {
         if (!isAddress(userAddress)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
         let nonce: string = await queryNonce(userAddress);
 
-        if (generateAddressWithSignature(nonce, signedNonce).toUpperCase() !== userAddress.toUpperCase()) return reply.code(403).send(error(403, ERROR_INCORRECT_SIGNED_NONCE));
+        if (generateAddressWithSignature('I want to log in to lookso.io. \nMy address: ' + userAddress + '\nMy nonce: ' + nonce, signedNonce).toUpperCase() !== userAddress.toUpperCase()) return reply.code(403).send(error(403, ERROR_INCORRECT_SIGNED_NONCE));
         // User is auth
 
         await updateNonce(userAddress);
@@ -78,4 +82,50 @@ export async function authRoute (fastify: FastifyInstance) {
       }
     }
   });
+
+    fastify.route({
+        method: 'POST',
+        url: '/:userAddress/controller-signature',
+        schema: {
+            description: 'Request a JWT by sending a signed nonce from a controller address.',
+            tags: ['auth'],
+            summary: 'Request for a Universal Profile JWT',
+            body: {
+                type: 'object',
+                required: ['signedNonce'],
+                properties: {
+                    signedNonce: {type: 'string', description: 'Nonce signed by the user'}
+                }
+            }
+        },
+        handler: async (request, reply) => {
+            const {userAddress} = request.params as { userAddress: string };
+            const {signedNonce} = request.body as { signedNonce: string };
+
+            try {
+                if (!isAddress(userAddress)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
+                let nonce: string = await queryNonce(userAddress);
+
+                const controllerAddress = generateAddressWithSignature('I want to log in to lookso.io. \nMy address: ' + userAddress + '\nMy nonce: ' + nonce, signedNonce);
+                const profile = new UniversalProfileReader(userAddress, IPFS_GATEWAY, web3);
+
+                if (!await profile.fetchPermissionsOf(controllerAddress)) return reply.code(403).send(error(403, ERROR_INCORRECT_SIGNED_NONCE));
+                // User is auth
+
+                await updateNonce(userAddress);
+
+                return reply.code(200).send({
+                    token: generateJWT(userAddress),
+                    address: userAddress,
+                    validity: JWT_VALIDITY_TIME
+                });
+                /* eslint-disable */
+            } catch (e: any) {
+                logError(e);
+                if (e.message.includes('Invalid signature')) return reply.code(400).send(error(400, ERROR_INVALID_SIGNATURE));
+                else return reply.code(500).send(error(500, ERROR_INTERNAL));
+            }
+        }
+    });
+
 }

@@ -6,14 +6,17 @@
   "scripts": {
     "build": "npx tsc",
     "watch": "npx tsc --watch",
-    "run dev": "set NODE_ENV=development&& node dist/index.js",
+    "run dev": "npm run build&&set NODE_ENV=development&& node dist/index.js",
     "run staging": "set NODE_ENV=staging&& node dist/index.js",
     "lint": "eslint src/**/*",
     "lint autofix": "eslint --fix src/**/*",
     "test": "npm run build&&set NODE_ENV=test&&mocha ./dist/test/**/* --exit",
     "coverage": "nyc npm run test",
     "release": "standard-version",
-    "run script": "npm run build&&set NODE_ENV=development&& node dist/scripts/index.js -- exit"
+    "run script": "npm run build&&set NODE_ENV=development&& node dist/scripts/index.js -- exit",
+    "run fill-db": "npm run build&&set NODE_ENV=development&& node dist/scripts/fill-db.js -- exit",
+    "run set-displays": "npm run build&&set NODE_ENV=development&& node dist/scripts/set-displays.js -- exit",
+    "run index-blockchain": "npm run build&&set NODE_ENV=development&& node dist/scripts/blockchain-indexing/run-indexing-script.js -- exit"
   },
   "repository": {
     "type": "git",
@@ -33,6 +36,7 @@
     "@types/mocha": "^9.0.0",
     "@types/node": "^15.12.2",
     "@types/pg": "^8.6.5",
+    "@types/sharp": "^0.30.5",
     "@typescript-eslint/eslint-plugin": "^5.12.1",
     "@typescript-eslint/parser": "^5.12.1",
     "chai": "^4.3.4",
@@ -41,20 +45,24 @@
     "typescript": "^4.3.2"
   },
   "dependencies": {
+    "@bundlr-network/client": "^0.8.1",
     "@erc725/erc725.js": "^0.14.4",
     "@lukso/lsp-smart-contracts": "^0.6.2",
+    "arweave": "^1.11.6",
     "axios": "^0.27.2",
     "config": "^3.3.7",
     "dotenv": "^16.0.0",
     "ethereumjs-util": "^7.1.4",
     "fastify": "^3.27.1",
     "fastify-cors": "^6.1.0",
+    "fastify-multer": "^2.0.3",
     "fastify-swagger": "^4.15.0",
     "jsonwebtoken": "^8.5.1",
     "keccak256": "^1.0.6",
     "nyc": "^15.1.0",
     "pg": "^8.7.3",
     "prettier": "^2.5.1",
+    "sharp": "^0.30.7",
     "standard-version": "^9.3.2",
     "web3": "^1.7.0"
   }

@@ -91,7 +91,7 @@ export class UniversalProfileReader {
 
   private async fetchMetadata() {
     const data = await this._erc725.getData('LSP3Profile');
-    const url = formatUrl((data.value as URLDataWithHash).url, 'https://2eff.lukso.dev/ipfs/');
+    const url = formatUrl((data.value as URLDataWithHash).url);
     const lsp3Profile = (await axios.get(url)).data;
     this._metadata = lsp3Profile.LSP3Profile as LSP3UniversalProfile;
   }

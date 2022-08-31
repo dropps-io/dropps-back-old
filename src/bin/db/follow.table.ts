@@ -16,6 +16,16 @@ export async function queryFollowers(following: string): Promise<string[]> {
 	return res.rows.map((x: { follower: string; }) => x.follower);
 }
 
+export async function queryFollowingWithNames(follower: string, limit: number, offset: number): Promise<{ address: string, name: string }[]> {
+	const res = await executeQuery('SELECT "address","name" FROM follow INNER JOIN contract_metadata ON follow.following=contract_metadata.address WHERE follower = $1 ORDER BY CASE name WHEN \'\' THEN 1 ELSE 0 END ASC, name ASC LIMIT $2 OFFSET $3;', [follower, limit, offset]);
+	return res.rows;
+}
+
+export async function queryFollowersWithNames(following: string, limit: number, offset: number): Promise<{ address: string, name: string }[]> {
+	const res = await executeQuery('SELECT "address","name" FROM follow INNER JOIN contract_metadata ON follow.follower=contract_metadata.address WHERE following = $1 ORDER BY CASE name WHEN \'\' THEN 1 ELSE 0 END ASC, name ASC LIMIT $2 OFFSET $3;', [following, limit, offset]);
+	return res.rows;
+}
+
 export async function queryFollowersCount(following: string): Promise<number> {
 	const res = await executeQuery('SELECT COUNT(*) FROM "follow" WHERE "following" = $1', [following]);
 	return parseInt(res.rows[0].count);

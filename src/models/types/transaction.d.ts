@@ -5,4 +5,5 @@ export interface Transaction {
     value: string;
     input: string;
     blockNumber: number | null;
+    methodId: string;
 }

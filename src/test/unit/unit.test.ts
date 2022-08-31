@@ -5,7 +5,7 @@ import {TagTests} from "./db/tag.test";
 import {ContractInterfaceTests} from "./db/contract-interface.test";
 import {ContractMetadataTests} from "./db/contract-metadata.test";
 import {PostTests} from "./db/post.test";
-import {DecodedParametersTests} from "./db/decoded-parameters.test";
+import {DecodedParametersTests} from "./db/decoded-event-parameters.test";
 import {EventTests} from "./db/event.test";
 import {LikeTests} from "./db/like.test";
 import {FollowTests} from "./db/follow.test";
@@ -16,6 +16,12 @@ import {MethodParameterTest} from "./db/method-parameter.test";
 import {TransactionTests} from "./db/transaction.test";
 import {DataChangedTests} from "./db/data-changed.test";
 import {AssetTests} from "./db/asset.test";
+import {MethodDisplayTests} from "./db/method-display.test";
+import {DecodedFunctionParametersTests} from "./db/decoded-function-parameter.test";
+import {KeyDisplayTests} from "./db/key-display.test";
+import {Erc725ySchemaTests} from "./db/erc725y-schema.test";
+import {NotificationTests} from "./db/notification.test";
+import {RegistryChangeTests} from "./db/registry-changes.test";
 
 export const UnitTests = () => {
     describe('Unit Tests', () => {
@@ -27,6 +33,7 @@ export const UnitTests = () => {
             ContractMetadataTests();
             PostTests();
             DecodedParametersTests();
+            DecodedFunctionParametersTests();
             EventTests();
             LikeTests();
             FollowTests();
@@ -37,6 +44,11 @@ export const UnitTests = () => {
             MethodParameterTest();
             TransactionTests();
             DataChangedTests();
+            MethodDisplayTests();
+            KeyDisplayTests();
+            Erc725ySchemaTests();
+            NotificationTests();
+            RegistryChangeTests();
         });
     });
 }

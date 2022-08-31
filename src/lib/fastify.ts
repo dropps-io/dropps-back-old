@@ -9,6 +9,8 @@ import * as userProfileRelation from '../models/json/user-profile-relation.json'
 const fastifyCors = require('fastify-cors');
 import {authRoute} from './routes/auth.route';
 import {LOGGER} from '../environment/config';
+import {looksoRoute} from "./routes/lookso/lookso.route";
+import multer from "fastify-multer";
 
 
 export const fastify = fastifyFactory({logger: LOGGER});
@@ -56,9 +58,11 @@ fastify.register(fastifyCors, {
 		transformStaticCSP: (header) => header,
 		exposeRoute: true
 	})
+	.register(multer.contentParser)
 	.addSchema(userSchema)
 	.addSchema(userProfileRelation)
 	.register(usersRoute, { prefix: '/users' })
 	.register(profilesRoute, { prefix: '/profiles' })
-	.register(authRoute, { prefix: '/auth' });
+	.register(authRoute, { prefix: '/auth' })
+	.register(looksoRoute, { prefix: '/lookso' });
 

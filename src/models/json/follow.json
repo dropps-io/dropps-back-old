@@ -1,0 +1,25 @@
+{
+    "$id": "follow.json",
+    "$schema": "http://json-schema.org/schema",
+    "title": "Follow",
+    "description": "A subscription made by user A to user B. Connects two profiles.",
+    "type": "object",
+    "required": [
+      "follower",
+      "following"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "follower": {
+        "type": "string",
+        "pattern": "^0x[a-fA-F0-9]{40}$",
+        "description": "Address of the Universal Profile that is following"
+      },
+      "following": {
+        "type": "string",
+        "pattern": "^0x[a-fA-F0-9]{40}$",
+        "description": "Address of the Universal Profile that is being followed"
+      }
+    }
+  }
+  

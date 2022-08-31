@@ -1,5 +1,6 @@
 import path from 'path';
 import { config } from 'dotenv';
+import {JWK} from "../bin/arweave/types/JWK";
 
 export const NODE_ENV = (process.env.NODE_ENV || 'development') as 'test' | 'development' | 'production';
 
@@ -14,6 +15,7 @@ export const DB_USER: string = getOrThrow('DB_USER');
 export const DB_PASSWORD: string = getOrThrow('DB_PASSWORD');
 export const HOST: string = getOrThrow('HOST');
 export const JWT_SECRET: string = getOrThrow('JWT_SECRET');
+export const ARWEAVE_WALLET: JWK = JSON.parse(getOrThrow('ARWEAVE_WALLET'));
 
 function getOrThrow(name: string) {
 	const val = process.env[name];

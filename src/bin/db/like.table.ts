@@ -1,4 +1,3 @@
-import {Like} from '../../models/types/like';
 import {executeQuery} from './database';
 import {ERROR_NOT_FOUND} from '../utils/error-messages';
 
@@ -10,6 +9,11 @@ export async function queryPostLike(sender: string, postHash: string): Promise<b
 export async function queryPostLikesCount(postHash: string): Promise<number> {
 	const res = await executeQuery('SELECT COUNT(*) FROM "like" WHERE "postHash" = $1', [postHash]);
 	return parseInt(res.rows[0].count);
+}
+
+export async function queryPostLikesWithNames(postHash: string, limit: number, offset: number): Promise<{ address: string, name: string }[]> {
+	const res = await executeQuery('SELECT "address","name" FROM like INNER JOIN contract_metadata ON like.sender=contract_metadata.address WHERE "postHash" = $1 ORDER BY CASE name WHEN \'\' THEN 1 ELSE 0 END ASC, name ASC LIMIT $2 OFFSET $3;', [postHash, limit, offset]);
+	return res.rows;
 }
 
 export async function querySenderLikes(sender: string): Promise<string[]> {

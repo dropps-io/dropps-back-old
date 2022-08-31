@@ -3,6 +3,7 @@ import keccak256 from "keccak256";
 import {insertMethodInterface} from "../bin/db/method-interface.table";
 import {insertMethodParameter} from "../bin/db/method-parameter.table";
 import {SolMethod} from "../models/types/sol-method";
+import {tryExecuting} from "../bin/utils/try-executing";
 
 export async function generateAndPersistMethodInterfaces(contractAbis: AbiItem[][]): Promise<SolMethod[]> {
     const interfaces: SolMethod[] = [];
@@ -20,9 +21,9 @@ export async function generateAndPersistMethodInterfaces(contractAbis: AbiItem[]
 
     for (let methodInterface of interfaces) {
         try {
-            await insertMethodInterface(methodInterface.id, methodInterface.hash, methodInterface.name, methodInterface.type);
+            await tryExecuting(insertMethodInterface(methodInterface.id, methodInterface.hash, methodInterface.name, methodInterface.type));
             for (let parameter of methodInterface.parameters) {
-                await insertMethodParameter(methodInterface.id, parameter.name, parameter.type, parameter.indexed);
+                await tryExecuting(insertMethodParameter(methodInterface.id, parameter.name, parameter.type, parameter.indexed));
             }
         } catch (e) {
             console.error(e);
