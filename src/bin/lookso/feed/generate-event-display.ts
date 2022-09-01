@@ -168,7 +168,7 @@ async function getUniversalReceiverDisplayForLSP7(assetAddress: string, received
   displayParams['from'] = await getDisplayParam(from, 'address');
   displayParams['to'] = await getDisplayParam(to, 'address');
 
-  return {text: type === 'recipient' ? 'Received {amount} {asset} from {from}' : 'Sended {amount} {asset} from {to}',
+  return {text: type === 'recipient' ? 'Received {amount} {asset} from {from}' : 'Sended {amount} {asset} to {to}',
     params: displayParams,
     image: await fetchImageFromAddress(assetAddress, 'LSP7'),
     tags: {copies: '', standardType: isNFT ? 'NFT' : 'token', standard: 'LSP7'}};
@@ -183,7 +183,7 @@ async function getUniversalReceiverDisplayForLSP8(assetAddress: string, received
   displayParams['from'] = await getDisplayParam(from, 'address');
   displayParams['to'] = await getDisplayParam(to, 'address');
 
-  return {text: type === 'recipient' ? 'Received token {tokenId} of {asset} from {from}' : 'Sended token {tokenId} of {asset} from {to}',
+  return {text: type === 'recipient' ? 'Received token {tokenId} of {asset} from {from}' : 'Sended token {tokenId} of {asset} to {to}',
     params: displayParams,
     image: await fetchImageFromAddress(assetAddress, 'LSP8'),
     tags: {copies: '', standardType: 'NFT', standard: 'LSP8'}};
