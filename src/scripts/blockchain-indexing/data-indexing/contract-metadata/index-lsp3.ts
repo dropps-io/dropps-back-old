@@ -6,6 +6,8 @@ import {insertTag} from "../../../../bin/db/tag.table";
 import {insertAsset} from "../../../../bin/db/asset.table";
 import {LSP3UniversalProfile} from "../../../../bin/UniversalProfile/models/lsp3-universal-profile.model";
 import {INDEX_DATA} from "../../config";
+import {updateLSP3Profile} from "./update-lsp3";
+import {logError} from "../../../../bin/logger";
 
 export async function indexLsp3Data(address: string, lsp3: LSP3UniversalProfile) {
   try {
@@ -17,6 +19,10 @@ export async function indexLsp3Data(address: string, lsp3: LSP3UniversalProfile)
     for (let tag of lsp3.tags) await tryExecuting(insertTag(address, tag));
     if (lsp3.avatar) await tryExecuting(insertAsset(address, lsp3.avatar.url, lsp3.avatar.fileType, lsp3.avatar.hash));
   } catch (e) {
-    console.error(e);
+    try {
+      await updateLSP3Profile(address, lsp3);
+    }
+    catch (e) {
+    }
   }
 }

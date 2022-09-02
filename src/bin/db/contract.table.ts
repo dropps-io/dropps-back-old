@@ -7,6 +7,11 @@ export async function queryContract(address: string): Promise<Contract> {
 	return res.rows[0] as Contract;
 }
 
+export async function queryContracts(): Promise<Contract[]> {
+	const res = await executeQuery('SELECT * FROM "contract"', []);
+	return res.rows as Contract[];
+}
+
 export async function insertContract(address: string, interfaceCode: string | null): Promise<void> {
 	await executeQuery('INSERT INTO "contract" VALUES ($1, $2)', [address, interfaceCode]);
 }
