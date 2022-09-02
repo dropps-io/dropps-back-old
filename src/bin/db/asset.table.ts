@@ -4,12 +4,14 @@ import {ERROR_NOT_FOUND} from '../utils/error-messages';
 
 export async function queryAssets(address: string): Promise<Asset[]> {
 	const res = await executeQuery('SELECT * FROM "asset" WHERE "address" = $1', [address]);
-	return res.rows as Asset[];
+	if (res.rows.length > 0) return res.rows as Asset[];
+	else return [];
 }
 
 export async function queryAssetsByType(address: string, fileType: string): Promise<Asset[]> {
 	const res = await executeQuery('SELECT * FROM "asset" WHERE "address" = $1 AND "fileType" = $2', [address, fileType]);
-	return res.rows as Asset[];
+	if (res.rows.length > 0) return res.rows as Asset[];
+	else return [];
 }
 
 export async function insertAsset(address: string, url: string, fileType: string, hash: string): Promise<Asset> {

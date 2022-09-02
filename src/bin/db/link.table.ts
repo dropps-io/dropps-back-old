@@ -4,7 +4,8 @@ import {ERROR_NOT_FOUND} from '../utils/error-messages';
 
 export async function queryLinks(address: string): Promise<Link[]> {
 	const res = await executeQuery('SELECT * FROM "link" WHERE "address" = $1', [address]);
-	return res.rows as Link[];
+	if (res.rows.length > 0) return res.rows as Link[];
+	else return [];
 }
 
 export async function insertLink(address: string, title: string, url: string): Promise<Link> {
