@@ -8,7 +8,7 @@ import {
   queryFollowing,
   queryFollowingCount, queryFollowingWithNames
 } from "../../../bin/db/follow.table";
-import {queryContractMetadata, queryContractName} from "../../../bin/db/contract-metadata.table";
+import {queryContractMetadata, queryAddressOfUserTag, queryContractName} from "../../../bin/db/contract-metadata.table";
 import {queryTags} from "../../../bin/db/tag.table";
 import {queryLinks} from "../../../bin/db/link.table";
 import {queryImages, queryImagesByType} from "../../../bin/db/image.table";
@@ -92,7 +92,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
 
   fastify.route({
     method: 'GET',
-    url: '/profile/:address/info',
+    url: '/profile/:address',
     schema: {
       description: 'Get profile name, description, picture, tags, links and background.',
       tags: ['lookso'],
@@ -100,11 +100,16 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
     },
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
+      if (!isAddress(address)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
 
       try {
-        const metadata = await queryContractMetadata(address);
-
-        if (!metadata) return reply.code(404).send(error(404, ERROR_NOT_FOUND));
+        let metadata;
+        try {
+          metadata = await queryContractMetadata(address);
+        } catch (e) {
+          logError(e);
+          return reply.code(404).send(error(404, ERROR_NOT_FOUND));
+        }
 
         const tags = await queryTags(address);
         const links = await queryLinks(address);
@@ -120,6 +125,36 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
       }
     }
   });
+
+  fastify.route({
+    method: 'GET',
+    url: '/profile/:username/:digits',
+    schema: {
+      description: 'Get profile name, description, picture, tags, links and background.',
+      tags: ['lookso'],
+      summary: 'Get profile info.',
+    },
+    handler: async (request, reply) => {
+      const {username, digits} = request.params as { username: string, digits: string };
+
+      try {
+        let address;
+        try {
+          address = await queryAddressOfUserTag(username, digits);
+        } catch (e) {
+          logError(e);
+          return reply.code(404).send(error(404, ERROR_NOT_FOUND));
+        }
+
+        return reply.code(200).send({address});
+        /* eslint-disable */
+      } catch (e: any) {
+        logError(e);
+        reply.code(500).send(error(500, ERROR_INTERNAL));
+      }
+    }
+  });
+
 
   fastify.route({
     method: 'GET',

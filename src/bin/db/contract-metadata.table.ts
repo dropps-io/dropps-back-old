@@ -8,6 +8,12 @@ export async function queryContractMetadata(address: string): Promise<ContractMe
 	else throw 'No metadata found';
 }
 
+export async function queryAddressOfUserTag(username: string, addressDigits: string): Promise<string> {
+	const res = await executeQuery('SELECT address FROM "contract_metadata" WHERE "name" = $1 AND LOWER(address) LIKE LOWER($2)', [username, '%' + addressDigits + '%']);
+	if (res.rows[0]) return res.rows[0].address as string;
+	else throw 'No address found';
+}
+
 export async function queryContractName(address: string): Promise<string> {
 	const res = await executeQuery('SELECT "name" FROM "contract_metadata" WHERE "address" = $1', [address]);
 	if (res.rows[0]) return res.rows[0].name
@@ -16,13 +22,13 @@ export async function queryContractName(address: string): Promise<string> {
 
 export async function searchContractMetadataByAddress(input: string, limit: number, offset: number): Promise<{address: string, name: string}[]> {
 	const res = await executeQuery('SELECT address,name FROM contract_metadata WHERE address LIKE $1 ORDER BY address LIMIT $2 OFFSET $3', ['%' + input + '%', limit, offset]);
-	if (res.rows[0]) return res.rows;
+	if (res.rows.length > 0) return res.rows;
 	else return [];
 }
 
 export async function searchContractMetadataByName(input: string, limit: number, offset: number): Promise<{address: string, name: string}[]> {
-	const res = await executeQuery("SELECT address,name FROM contract_metadata WHERE name LIKE $1 ORDER BY name LIMIT $2 OFFSET $3", ['%' + input + '%', limit, offset]);
-	if (res.rows[0]) return res.rows;
+	const res = await executeQuery("SELECT address,name FROM contract_metadata WHERE LOWER(name) LIKE LOWER($1) ORDER BY name LIMIT $2 OFFSET $3", ['%' + input + '%', limit, offset]);
+	if (res.rows.length > 0) return res.rows;
 	else return [];
 }
 
