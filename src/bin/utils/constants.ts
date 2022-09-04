@@ -5,4 +5,4 @@ export const TYPEID_LSP7_TOKENSSENDER = '0x40b8bec57d7b5ff0dbd9e9acd0a47dfeb0101
 export const TYPEID_LSP8_TOKENSSENDER = '0x3724c94f0815e936299cca424da4140752198e0beb7931a6e0925d11bc97544c';
 export const TYPEID_LSP8_TOKENSRECIPIENT = '0xc7a120a42b6057a0cbed111fbbfbd52fcd96748c04394f77fc2c3adbe0391e01';
 
-export const USER_TAG_REGEX = /@[A-Za-z0-9\.\-\_]+#[A-Za-z0-9]{4}/;
+export const USER_TAG_REGEX = /@[A-Za-z0-9\.\-\_]+#[A-Za-z0-9]{4}/mg;
