@@ -5,7 +5,6 @@ import {SocialRegistry} from "../types/social-registry";
 import axios from "axios";
 import {formatUrl} from "../../../utils/format-url";
 import {decodeJsonUrl} from "../../../utils/json-url";
-import {logError} from "../../../logger";
 import {IPFS_GATEWAY} from "../../../../environment/config";
 
 export async function getProfileRegistry(address: string): Promise<SocialRegistry> {
@@ -21,7 +20,7 @@ export async function getProfileRegistry(address: string): Promise<SocialRegistr
     }
   }
   catch (error:any) {
-    if (error.message) logError("Unable to fetch Social Registry. " + error.message);
-    return {posts: [], likes: [], follows: []};
+    if (error.message.includes('Cannot read properties of null')) return {posts: [], likes: [], follows: []};
+    else throw error;
   }
 }

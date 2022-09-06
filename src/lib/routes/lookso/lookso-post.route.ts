@@ -5,7 +5,6 @@ import {logError} from "../../../bin/logger";
 import {error, ERROR_INTERNAL} from "../../../bin/utils/error-messages";
 import {LSPXXProfilePost, ProfilePost} from "../../../bin/lookso/registry/types/profile-post";
 import {verifyJWT} from "../../../bin/json-web-token";
-import {Buffer} from "buffer";
 import sharp from "sharp";
 import {arrayBufferKeccak256Hash, objectToBuffer, objectToKeccak256Hash} from "../../../bin/utils/file-converters";
 import {buildJsonUrl} from "../../../bin/utils/json-url";
@@ -170,22 +169,23 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
     },
     handler: async (request, reply) => {
       const body = request.body as { lspXXProfilePost: LSPXXProfilePost, signature: string };
-      await verifyJWT(request, reply, body.lspXXProfilePost.author);
-
-      const post: ProfilePost = {
-        LSPXXProfilePost: body.lspXXProfilePost,
-        LSPXXProfilePostHash: '0x' + objectToKeccak256Hash(body.lspXXProfilePost),
-        LSPXXProfilePostEOASignature: body.signature
-      }
-
-      const postUrl = await upload(objectToBuffer(post), 'application/json');
-
-      const registry = await applyChangesToRegistry(body.lspXXProfilePost.author);
-      registry.posts.push({url: postUrl, hash: post.LSPXXProfilePostHash});
-
-      const newRegistryUrl = await upload(objectToBuffer(registry), 'application/json');
 
       try {
+        await verifyJWT(request, reply, body.lspXXProfilePost.author);
+
+        const post: ProfilePost = {
+          LSPXXProfilePost: body.lspXXProfilePost,
+          LSPXXProfilePostHash: '0x' + objectToKeccak256Hash(body.lspXXProfilePost),
+          LSPXXProfilePostEOASignature: body.signature
+        }
+
+        const postUrl = await upload(objectToBuffer(post), 'application/json');
+
+        const registry = await applyChangesToRegistry(body.lspXXProfilePost.author);
+        registry.posts.push({url: postUrl, hash: post.LSPXXProfilePostHash});
+
+        const newRegistryUrl = await upload(objectToBuffer(registry), 'application/json');
+
         return reply.code(200).send({jsonUrl: buildJsonUrl(registry, newRegistryUrl), postHash: post.LSPXXProfilePostHash});
         /* eslint-disable */
       } catch (e: any) {
