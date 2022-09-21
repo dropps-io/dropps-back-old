@@ -1,6 +1,6 @@
 {
   "name": "dropps-back",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -13,6 +13,7 @@
     "lint:autofix": "eslint --fix src/**/*",
     "test": "npm run build&&set NODE_ENV=test&&mocha ./dist/test/**/* --exit",
     "coverage": "nyc npm run test",
+    "pre-release": "standard-version --prerelease",
     "release": "standard-version",
     "script": "node dist/scripts/index.js -- exit",
     "fill-db": "node dist/scripts/fill-db.js -- exit",
