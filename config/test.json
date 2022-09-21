@@ -4,5 +4,6 @@
   "jwt_validity_time": 6,
   "max_image_size": 1000,
   "post_validator_address": ["0xCF3f83D711844E72947172Ebe8EadAF92900B146"],
-  "http_rpc": "https://rpc.l16.lukso.network"
+  "http_rpc": "https://rpc.l16.lukso.network",
+  "port": "3032"
 }
