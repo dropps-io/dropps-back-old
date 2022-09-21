@@ -6,18 +6,20 @@
   "scripts": {
     "build": "npx tsc",
     "watch": "npx tsc --watch",
-    "run dev": "npm run build&&set NODE_ENV=development&& node dist/index.js",
-    "run staging": "set NODE_ENV=staging&& node dist/index.js",
+    "start": "npm run build&& node dist/index.js",
     "lint": "eslint src/**/*",
-    "lint autofix": "eslint --fix src/**/*",
+    "lint:autofix": "eslint --fix src/**/*",
     "test": "npm run build&&set NODE_ENV=test&&mocha ./dist/test/**/* --exit",
     "coverage": "nyc npm run test",
     "release": "standard-version",
-    "run script": "npm run build&&set NODE_ENV=development&& node dist/scripts/index.js -- exit",
-    "run fill-db": "npm run build&&set NODE_ENV=development&& node dist/scripts/fill-db.js -- exit",
-    "run set-displays": "npm run build&&set NODE_ENV=development&& node dist/scripts/set-displays.js -- exit",
-    "run refresh-metadata": "npm run build&&set NODE_ENV=development&& node dist/scripts/refresh-all-up-metadata.js -- exit",
-    "run index-blockchain": "npm run build&&set NODE_ENV=development&& node dist/scripts/blockchain-indexing/run-indexing-script.js -- exit"
+    "env:dev": "set NODE_ENV=development",
+    "env:staging": "set NODE_ENV=staging",
+    "env:prod": "set NODE_ENV=production",
+    "script": "npm run build&& node dist/scripts/index.js -- exit",
+    "fill-db": "npm run build&& node dist/scripts/fill-db.js -- exit",
+    "set-displays": "npm run build&& node dist/scripts/set-displays.js -- exit",
+    "refresh-metadata": "npm run build&& node dist/scripts/refresh-all-up-metadata.js -- exit",
+    "index-blockchain": "npm run build&& node dist/scripts/blockchain-indexing/run-indexing-script.js -- exit"
   },
   "repository": {
     "type": "git",
