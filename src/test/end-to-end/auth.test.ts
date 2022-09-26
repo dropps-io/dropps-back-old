@@ -9,7 +9,7 @@ import {JWT_SECRET} from "../../environment/endpoints";
 import {JWT_VALIDITY_TIME} from "../../environment/config";
 
 export const AuthTests = () => {
-  describe('users routes', () => {
+  describe('auth routes', () => {
 
     const EOA1 = '0xD692Ba892a902810a2EE3fA41C1D8DcD652D47Ab';
 

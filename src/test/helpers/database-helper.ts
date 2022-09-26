@@ -17,7 +17,6 @@ const clearDBQueries = [
 	'delete from "tag"',
 	'delete from "contract_metadata"',
 	'delete from "follow"',
-	'delete from "chain_sync"',
 	'delete from "post"',
 	'delete from "event"',
 	'delete from "data_changed"',
