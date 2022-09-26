@@ -1,7 +1,6 @@
 import { FastifyInstance } from 'fastify';
-import {isAddress} from '../../../bin/utils/validators';
 import {verifyJWT} from '../../../bin/json-web-token';
-import {error, ERROR_ADR_INVALID, ERROR_INTERNAL, ERROR_NOT_FOUND, PUSH_REGISTRY_REQUIRED, RESOURCE_EXISTS} from '../../../bin/utils/error-messages';
+import {error, ERROR_INTERNAL, ERROR_NOT_FOUND, PUSH_REGISTRY_REQUIRED, RESOURCE_EXISTS} from '../../../bin/utils/error-messages';
 import {logError} from '../../../bin/logger';
 import {Follow} from "../../../models/types/follow";
 import {
@@ -38,7 +37,6 @@ export async function looksoRoute (fastify: FastifyInstance) {
 			const body = request.body as Follow;
 			const jwtError = verifyJWT(request, reply, body.follower);
 			if (jwtError) return jwtError;
-			if (!isAddress(body.following)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
 
 			const registryChangesCount = await queryRegistryChangesCountOfAddress(body.follower);
 			if (registryChangesCount >= MAX_OFFCHAIN_REGISTRY_CHANGES) return reply.code(409).send(error(409, PUSH_REGISTRY_REQUIRED));
@@ -80,7 +78,6 @@ export async function looksoRoute (fastify: FastifyInstance) {
 			const body = request.body as Follow;
 			const jwtError = verifyJWT(request, reply, body.follower);
 			if (jwtError) return jwtError;
-			if (!isAddress(body.following)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
 
 			const registryChangesCount = await queryRegistryChangesCountOfAddress(body.follower);
 			if (registryChangesCount >= MAX_OFFCHAIN_REGISTRY_CHANGES) return reply.code(409).send(error(409, PUSH_REGISTRY_REQUIRED));
