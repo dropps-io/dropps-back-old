@@ -2,6 +2,7 @@ import Arweave from "arweave";
 import {JWK} from "./types/JWK";
 import {logMessage} from "../logger";
 import {ARWEAVE_WALLET} from "../../environment/endpoints";
+import {ENV} from "../../environment/config";
 
 
 export class ArweaveClient {
@@ -33,6 +34,7 @@ export class ArweaveClient {
 
 
     public async upload(data: Buffer, contentType: string): Promise<string> {
+        if (ENV === 'test') return 'transactionid';
         let tx = await this._provider.createTransaction({
             data: data
         }, (await this._wallet));

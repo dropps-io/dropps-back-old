@@ -1,6 +1,7 @@
 import NodeBundlr from "@bundlr-network/client";
 import { FundData } from "@bundlr-network/client/build/common/types";
 import {ARWEAVE_WALLET} from "../../environment/endpoints";
+import {ENV} from "../../environment/config";
 
 export class BundlrClient {
     protected readonly _provider;
@@ -19,6 +20,8 @@ export class BundlrClient {
     }
 
     public async upload(data: Buffer, contentType: string): Promise<string> {
+        if (ENV === 'test') return 'transactionid';
+
         // Add Tags if there are any
         const tags = [
             {name: "App-Name", value:"Lookso"},
