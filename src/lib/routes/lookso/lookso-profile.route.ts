@@ -362,7 +362,8 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
     },
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
-      await verifyJWT(request, reply, address);
+      const jwtError = await verifyJWT(request, reply, address);
+      if (jwtError) return jwtError;
 
       try {
         await setViewedToAddressNotifications(address);
@@ -386,7 +387,8 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
     },
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
-      await verifyJWT(request, reply, address);
+      const jwtError = await verifyJWT(request, reply, address);
+      if (jwtError) return jwtError;
 
       try {
         const registry = await applyChangesToRegistry(address);
@@ -414,7 +416,8 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
     },
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
-      await verifyJWT(request, reply, address);
+      const jwtError = await verifyJWT(request, reply, address);
+      if (jwtError) return jwtError;
 
       try {
         await deleteAddressRegistryChanges(address);
