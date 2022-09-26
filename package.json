@@ -12,6 +12,7 @@
     "lint": "eslint src/**/*",
     "lint:autofix": "eslint --fix src/**/*",
     "test": "npm run build&&set NODE_ENV=test&&mocha ./dist/test/**/* --exit",
+    "test:watch": "npm run build&&set NODE_ENV=test&&mocha ./dist/test/**/* --watch",
     "coverage": "nyc npm run test",
     "pre-release": "standard-version --prerelease",
     "release": "standard-version",
