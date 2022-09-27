@@ -1,0 +1,796 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+        "AbiInput": {
+            "properties": {
+                "components": {
+                    "items": {
+                        "$ref": "#/definitions/AbiInput"
+                    },
+                    "type": "array"
+                },
+                "indexed": {
+                    "type": "boolean"
+                },
+                "internalType": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "Asset": {
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "fileType": {
+                    "type": "string"
+                },
+                "hash": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ChainSync": {
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "followChanges": {
+                    "type": "number"
+                },
+                "likeChanges": {
+                    "type": "number"
+                }
+            },
+            "type": "object"
+        },
+        "Contract": {
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "interfaceCode": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ContractInterface": {
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ContractMetadata": {
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "isNFT": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "supply": {
+                    "type": "string"
+                },
+                "symbol": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "DataChanged": {
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "blockNumber": {
+                    "type": "string"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "DecodedParameter": {
+            "properties": {
+                "displayType": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ERC725JSONSchemaKeyType": {
+            "enum": [
+                "Array",
+                "Mapping",
+                "MappingWithGrouping",
+                "Singleton"
+            ],
+            "type": "string"
+        },
+        "Erc725ySchema": {
+            "properties": {
+                "displayValueType": {
+                    "type": "string"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "keyType": {
+                    "$ref": "#/definitions/ERC725JSONSchemaKeyType"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "valueContent": {
+                    "type": "string"
+                },
+                "valueType": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "Event": {
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "blockNumber": {
+                    "type": "number"
+                },
+                "id": {
+                    "type": "number"
+                },
+                "logId": {
+                    "type": "string"
+                },
+                "topic": {
+                    "type": "string"
+                },
+                "transactionHash": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "FeedDisplay": {
+            "properties": {
+                "image": {
+                    "type": "string"
+                },
+                "params": {
+                    "additionalProperties": {
+                        "$ref": "#/definitions/FeedDisplayParam"
+                    },
+                    "type": "object"
+                },
+                "tags": {
+                    "properties": {
+                        "copies": {
+                            "type": "string"
+                        },
+                        "standard": {
+                            "type": "string"
+                        },
+                        "standardType": {
+                            "type": "string"
+                        }
+                    },
+                    "type": "object"
+                },
+                "text": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "FeedDisplayParam": {
+            "properties": {
+                "additionalProperties": {},
+                "display": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "FeedPost": {
+            "properties": {
+                "author": {
+                    "properties": {
+                        "address": {
+                            "type": "string"
+                        },
+                        "image": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        }
+                    },
+                    "type": "object"
+                },
+                "blockNumber": {
+                    "type": "number"
+                },
+                "childPost": {
+                    "$ref": "#/definitions/FeedPost"
+                },
+                "comments": {
+                    "type": "number"
+                },
+                "date": {
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "display": {
+                    "$ref": "#/definitions/FeedDisplay"
+                },
+                "hash": {
+                    "type": "string"
+                },
+                "hided": {
+                    "type": "boolean"
+                },
+                "inRegistry": {
+                    "type": "boolean"
+                },
+                "isLiked": {
+                    "type": "boolean"
+                },
+                "likes": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parentPost": {
+                    "$ref": "#/definitions/FeedPost"
+                },
+                "reposts": {
+                    "type": "number"
+                },
+                "transactionHash": {
+                    "type": "string"
+                },
+                "trusted": {
+                    "type": "boolean"
+                },
+                "type": {
+                    "enum": [
+                        "event",
+                        "post"
+                    ],
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "Follow": {
+            "properties": {
+                "follower": {
+                    "type": "string"
+                },
+                "following": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "Image": {
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "hash": {
+                    "type": "string"
+                },
+                "height": {
+                    "type": "number"
+                },
+                "type": {
+                    "$ref": "#/definitions/ImageType"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "width": {
+                    "type": "number"
+                }
+            },
+            "type": "object"
+        },
+        "ImageType": {
+            "enum": [
+                "",
+                "background",
+                "icon",
+                "profile"
+            ],
+            "type": "string"
+        },
+        "KeyDisplay": {
+            "properties": {
+                "display": {
+                    "type": "string"
+                },
+                "displayWithoutValue": {
+                    "type": "string"
+                },
+                "key": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "Like": {
+            "properties": {
+                "postHash": {
+                    "type": "string"
+                },
+                "sender": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "Link": {
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "Log": {
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "blockHash": {
+                    "type": "string"
+                },
+                "blockNumber": {
+                    "type": "number"
+                },
+                "data": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "logIndex": {
+                    "type": "number"
+                },
+                "topics": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "transactionHash": {
+                    "type": "string"
+                },
+                "transactionIndex": {
+                    "type": "number"
+                }
+            },
+            "type": "object"
+        },
+        "MetadataAsset": {
+            "properties": {
+                "fileType": {
+                    "type": "string"
+                },
+                "hash": {
+                    "type": "string"
+                },
+                "hashFunction": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "MetadataImage": {
+            "properties": {
+                "hash": {
+                    "type": "string"
+                },
+                "hashFunction": {
+                    "type": "string"
+                },
+                "height": {
+                    "type": "number"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "width": {
+                    "type": "number"
+                }
+            },
+            "type": "object"
+        },
+        "MethodDisplay": {
+            "properties": {
+                "copiesFrom": {
+                    "type": "string"
+                },
+                "imageFrom": {
+                    "type": "string"
+                },
+                "methodId": {
+                    "type": "string"
+                },
+                "standardFrom": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "MethodInterface": {
+            "properties": {
+                "hash": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "enum": [
+                        "event",
+                        "function"
+                    ],
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "MethodParameter": {
+            "properties": {
+                "displayType": {
+                    "type": "string"
+                },
+                "indexed": {
+                    "type": "boolean"
+                },
+                "methodId": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "Notification": {
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "date": {
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "postHash": {
+                    "type": "string"
+                },
+                "sender": {
+                    "type": "string"
+                },
+                "type": {
+                    "enum": [
+                        "comment",
+                        "follow",
+                        "like",
+                        "repost"
+                    ],
+                    "type": "string"
+                },
+                "viewed": {
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
+        "NotificationWithSenderDetails": {
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "date": {
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "postHash": {
+                    "type": "string"
+                },
+                "sender": {
+                    "properties": {
+                        "address": {
+                            "type": "string"
+                        },
+                        "image": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        }
+                    },
+                    "type": "object"
+                },
+                "type": {
+                    "enum": [
+                        "comment",
+                        "follow",
+                        "like",
+                        "repost"
+                    ],
+                    "type": "string"
+                },
+                "viewed": {
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
+        "Permissions": {
+            "properties": {
+                "ADDPERMISSIONS": {
+                    "type": "boolean"
+                },
+                "CALL": {
+                    "type": "boolean"
+                },
+                "CHANGEOWNER": {
+                    "type": "boolean"
+                },
+                "CHANGEPERMISSIONS": {
+                    "type": "boolean"
+                },
+                "DELEGATECALL": {
+                    "type": "boolean"
+                },
+                "DEPLOY": {
+                    "type": "boolean"
+                },
+                "SETDATA": {
+                    "type": "boolean"
+                },
+                "SIGN": {
+                    "type": "boolean"
+                },
+                "STATICCALL": {
+                    "type": "boolean"
+                },
+                "TRANSFERVALUE": {
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
+        "Post": {
+            "properties": {
+                "author": {
+                    "type": "string"
+                },
+                "childHash": {
+                    "type": "string"
+                },
+                "date": {
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "eventId": {
+                    "type": "number"
+                },
+                "hash": {
+                    "type": "string"
+                },
+                "inRegistry": {
+                    "type": "boolean"
+                },
+                "mediaUrl": {
+                    "type": "string"
+                },
+                "parentHash": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "transactionHash": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "RegistryChange": {
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "address": {
+                    "type": "string"
+                },
+                "date": {
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "SolMethod": {
+            "properties": {
+                "hash": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parameters": {
+                    "items": {
+                        "$ref": "#/definitions/AbiInput"
+                    },
+                    "type": "array"
+                },
+                "type": {
+                    "enum": [
+                        "event",
+                        "function"
+                    ],
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "Tag": {
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "Transaction": {
+            "properties": {
+                "blockNumber": {
+                    "type": "number"
+                },
+                "from": {
+                    "type": "string"
+                },
+                "hash": {
+                    "type": "string"
+                },
+                "input": {
+                    "type": "string"
+                },
+                "methodId": {
+                    "type": "string"
+                },
+                "to": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "User": {
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "selectedProfile": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "UserProfile": {
+            "properties": {
+                "archived": {
+                    "type": "boolean"
+                },
+                "profileAddress": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "UserProfileRelation": {
+            "properties": {
+                "archived": {
+                    "type": "boolean"
+                },
+                "profileAddress": {
+                    "type": "string"
+                },
+                "userAddress": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        }
+    }
+}
+
