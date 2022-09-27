@@ -22,6 +22,7 @@ interface MulterRequest extends Request {
 }
 
 export function looksoPostRoutes(fastify: FastifyInstance) {
+
   fastify.route({
     method: 'GET',
     url: '/post/:hash',

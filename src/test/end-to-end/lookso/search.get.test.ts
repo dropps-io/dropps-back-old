@@ -6,6 +6,7 @@ import {fastify} from "../../../lib/fastify";
 import {assert, expect} from "chai";
 import {HACKER_MAN_UP, HACKER_MAN_UP_CLOSE_ADDRESS, SERIOUS_MAN_UP} from "../../helpers/constants";
 import {insertContractMetadata} from "../../../bin/db/contract-metadata.table";
+import {insertImage} from "../../../bin/db/image.table";
 
 export const SearchGETTests = () => {
   describe('GET lookso/search/:input', () => {
@@ -34,6 +35,14 @@ export const SearchGETTests = () => {
       profiles = JSON.parse(res.payload);
       expect(profiles.length).to.equal(1);
       expect(profiles[0].address).to.equal(SERIOUS_MAN_UP);
+    });
+
+    it('should return name and image', async () => {
+      await insertImage(HACKER_MAN_UP, 'url', 300, 300, 'profile', '0x00');
+      const res = await fastify.inject({method: 'GET', url: `/lookso/search/hackerman`});
+      const profiles: any[] = JSON.parse(res.payload);
+      expect(profiles[0].image).to.equal('url');
+      expect(profiles[0].name).to.equal('HackerMan');
     });
 
     it('should not be case sensitive', async () => {

@@ -43,6 +43,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
       const {limit, offset, postType, viewOf} = request.query as { limit: number, offset: number, postType?: 'event' | 'post', viewOf?: string };
+      if (!isAddress(address)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
 
       try {
         const posts: Post[] = await queryPostsOfUser(address, limit, offset, postType);
@@ -73,6 +74,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
       const {limit, offset, postType} = request.query as { limit: number, offset: number, postType?: 'event' | 'post' };
+      if (!isAddress(address)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
 
       try {
         const followingList = await queryFollowing(address);
@@ -88,7 +90,6 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
       }
     }
   });
-
 
   fastify.route({
     method: 'GET',
@@ -155,7 +156,6 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
     }
   });
 
-
   fastify.route({
     method: 'GET',
     url: '/profile/:address/following/count',
@@ -195,6 +195,8 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
     handler: async (request, reply) => {
       const {address} = request.params as { address: string};
       const {followerAddress, limit, offset, viewOf} = request.query as {followerAddress?:string, limit: number, offset: number, viewOf?: string};
+      if (!isAddress(address)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
+      if (viewOf && !isAddress(viewOf)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
 
       try {
         if (followerAddress) {
@@ -259,6 +261,8 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
       const {limit, offset, viewOf} = request.query as {limit: number, offset: number, viewOf?: string};
+      if (!isAddress(address)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
+      if (viewOf && !isAddress(viewOf)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
 
       try {
         const response = [];

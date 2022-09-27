@@ -25,6 +25,7 @@ import {upload} from "../../../bin/arweave/utils/upload";
 import {objectToBuffer} from "../../../bin/utils/file-converters";
 
 export async function looksoRoute (fastify: FastifyInstance) {
+
 	fastify.route({
 		method: 'POST',
 		url: '/follow',
