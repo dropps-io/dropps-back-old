@@ -10,7 +10,7 @@ import {fastify} from "../../../lib/fastify";
 
 export const ProfileFollowCountGETTests = () => {
 
-  describe('GET /profile/:address/following/count', () => {
+  describe('GET lookso/profile/:address/following/count', () => {
 
     beforeEach(async () => {
       await clearDB();

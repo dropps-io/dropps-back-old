@@ -366,6 +366,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
     },
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
+      if (!isAddress(address)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
       const jwtError = await verifyJWT(request, reply, address);
       if (jwtError) return jwtError;
 
@@ -396,10 +397,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
 
       try {
         const registry = await applyChangesToRegistry(address);
-        console.log('NEW REGISTRY REGISTRY : ')
-        console.log(registry)
         const newRegistryUrl = await upload(objectToBuffer(registry), 'application/json');
-        console.log('newRegistryUrl: ' + newRegistryUrl);
 
         return reply.code(200).send({jsonUrl: buildJsonUrl(registry, newRegistryUrl)});
         /* eslint-disable */
