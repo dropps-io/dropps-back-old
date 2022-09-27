@@ -2,7 +2,7 @@ import {queryPostLike, queryPostLikesWithNames} from "../../../bin/db/like.table
 import {queryImagesByType} from "../../../bin/db/image.table";
 import {selectImage} from "../../../bin/utils/select-image";
 import {logError} from "../../../bin/logger";
-import {error, ERROR_INTERNAL} from "../../../bin/utils/error-messages";
+import {error, ERROR_ADR_INVALID, ERROR_HASH_INVALID, ERROR_INTERNAL} from "../../../bin/utils/error-messages";
 import {LSPXXProfilePost, ProfilePost} from "../../../bin/lookso/registry/types/profile-post";
 import {verifyJWT} from "../../../bin/json-web-token";
 import sharp from "sharp";
@@ -16,6 +16,7 @@ import {Post} from "../../../models/types/post";
 import {applyChangesToRegistry} from "../../../bin/lookso/registry/apply-changes-to-registry";
 import {upload} from "../../../bin/arweave/utils/upload";
 import multer from "fastify-multer";
+import {isAddress, isHash} from "../../../bin/utils/validators";
 
 interface MulterRequest extends Request {
   file: any;
@@ -37,6 +38,8 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
     handler: async (request, reply) => {
       const {hash} = request.params as { hash: string};
       const {viewOf} = request.query as { viewOf?: string };
+      if (viewOf && !isAddress(viewOf)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
+      if (!isHash(hash)) reply.code(400).send(error(400, ERROR_HASH_INVALID));
 
       try {
         const post = await queryPost(hash);
@@ -65,6 +68,8 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
     handler: async (request, reply) => {
       const {hash} = request.params as { hash: string};
       const {sender, limit, offset} = request.query as {sender?:string, limit: number, offset: number};
+      if (sender && !isAddress(sender)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
+      if (!isHash(hash)) reply.code(400).send(error(400, ERROR_HASH_INVALID));
 
       try {
         if (sender) {

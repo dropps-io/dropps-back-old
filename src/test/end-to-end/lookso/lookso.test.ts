@@ -11,6 +11,7 @@ import {ProfileFollowersGETTests} from "./profile-followers.get.test";
 import {ProfileFollowingGETTests} from "./profile-following.get.test";
 import {ProfileNotificationsGETTests} from "./profile-notifications.get.test";
 import {ProfileNotificationsPUTTests} from "./profile-notifications.put.test";
+import {PostGETTests} from "./post.get.test";
 
 
 export const LooksoTests = () => {
@@ -29,6 +30,7 @@ export const LooksoTests = () => {
     ProfileFollowingGETTests();
     ProfileNotificationsGETTests();
     ProfileNotificationsPUTTests();
+    PostGETTests();
 
   });
 }
