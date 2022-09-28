@@ -1,9 +1,7 @@
 import fastifyFactory from 'fastify';
-import fastifySwagger from 'fastify-swagger';
+import fastifySwagger from '@fastify/swagger';
 
-import * as userSchema from '../models/json/user.json';
-import * as userProfileRelation from '../models/json/user-profile-relation.json';
-const fastifyCors = require('fastify-cors');
+import fastifyCors from '@fastify/cors';
 import {authRoute} from './routes/auth.route';
 import {LOGGER} from '../environment/config';
 import {looksoRoute} from "./routes/lookso/lookso.route";
@@ -56,8 +54,6 @@ fastify.register(fastifyCors, {
 		exposeRoute: true
 	})
 	.register(multer.contentParser)
-	.addSchema(userSchema)
-	.addSchema(userProfileRelation)
 	.register(authRoute, { prefix: '/auth' })
 	.register(looksoRoute, { prefix: '/lookso' });
 
