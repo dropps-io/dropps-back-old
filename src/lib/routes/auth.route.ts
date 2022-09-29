@@ -13,6 +13,7 @@ import {IPFS_GATEWAY, JWT_VALIDITY_TIME} from '../../environment/config';
 import {logError, logMessage} from '../../bin/logger';
 import {UniversalProfileReader} from "../../bin/UniversalProfile/UniversalProfileReader.class";
 import {web3} from "../../bin/web3/web3";
+import { HOST } from '../../environment/endpoints';
 
 export async function authRoute (fastify: FastifyInstance) {
 
@@ -109,13 +110,17 @@ export async function authRoute (fastify: FastifyInstance) {
                 const controllerAddress = generateAddressWithSignature('I want to log in to lookso.io. \nMy address: ' + userAddress + '\nMy nonce: ' + nonce, signedNonce);
                 const profile = new UniversalProfileReader(userAddress, IPFS_GATEWAY, web3);
 
-                if (!await profile.fetchPermissionsOf(controllerAddress)) return reply.code(403).send(error(403, ERROR_INCORRECT_SIGNED_NONCE));
+                //if (!await profile.fetchPermissionsOf(controllerAddress)) return reply.code(403).send(error(403, ERROR_INCORRECT_SIGNED_NONCE));
                 // User is auth
 
                 await updateNonce(userAddress);
 
-                return reply.code(200).send({
-                    token: generateJWT(userAddress),
+                let jwtToken = generateJWT(userAddress);
+                let date = new Date();
+                date.setTime(date.getTime() + 6 * 60 * 60 * 1000) // 6 hours from now
+                
+                return reply.setCookie('jwt', jwtToken,{path: '/', expires: date, httpOnly:true}).code(200).send({
+                    token: jwtToken,
                     address: userAddress,
                     validity: JWT_VALIDITY_TIME
                 });
