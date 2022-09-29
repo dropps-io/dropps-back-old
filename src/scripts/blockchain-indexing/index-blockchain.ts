@@ -3,7 +3,7 @@ import {extractDataFromLog} from "./data-extraction/extract-log";
 import {BLOCK_ITERATION, SLEEP_BETWEEN_ITERATION} from "./config";
 import {Log} from "../../models/types/log";
 import {sleep} from "./utils/sleep";
-import {logMessage} from "../../bin/logger";
+import {logError, logMessage} from "../../bin/logger";
 
 const web3 = new Web3('https://rpc.l16.lukso.network');
 
@@ -39,7 +39,7 @@ export async function indexBlockchain(latestBlockIndexed: number) {
         await sleep(SLEEP_BETWEEN_ITERATION);
         await indexBlockchain(lastBlock);
     } catch (e) {
-        console.error(e);
+        logError(e);
         // await sleep(30000);
         logMessage('GOT ERROR');
         await indexBlockchain(lastBlock);

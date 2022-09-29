@@ -6,6 +6,7 @@ import {insertDecodedEventParameter} from "../../../bin/db/decoded-event-paramet
 import {Log} from "../../../models/types/log";
 import {SolMethod} from "../../../models/types/sol-method";
 import {INDEX_DATA} from "../config";
+import {logError} from "../../../bin/logger";
 
 export async function indexEvent(log: Log, decodedParameters: {[p: string]: string}, eventInterface: SolMethod) {
   if (!INDEX_DATA || !log.id) return;
@@ -18,6 +19,6 @@ export async function indexEvent(log: Log, decodedParameters: {[p: string]: stri
       await insertDecodedEventParameter(eventId, parameter.value ? parameter.value : '' , parameter.name, parameter. type);
     }
   } catch (e) {
-    console.error(e);
+    logError(e);
   }
 }

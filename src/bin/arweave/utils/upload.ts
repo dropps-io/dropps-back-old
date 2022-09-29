@@ -1,6 +1,7 @@
 import {arweaveTxToUrl} from "../arweave-utils";
 import {ArweaveClient} from "../ArweaveClient.class";
 import {BundlrClient} from "../BundlrClient.class";
+import {logError} from "../../logger";
 
 const arweave = new ArweaveClient();
 const bundlr = new BundlrClient();
@@ -10,7 +11,7 @@ export async function upload(buffer: Buffer, contentType: string) {
   try {
     postUrl = await bundlr.upload(buffer, contentType);
   } catch (error:any) {
-    console.error(error.message? error.message : "Bundlr upload failed");
+    logError(error.message? error.message : "Bundlr upload failed");
     try {
       postUrl = await arweave.upload(buffer, contentType);
     } catch (e) {

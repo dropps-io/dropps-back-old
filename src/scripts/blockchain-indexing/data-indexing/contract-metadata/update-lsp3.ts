@@ -8,6 +8,7 @@ import {deleteTag, insertTag, queryTags} from "../../../../bin/db/tag.table";
 import {updateContractDescription, updateContractName} from "../../../../bin/db/contract-metadata.table";
 import {INDEX_DATA} from "../../config";
 import {tryExecuting} from "../../../../bin/utils/try-executing";
+import {logError} from "../../../../bin/logger";
 
 export async function updateLSP3Profile(address: string, lsp3: LSP3UniversalProfile) {
   if (!INDEX_DATA) return;
@@ -41,6 +42,6 @@ export async function updateLSP3Profile(address: string, lsp3: LSP3UniversalProf
     for (let tag of tagsToDelete) await tryExecuting(deleteTag(address, tag));
     for (let tag of tagsToAdd) await tryExecuting(insertTag(address, tag));
   } catch (e) {
-    console.error(e);
+    logError(e);
   }
 }

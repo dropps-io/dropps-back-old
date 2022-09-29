@@ -29,8 +29,8 @@ export async function extractDataFromLog(log: Log) {
     try {
       decodedParameters = web3.eth.abi.decodeParameters(parameters, transaction.input.slice(10));
     } catch (e) {
-      console.error('Failed to decode parameters:');
-      console.error(e);
+      logError('Failed to decode parameters:');
+      logError(e);
     }
     await indexTransaction(transaction, log, parameters, decodedParameters);
   }
@@ -65,6 +65,7 @@ async function extractEvent(log: Log): Promise<void> {
         break;
       case 'UniversalReceiver':
         extractContract(decodedParameters['from']);
+        break;
       case 'DataChanged':
         const th = await web3.eth.getTransaction(log.transactionHash);
         const dataChanged: {key: string, value: string}[] = decodeSetDataValueFromInput(th.input);

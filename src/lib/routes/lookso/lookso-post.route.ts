@@ -2,7 +2,7 @@ import {queryPostLike, queryPostLikesWithNames} from "../../../bin/db/like.table
 import {queryImagesByType} from "../../../bin/db/image.table";
 import {selectImage} from "../../../bin/utils/select-image";
 import {logError} from "../../../bin/logger";
-import {error, ERROR_ADR_INVALID, ERROR_HASH_INVALID, ERROR_INTERNAL} from "../../../bin/utils/error-messages";
+import {error, ERROR_ADR_INVALID, ERROR_HASH_INVALID, ERROR_INTERNAL, FILE_TYPE_NOT_SUPPORTED} from "../../../bin/utils/error-messages";
 import {LSPXXProfilePost, ProfilePost} from "../../../bin/lookso/registry/types/profile-post";
 import {verifyJWT} from "../../../bin/json-web-token";
 import sharp from "sharp";
@@ -17,6 +17,7 @@ import {applyChangesToRegistry} from "../../../bin/lookso/registry/apply-changes
 import {upload} from "../../../bin/arweave/utils/upload";
 import multer from "fastify-multer";
 import {isAddress, isHash} from "../../../bin/utils/validators";
+import {queryFollow} from "../../../bin/db/follow.table";
 
 interface MulterRequest extends Request {
   file: any;
@@ -62,13 +63,16 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
       summary: 'Get profile likes list.',
       querystring: {
         limit: { type: 'number' },
-        offset: { type: 'number' }
+        offset: { type: 'number' },
+        sender: { type: 'string' },
+        viewOf: { type: 'string' }
       }
     },
     handler: async (request, reply) => {
       const {hash} = request.params as { hash: string};
-      const {sender, limit, offset} = request.query as {sender?:string, limit: number, offset: number};
+      const {viewOf, sender, limit, offset} = request.query as {viewOf?: string, sender?:string, limit: number, offset: number};
       if (sender && !isAddress(sender)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
+      if (viewOf && !isAddress(viewOf)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
       if (!isHash(hash)) reply.code(400).send(error(400, ERROR_HASH_INVALID));
 
       try {
@@ -81,7 +85,9 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
           const likes = await queryPostLikesWithNames(hash, limit, offset);
           for (let like of likes) {
             const images = await queryImagesByType(like.address, 'profile');
-            response.push({...like, image: selectImage(images, {minWidthExpected: 50})});
+            const following = viewOf ? await queryFollow(viewOf, like.address) : undefined;
+            const image = selectImage(images, {minWidthExpected: 50});
+            response.push({...like, image: image ? image.url : '', following});
           }
           return reply.code(200).send(response);
         }
@@ -109,6 +115,8 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
     handler: async (request, reply) => {
       const {hash} = request.params as { hash: string };
       const {limit, offset, viewOf} = request.query as { limit: number, offset: number, viewOf?: string };
+      if (viewOf && !isAddress(viewOf)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
+      if (!isHash(hash)) reply.code(400).send(error(400, ERROR_HASH_INVALID));
 
       try {
         const posts: Post[] = await queryPostComments(hash, limit, offset);
@@ -146,6 +154,8 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
       if (fileType.includes('image')) {
         buffer = await sharp(buffer).rotate().resize(800, null, {withoutEnlargement: true, fit: 'contain'}).webp({quality: 50}).toBuffer();
         fileType = 'image/webp';
+      } else {
+        return reply.code(415).send(error(501, FILE_TYPE_NOT_SUPPORTED));
       }
 
       const fileUrl = await upload(buffer, fileType);

@@ -4,6 +4,7 @@ import {insertMethodInterface} from "../bin/db/method-interface.table";
 import {insertMethodParameter} from "../bin/db/method-parameter.table";
 import {SolMethod} from "../models/types/sol-method";
 import {tryExecuting} from "../bin/utils/try-executing";
+import {logError} from "../bin/logger";
 
 export async function generateAndPersistMethodInterfaces(contractAbis: AbiItem[][]): Promise<SolMethod[]> {
     const interfaces: SolMethod[] = [];
@@ -26,7 +27,7 @@ export async function generateAndPersistMethodInterfaces(contractAbis: AbiItem[]
                 await tryExecuting(insertMethodParameter(methodInterface.id, parameter.name, parameter.type, parameter.indexed));
             }
         } catch (e) {
-            console.error(e);
+            logError(e);
         }
     }
 

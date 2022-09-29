@@ -7,6 +7,7 @@ import {web3} from "../../../../bin/web3/web3";
 import LSP3UniversalProfileMetadataJSON from '@erc725/erc725.js/schemas/LSP3UniversalProfileMetadata.json';
 import {indexLsp3Data} from "../../data-indexing/contract-metadata/index-lsp3";
 import {IPFS_GATEWAY} from "../../../../environment/config";
+import {logError} from "../../../../bin/logger";
 
 export async function extractLSP3Data(address: string): Promise<void> {
   const erc725Y = new ERC725(LSP3UniversalProfileMetadataJSON as ERC725JSONSchema[], address, web3.currentProvider, {ipfsGateway: IPFS_GATEWAY});
@@ -18,7 +19,7 @@ export async function extractLSP3Data(address: string): Promise<void> {
     const res = (await axios.get(url)).data;
     lsp3 = res ? (res as any).LSP3Profile as LSP3UniversalProfile : initialUniversalProfile();
   } catch (e) {
-    console.error(e);
+    logError(e);
     lsp3 = initialUniversalProfile();
   }
 

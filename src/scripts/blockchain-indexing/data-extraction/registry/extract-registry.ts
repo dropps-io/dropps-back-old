@@ -13,6 +13,7 @@ import {Contract} from "web3-eth-contract";
 import PostValidatorContract from '../../../../assets/artifacts/ValidatorContractArtifact.json';
 import {IPFS_GATEWAY, POST_VALIDATOR_ADDRESS} from "../../../../environment/config";
 import {AbiItem} from "web3-utils";
+import {logError} from "../../../../bin/logger";
 
 export async function extractRegistry(log: Log, _jsonUrl?: string) {
   try {
@@ -21,7 +22,7 @@ export async function extractRegistry(log: Log, _jsonUrl?: string) {
     const registry: SocialRegistry = (await axios.get(formatUrl(decodeJsonUrl(jsonUrl)))).data as SocialRegistry;
     await extractRegistryPosts(log, registry.posts);
   } catch (e) {
-    console.error(e);
+    logError(e);
   }
 }
 
@@ -41,7 +42,7 @@ async function extractRegistryPosts(log: Log, posts: {hash: string, url: string}
         indexRegistryPost(log, profilePost.LSPXXProfilePost, profilePost.LSPXXProfilePostHash, new Date(parseInt(postTimestamp) * 1000), trusted);
       }
       } catch (e) {
-        console.error(e);
+        logError(e);
       }
     }
 

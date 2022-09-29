@@ -13,6 +13,8 @@ import {ProfileNotificationsGETTests} from "./profile-notifications.get.test";
 import {ProfileNotificationsPUTTests} from "./profile-notifications.put.test";
 import {PostGETTests} from "./post.get.test";
 import {ProfileRegistryPOSTTests} from "./profile-registry.post.test";
+import {PostLikesGETTests} from "./post-likes.get.test";
+import {PostCommentsGETTests} from "./post-comments.get.test";
 
 
 export const LooksoTests = () => {
@@ -33,6 +35,9 @@ export const LooksoTests = () => {
     ProfileNotificationsPUTTests();
     PostGETTests();
     ProfileRegistryPOSTTests();
+    PostLikesGETTests();
+    PostCommentsGETTests();
+    // PostAssetPOSTTests();
 
   });
 }

@@ -5,6 +5,7 @@ import {Log} from "../../../models/types/log";
 import {MethodParameter} from "../../../models/types/method-parameter";
 import {Transaction} from "../../../models/types/transaction";
 import {INDEX_DATA} from "../config";
+import {logError} from "../../../bin/logger";
 
 export async function indexTransaction(transaction: Transaction ,log: Log, parameters: MethodParameter[], decodedParameters: {[p: string]: any}) {
   if (!INDEX_DATA) return;
@@ -14,6 +15,6 @@ export async function indexTransaction(transaction: Transaction ,log: Log, param
       await tryExecuting(insertDecodedFunctionParameter(log.transactionHash, decodedParameters[parameter.name] as string, parameter.name, parameter.type, parameter.displayType));
     }
   } catch (e) {
-    console.error(e);
+    logError(e);
   }
 }

@@ -35,7 +35,6 @@ export async function indexRegistryPost(log: Log, post: LSPXXProfilePost, hash: 
       await insertNotification(parentPost.author, post.author, new Date(), 'comment', hash);
     }
     const userTags = post.message.match(USER_TAG_REGEX);
-    console.log(userTags);
     if (userTags) {
       for (const userTag of userTags) {
         try {

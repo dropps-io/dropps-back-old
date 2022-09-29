@@ -12,7 +12,7 @@ export async function queryPostLikesCount(postHash: string): Promise<number> {
 }
 
 export async function queryPostLikesWithNames(postHash: string, limit: number, offset: number): Promise<{ address: string, name: string }[]> {
-	const res = await executeQuery('SELECT "address","name" FROM like INNER JOIN contract_metadata ON like.sender=contract_metadata.address WHERE "postHash" = $1 ORDER BY CASE name WHEN \'\' THEN 1 ELSE 0 END ASC, name ASC LIMIT $2 OFFSET $3;', [postHash, limit, offset]);
+	const res = await executeQuery('SELECT "address","name" FROM "like" INNER JOIN contract_metadata ON "like".sender=contract_metadata.address WHERE "postHash" = $1 ORDER BY CASE name WHEN \'\' THEN 1 ELSE 0 END ASC, name ASC LIMIT $2 OFFSET $3;', [postHash, limit, offset]);
 	return res.rows;
 }
 

@@ -13,6 +13,7 @@ import {web3} from "../../../bin/web3/web3";
 import {URLDataWithHash} from "@erc725/erc725.js/build/main/src/types/encodeData/JSONURL";
 import {LSP3UniversalProfile} from "../../../bin/UniversalProfile/models/lsp3-universal-profile.model";
 import {IPFS_GATEWAY} from "../../../environment/config";
+import {logError} from "../../../bin/logger";
 
 export async function extractDataFromKey(log: Log, key: string, value?: string) {
   const erc725Y = new ERC725((LSP4DigitalAssetJSON as ERC725JSONSchema[]).concat(LSP3UniversalProfileMetadataJSON as ERC725JSONSchema[]), log.address, web3.currentProvider, {ipfsGateway: IPFS_GATEWAY});
@@ -69,7 +70,7 @@ export async function extractDataFromKey(log: Log, key: string, value?: string) 
         break;
     }
   } catch (e) {
-    console.error(e);
+    logError(e);
   }
 
 }

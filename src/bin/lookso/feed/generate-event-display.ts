@@ -28,6 +28,7 @@ import {TYPEID_LSP7_TOKENSRECIPIENT, TYPEID_LSP7_TOKENSSENDER, TYPEID_LSP8_TOKEN
 import {AbiItem} from "web3-utils";
 import LSP7DigitalAsset from "@lukso/lsp-smart-contracts/artifacts/LSP7DigitalAsset.json";
 import Web3 from "web3";
+import {logError} from "../../logger";
 
 
 export async function generateEventDisplay(methodId: string, params: Map<string, DecodedParameter>, context?: {senderProfile?: string, executionContract?: string}): Promise<FeedDisplay> {
@@ -123,7 +124,7 @@ export async function generateDataChangedDisplay(event: Event, parameters: Map<s
     }
     return {text: display.display, params: displayParams, image: '', tags: {standard: 'ERC725Y', standardType: null, copies: null}};
   } catch (e) {
-    console.error('Failed to fetch the value of the key ' + dataKey.value + ' at the block ' + event.blockNumber + ' for the address ' + event.address);
+    logError('Failed to fetch the value of the key ' + dataKey.value + ' at the block ' + event.blockNumber + ' for the address ' + event.address);
     return {text: display.displayWithoutValue, params: displayParams, image: '', tags: {standard: null, standardType: null, copies: null}};
   }
 }
@@ -150,7 +151,7 @@ export async function generateUniversalReceiverEventDisplay(params: Map<string, 
         return {text: 'Universal receiver triggered', params: {}, image: '', tags: {copies: '', standardType: '', standard: ''}};
     }
   } catch (e) {
-    console.error(e);
+    logError(e);
     return {text: 'Universal receiver triggered', params: {}, image: '', tags: {copies: '', standardType: '', standard: ''}};
   }
 }

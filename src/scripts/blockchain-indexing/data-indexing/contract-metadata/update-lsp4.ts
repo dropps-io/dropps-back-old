@@ -9,6 +9,7 @@ import {deleteLink, insertLink, queryLinks} from "../../../../bin/db/link.table"
 import {updateContractDescription} from "../../../../bin/db/contract-metadata.table";
 import {INDEX_DATA} from "../../config";
 import {tryExecuting} from "../../../../bin/utils/try-executing";
+import {logError} from "../../../../bin/logger";
 
 export async function updateLSP4Metadata(address: string, lsp4: LSP4DigitalAssetMetadata) {
   if (!INDEX_DATA) return;
@@ -41,6 +42,6 @@ export async function updateLSP4Metadata(address: string, lsp4: LSP4DigitalAsset
     for (let link of linksToDelete) await tryExecuting(deleteLink(address, link.title, link.url));
     for (let link of linksToAdd) await tryExecuting(insertLink(address, link.title, link.url));
   } catch (e) {
-    console.error(e);
+    logError(e);
   }
 }

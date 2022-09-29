@@ -27,6 +27,8 @@ export const RESOURCE_EXISTS = 'Resource already exists';
 
 export const PUSH_REGISTRY_REQUIRED = 'Push to registry required';
 
+export const FILE_TYPE_NOT_SUPPORTED = 'This file type is not supported';
+
 export function error(code: number, message: string): { code: number, message: string } {
 	return {
 		code,
