@@ -296,6 +296,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
     },
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
+      if (!isAddress(address)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
       const {limit, offset} = request.query as {limit: number, offset: number};
 
       try {
@@ -343,6 +344,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
     },
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
+      if (!isAddress(address)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
 
       try {
         const notificationsCount: number = await queryNotificationsCountOfAddress(address);
@@ -392,6 +394,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
     },
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
+      if (!isAddress(address)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
       const jwtError = await verifyJWT(request, reply, address);
       if (jwtError) return jwtError;
 
@@ -418,6 +421,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
     },
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
+      if (!isAddress(address)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
       const jwtError = await verifyJWT(request, reply, address);
       if (jwtError) return jwtError;
 

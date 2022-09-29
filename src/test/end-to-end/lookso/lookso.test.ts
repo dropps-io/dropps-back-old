@@ -12,6 +12,7 @@ import {ProfileFollowingGETTests} from "./profile-following.get.test";
 import {ProfileNotificationsGETTests} from "./profile-notifications.get.test";
 import {ProfileNotificationsPUTTests} from "./profile-notifications.put.test";
 import {PostGETTests} from "./post.get.test";
+import {ProfileRegistryPOSTTests} from "./profile-registry.post.test";
 
 
 export const LooksoTests = () => {
@@ -31,6 +32,7 @@ export const LooksoTests = () => {
     ProfileNotificationsGETTests();
     ProfileNotificationsPUTTests();
     PostGETTests();
+    ProfileRegistryPOSTTests();
 
   });
 }

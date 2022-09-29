@@ -91,22 +91,31 @@ export const ProfileNotificationsGETTests = () => {
       expect(notifications.length).to.equal(2);
     });
 
+    it('should return 400 on invalid address', async () => {
+      res = await fastify.inject({method: 'GET', url: `/lookso/profile/${HACKER_MAN_UP}a/notifications`});
+      expect(res.statusCode).to.equal(400);
+    });
+
   });
 
   describe('GET lookso/profile/:address/notifications/count', () => {
 
     it('should return 200', async () => {
-      const res = await fastify.inject({method: 'GET', url: `/lookso/profile/${HACKER_MAN_UP}/notifications/count`});
+      res = await fastify.inject({method: 'GET', url: `/lookso/profile/${HACKER_MAN_UP}/notifications/count`});
       expect(res.statusCode).to.equal(200);
     });
 
     it('should return the right unviewed notifications count', async () => {
-      const res = await fastify.inject({method: 'GET', url: `/lookso/profile/${HACKER_MAN_UP}/notifications/count`});
+      res = await fastify.inject({method: 'GET', url: `/lookso/profile/${HACKER_MAN_UP}/notifications/count`});
       expect(JSON.parse(res.payload).notifications).to.equal(3);
 
       const res2 = await fastify.inject({method: 'GET', url: `/lookso/profile/${UNIVERSAL_PROFILE_2}/notifications/count`});
       expect(JSON.parse(res2.payload).notifications).to.equal(0);
     });
 
+    it('should return 400 on invalid address', async () => {
+      res = await fastify.inject({method: 'GET', url: `/lookso/profile/${HACKER_MAN_UP}a/notifications/count`});
+      expect(res.statusCode).to.equal(400);
+    });
   });
 }

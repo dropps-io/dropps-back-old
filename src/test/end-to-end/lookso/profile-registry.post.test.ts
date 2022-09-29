@@ -2,7 +2,15 @@ import {describe} from "mocha";
 import {clearDB} from "../../helpers/database-helper";
 import {insertContractInterface} from "../../../bin/db/contract-interface.table";
 import {insertContract} from "../../../bin/db/contract.table";
-import {HACKER_MAN_UP, SERIOUS_MAN_UP, UNIT_TEST_UP, UNIVERSAL_PROFILE_1, UNIVERSAL_PROFILE_2} from "../../helpers/constants";
+import {
+  HACKER_MAN_JWT, HACKER_MAN_UP, POST_HASH, POST_HASH2, SERIOUS_MAN_UP, UNIT_TEST_UP, UNIT_TEST_UP_JWT, UNIVERSAL_PROFILE_1
+} from "../../helpers/constants";
+import {fastify} from "../../../lib/fastify";
+import {expect} from "chai";
+import {insertLike, querySenderLikes} from "../../../bin/db/like.table";
+import {insertPost} from "../../../bin/db/post.table";
+import {insertFollow, queryFollowing} from "../../../bin/db/follow.table";
+import {insertRegistryChange} from "../../../bin/db/registry-change.table";
 
 export const ProfileRegistryPOSTTests = () => {
 
@@ -14,6 +22,70 @@ export const ProfileRegistryPOSTTests = () => {
       await insertContract(UNIT_TEST_UP, 'LSP0');
     });
 
+    it ('should return 200 on correct request', async () => {
+      const res = await fastify.inject({
+        method: 'POST', url: `/lookso/profile/${UNIT_TEST_UP}/registry`,
+        headers: {
+          authorization: 'Bearer ' + UNIT_TEST_UP_JWT
+        }});
+      expect(res.statusCode).to.equal(200);
+    });
+
+    it ('should return a jsonUrl on correct request', async () => {
+      const res = await fastify.inject({
+        method: 'POST', url: `/lookso/profile/${UNIT_TEST_UP}/registry`,
+        headers: {
+          authorization: 'Bearer ' + UNIT_TEST_UP_JWT
+        }});
+      expect(JSON.parse(res.payload).jsonUrl).to.not.undefined;
+    });
+
+    it ('should correctly update the database', async () => {
+      await insertContract(HACKER_MAN_UP, 'LSP0');
+      await insertContract(SERIOUS_MAN_UP, 'LSP0');
+      await insertContract(UNIVERSAL_PROFILE_1, 'LSP0');
+      await insertPost(POST_HASH, HACKER_MAN_UP, new Date('2022-09-27T12:03:31.089Z'), 'test', '', null, null, null);
+      await insertPost(POST_HASH2, HACKER_MAN_UP, new Date('2022-09-27T12:03:31.089Z'), 'test', '', null, null, null);
+      await insertLike(UNIT_TEST_UP, POST_HASH);
+      await insertFollow(UNIT_TEST_UP, HACKER_MAN_UP);
+      await insertFollow(UNIT_TEST_UP, SERIOUS_MAN_UP);
+      await insertRegistryChange(UNIT_TEST_UP, 'like', "remove", POST_HASH, new Date());
+      await insertRegistryChange(UNIT_TEST_UP, 'like', "add", POST_HASH2, new Date());
+      await insertRegistryChange(UNIT_TEST_UP, 'follow', "remove", SERIOUS_MAN_UP, new Date());
+      await insertRegistryChange(UNIT_TEST_UP, 'follow', "add", UNIVERSAL_PROFILE_1, new Date());
+      await fastify.inject({
+        method: 'POST', url: `/lookso/profile/${UNIT_TEST_UP}/registry`,
+        headers: {
+          authorization: 'Bearer ' + UNIT_TEST_UP_JWT
+        }});
+
+      const likes = await querySenderLikes(UNIT_TEST_UP);
+      const follows = await queryFollowing(UNIT_TEST_UP);
+
+      expect(likes).to.contain(POST_HASH2);
+      expect(likes).to.not.contain(POST_HASH);
+      expect(follows).to.not.contain(HACKER_MAN_UP);
+      expect(follows).to.contain(UNIVERSAL_PROFILE_1);
+      expect(follows).to.not.contain(SERIOUS_MAN_UP);
+    });
+
+    it('should return 400 if invalid address', async () => {
+      const res = await fastify.inject({
+        method: 'POST', url: `/lookso/profile/${UNIT_TEST_UP}a/registry`,
+        headers: {
+          authorization: 'Bearer ' + UNIT_TEST_UP_JWT
+        }});
+      expect(res.statusCode).to.equal(400);
+    });
+
+    it('should return 403 if invalid JWT', async () => {
+      const res = await fastify.inject({
+        method: 'POST', url: `/lookso/profile/${UNIT_TEST_UP}/registry`,
+        headers: {
+          authorization: 'Bearer ' + HACKER_MAN_JWT
+        }});
+      expect(res.statusCode).to.equal(403);
+    });
 
   });
 }
