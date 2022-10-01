@@ -12,9 +12,9 @@ export async function queryMethodParameterDisplayType(methodId: string, name: st
 	else return '';
 }
 
-export async function insertMethodParameter(methodId: string, name: string, type: string, indexed?: boolean): Promise<MethodParameter> {
+export async function insertMethodParameter(methodId: string, name: string, type: string, position: number, indexed?: boolean): Promise<MethodParameter> {
 	const indexedValue = !!indexed;
-	const res = await executeQuery('INSERT INTO "method_parameter" VALUES ($1, $2, $3, $4)', [methodId, name, type, indexedValue]);
+	const res = await executeQuery('INSERT INTO "method_parameter" ("methodId", name, type, indexed, position) VALUES ($1, $2, $3, $4, $5)', [methodId, name, type, indexedValue, position]);
 	return res.rows[0] as MethodParameter;
 }
 
