@@ -8,9 +8,11 @@ after(() => {
   DB.end()
 })
 
-UnitTests();
+describe('Test', () => {
+  UnitTests();
+  AuthTests();
+  LooksoTests();
+});
 
 // END TO END
 
-AuthTests();
-LooksoTests();
