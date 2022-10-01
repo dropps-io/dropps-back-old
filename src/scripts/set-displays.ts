@@ -36,7 +36,7 @@ async function setDisplays() {
   await insertMethodDisplay('0x40c10f19', 'Minted {amount} {executionContract}', 'executionContract', '', 'executionContract');
   await insertMethodDisplay('0x01c42bd7', 'Created {contractAddress}', 'contractAddress', '', 'contractAddress');
   await insertMethodDisplay('0xcdf4e344', 'Value of {dataKey} changed', '', '', '');
-  await insertMethodDisplay('0x48108744', 'Executed an unknown function on {to}', 'to', '', 'to');
+  await insertMethodDisplay('0x48108744', 'Executed {selector} on {to}', 'to', '', 'to');
   await insertMethodDisplay('0x8be0079c', 'Transferred ownership from {previousOwner} to {newOwner}', '', '', '');
   await insertMethodDisplay('0x7e71433d', 'Received {value}{nativeToken} from {sender}', 'sender', '', '');
   await insertMethodDisplay('0x9c3ba68e', 'Received {from}', 'from', '', 'from');

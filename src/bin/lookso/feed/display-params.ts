@@ -7,6 +7,7 @@ import ERC725, {ERC725JSONSchema} from "@erc725/erc725.js";
 import {web3} from "../../web3/web3";
 import LSP4DigitalAssetJSON from '@erc725/erc725.js/schemas/LSP4DigitalAsset.json';
 import {IPFS_GATEWAY} from "../../../environment/config";
+import {queryMethodInterface} from "../../db/method-interface.table";
 
 
 
@@ -18,6 +19,13 @@ export async function getDisplayParam(value: string, type: string): Promise<Feed
             return {display: Web3.utils.fromWei(value, 'ether'), value, type, additionalProperties: {}};
         case 'tokenAmount':
             return {display: Web3.utils.fromWei(value, 'ether'), value, type, additionalProperties: {}};
+        case 'methodId':
+            try {
+                const method = await queryMethodInterface(value);
+                return {display: method.name, value, type, additionalProperties: {}};
+            } catch (e) {
+                return {display: 'unknown function', value, type, additionalProperties: {}};
+            }
         default:
             return {value, display: '', type, additionalProperties: {}};
     }
