@@ -23,8 +23,10 @@ export async function generateAndPersistMethodInterfaces(contractAbis: AbiItem[]
     for (let methodInterface of interfaces) {
         try {
             await tryExecuting(insertMethodInterface(methodInterface.id, methodInterface.hash, methodInterface.name, methodInterface.type));
+            let n = 0;
             for (let parameter of methodInterface.parameters) {
-                await tryExecuting(insertMethodParameter(methodInterface.id, parameter.name, parameter.type, parameter.indexed));
+                await tryExecuting(insertMethodParameter(methodInterface.id, parameter.name, parameter.type, n, parameter.indexed));
+                n++;
             }
         } catch (e) {
             logError(e);

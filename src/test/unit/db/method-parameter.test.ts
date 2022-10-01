@@ -15,11 +15,11 @@ export const MethodParameterTest = () => {
       });
 
       it('should be able to insert values', async () => {
-          assert(!await shouldThrow(insertMethodParameter('0x5f6c557f', 'name', 'string', true)));
+          assert(!await shouldThrow(insertMethodParameter('0x5f6c557f', 'name', 'string', 0, true)));
       });
 
       it('should be able to query a method parameters', async () => {
-          await insertMethodParameter('0x5f6c557f', 'name', 'string', true);
+          await insertMethodParameter('0x5f6c557f', 'name', 'string', 0, true);
           const parameters = await queryMethodParameters('0x5f6c557f');
 
           expect(parameters[0].name).to.equal('name');

@@ -6,19 +6,18 @@ import {insertDecodedEventParameter} from "../../../bin/db/decoded-event-paramet
 import {Log} from "../../../models/types/log";
 import {SolMethod} from "../../../models/types/sol-method";
 import {INDEX_DATA} from "../config";
-import {logError} from "../../../bin/logger";
+import {tryExecuting} from "../../../bin/utils/try-executing";
 
 export async function indexEvent(log: Log, decodedParameters: {[p: string]: string}, eventInterface: SolMethod) {
   if (!INDEX_DATA || !log.id) return;
+  let eventId: number;
   try {
-    const logIndexed = !!(await queryEventByTh(log.transactionHash, (log.id as string).slice(4, 12)));
-    if (logIndexed) return;
-    const eventId: number = await insertEvent(log.address, log.transactionHash, (log.id as string).slice(4, 12), log.blockNumber, log.topics[0], eventInterface.name ? eventInterface.name : '');
-    await insertPost('0x' + keccak256(JSON.stringify(log)).toString('hex'), log.address, new Date(((await web3.eth.getBlock(log.blockNumber)).timestamp as number) * 1000), '', '', null, null, eventId);
-    for (let parameter of eventInterface.parameters.map((x) => {return {...x, value: decodedParameters[x.name]}})) {
-      await insertDecodedEventParameter(eventId, parameter.value ? parameter.value : '' , parameter.name, parameter. type);
-    }
+    eventId = (await queryEventByTh(log.transactionHash, (log.id as string).slice(4, 12))).id;
   } catch (e) {
-    logError(e);
+    eventId = await insertEvent(log.address, log.transactionHash, (log.id as string).slice(4, 12), log.blockNumber, log.topics[0], eventInterface.name ? eventInterface.name : '');
+  }
+  await tryExecuting(insertPost('0x' + keccak256(JSON.stringify(log)).toString('hex'), log.address, new Date(((await web3.eth.getBlock(log.blockNumber)).timestamp as number) * 1000), '', '', null, null, eventId));
+  for (let parameter of eventInterface.parameters.map((x) => {return {...x, value: decodedParameters[x.name]}})) {
+    await tryExecuting(insertDecodedEventParameter(eventId, parameter.value ? parameter.value : '' , parameter.name, parameter. type));
   }
 }

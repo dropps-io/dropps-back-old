@@ -114,8 +114,12 @@ export async function authRoute (fastify: FastifyInstance) {
 
                 await updateNonce(userAddress);
 
-                return reply.code(200).send({
-                    token: generateJWT(userAddress),
+                let jwtToken = generateJWT(userAddress);
+                let date = new Date();
+                date.setTime(date.getTime() + 6 * 60 * 60 * 1000) // 6 hours from now
+                
+                return reply.setCookie('jwt', jwtToken,{path: '/', expires: date, httpOnly:true}).code(200).send({
+                    token: jwtToken,
                     address: userAddress,
                     validity: JWT_VALIDITY_TIME
                 });

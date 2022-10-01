@@ -50,6 +50,7 @@
   "dependencies": {
     "@bundlr-network/client": "^0.8.1",
     "@erc725/erc725.js": "^0.14.4",
+    "@fastify/cookie": "^8.3.0",
     "@fastify/cors": "^8.1.0",
     "@fastify/swagger": "^7.6.1",
     "@lukso/lsp-smart-contracts": "^0.6.2",
