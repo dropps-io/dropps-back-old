@@ -2,7 +2,7 @@ import {MethodParameter} from '../../models/types/method-parameter';
 import {executeQuery} from './database';
 
 export async function queryMethodParameters(methodId: string): Promise<MethodParameter[]> {
-	const res = await executeQuery('SELECT * FROM "method_parameter" WHERE "methodId" = $1', [methodId]);
+	const res = await executeQuery('SELECT * FROM "method_parameter" WHERE "methodId" = $1 ORDER BY position', [methodId]);
 	return res.rows as MethodParameter[];
 }
 
