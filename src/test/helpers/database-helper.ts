@@ -3,8 +3,6 @@ import {executeQuery} from '../../bin/db/database';
 const clearDBQueries = [
 	'delete from "registry_change"',
 	'delete from "notification"',
-	'delete from "user_profile_relations"',
-	'delete from "users"',
 	'delete from "nonces"',
 	'delete from "link"',
 	'delete from "decoded_event_parameter"',
