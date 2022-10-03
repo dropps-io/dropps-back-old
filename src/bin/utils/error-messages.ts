@@ -29,6 +29,8 @@ export const PUSH_REGISTRY_REQUIRED = 'Push to registry required';
 
 export const FILE_TYPE_NOT_SUPPORTED = 'This file type is not supported';
 
+export const ERROR_INVALID_PAGE = 'Invalid Page';
+
 export function error(code: number, message: string): { code: number, message: string } {
 	return {
 		code,

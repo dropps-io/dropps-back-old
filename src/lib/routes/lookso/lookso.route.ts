@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import {verifyJWT} from '../../../bin/json-web-token';
-import {error, ERROR_INTERNAL, ERROR_NOT_FOUND, PUSH_REGISTRY_REQUIRED, RESOURCE_EXISTS} from '../../../bin/utils/error-messages';
+import {error, ERROR_INTERNAL, ERROR_INVALID_PAGE, ERROR_NOT_FOUND, PUSH_REGISTRY_REQUIRED, RESOURCE_EXISTS} from '../../../bin/utils/error-messages';
 import {logError} from '../../../bin/logger';
 import {Follow} from "../../../models/types/follow";
 import {
@@ -9,7 +9,7 @@ import {
 } from "../../../bin/db/follow.table";
 import {queryContract} from "../../../bin/db/contract.table";
 import {Post} from "../../../models/types/post";
-import {queryPost, queryPosts} from "../../../bin/db/post.table";
+import {queryPost, queryPosts, queryPostsCount} from "../../../bin/db/post.table";
 import {constructFeed} from "../../../bin/lookso/feed/construct-feed";
 import {insertLike, queryPostLike, removeLike} from "../../../bin/db/like.table";
 import {Like} from "../../../models/types/like";
@@ -18,11 +18,12 @@ import {looksoProfileRoutes} from "./lookso-profile.route";
 import {insertNotification} from "../../../bin/db/notification.table";
 import {search} from "../../../bin/lookso/search";
 import {insertRegistryChange, queryRegistryChangesCountOfAddress} from "../../../bin/db/registry-change.table";
-import {MAX_OFFCHAIN_REGISTRY_CHANGES} from "../../../environment/config";
+import {API_URL, MAX_OFFCHAIN_REGISTRY_CHANGES, POSTS_PER_LOAD} from "../../../environment/config";
 import {applyChangesToRegistry} from "../../../bin/lookso/registry/apply-changes-to-registry";
 import {buildJsonUrl} from "../../../bin/utils/json-url";
 import {upload} from "../../../bin/arweave/utils/upload";
 import {objectToBuffer} from "../../../bin/utils/file-converters";
+import {ADDRESS_SCHEMA_VALIDATION} from "../../../models/json/utils.schema";
 
 export async function looksoRoute (fastify: FastifyInstance) {
 
@@ -154,6 +155,7 @@ export async function looksoRoute (fastify: FastifyInstance) {
 		}
 	});
 
+	//TODO Add end to end test to verify if it throws when invalid params
 	fastify.route({
 		method: 'GET',
 		url: '/feed',
@@ -161,21 +163,31 @@ export async function looksoRoute (fastify: FastifyInstance) {
 			description: 'Get posts linked to a profile.',
 			tags: ['lookso'],
 			querystring: {
-				limit: { type: 'number' },
-				offset: { type: 'number' },
-				postType: { type: 'string' },
-				viewOf: { type: 'string' },
+				page: { type: 'number' },
+				postType: { enum: ['post', 'event'] },
+				viewOf: ADDRESS_SCHEMA_VALIDATION,
 			},
 			summary: 'Get profile feed.',
 		},
 		handler: async (request, reply) => {
-			const {limit, offset, postType, viewOf} = request.query as { limit: number, offset: number, postType?: 'event' | 'post', viewOf?: string };
+			const {page, postType, viewOf} = request.query as { page?: number, postType?: 'event' | 'post', viewOf?: string };
+			if (page && page < 0) return reply.code(400).send(error(400, ERROR_INVALID_PAGE));
 
 			try {
-				const posts: Post[] = await queryPosts(limit, offset, postType);
+				const postsCount = await queryPostsCount(postType);
+				if (page && page > postsCount / POSTS_PER_LOAD) return reply.code(400).send(error(400, ERROR_INVALID_PAGE));
+				const pagination: number = page !== undefined ? page : Math.floor(postsCount / POSTS_PER_LOAD);
+				const posts: Post[] = await queryPosts(POSTS_PER_LOAD, pagination * POSTS_PER_LOAD, postType);
 				const feed = await constructFeed(posts, viewOf);
 
-				return reply.code(200).send(feed);
+				const queryUrl = `${API_URL}/lookso/feed?${postType ? 'postType=' + postType + '&' : ''}${viewOf ? 'viewOf=' + viewOf + '&' : ''}page=`;
+
+				return reply.code(200).send({
+					count: postsCount,
+					next: pagination < Math.floor(postsCount / POSTS_PER_LOAD) ? queryUrl + (pagination + 1).toString() : null,
+					previous: pagination > 0 ? queryUrl + (pagination - 1).toString() : null,
+					results: feed
+				});
 				/* eslint-disable */
 			} catch (e: any) {
 				logError(e);
