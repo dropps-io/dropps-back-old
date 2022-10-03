@@ -20,9 +20,17 @@ export async function queryPostRepostsCount(hash: string): Promise<number> {
 export async function queryPosts(limit: number, offset: number, type?: 'event' | 'post'): Promise<Post[]> {
 	let query = 'SELECT * FROM "post" INNER JOIN "contract" ON post.author=contract.address WHERE "interfaceCode" = \'LSP0\' AND "parentHash" IS NULL';
 	if (type) query +=  type === 'event' ? ' AND "eventId" IS NOT NULL' : ' AND "eventId" IS NULL';
-	query += ' ORDER BY "date" DESC, "author", "hash" LIMIT $1 OFFSET $2';
+	query += ' ORDER BY "date", "author", "hash" LIMIT $1 OFFSET $2';
 	const res = await executeQuery(query, [limit, offset]);
 	return res.rows as Post[];
+}
+
+export async function queryPostsCount(type?: 'event' | 'post'): Promise<number> {
+	let query = 'SELECT COUNT(*) FROM "post" INNER JOIN "contract" ON post.author=contract.address WHERE "interfaceCode" = \'LSP0\' AND "parentHash" IS NULL';
+	if (type) query +=  type === 'event' ? ' AND "eventId" IS NOT NULL' : ' AND "eventId" IS NULL';
+	const res = await executeQuery(query);
+	if (res.rows[0]) return res.rows[0].count as number;
+	else throw Error('Unable to fetch');
 }
 
 export async function queryPostComments(hash: string, limit: number, offset: number): Promise<Post[]> {
