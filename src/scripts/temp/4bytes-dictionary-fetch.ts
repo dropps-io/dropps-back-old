@@ -9,7 +9,7 @@ export async function fourBytesDictionaryFetch(_n: number, _next?: string) {
   let next= _next, n = _n;
   try {
     do {
-      const methodInterfaces: any = await axios.get(next ? next : 'https://www.4byte.directory/api/v1/signatures/?ordering=created_at&page=0');
+      const methodInterfaces: any = await axios.get(next ? next : 'https://www.4byte.directory/api/v1/signatures/?ordering=created_at');
       next = methodInterfaces.data.next;
       for (const result of (methodInterfaces.data.results as any[])) {
         try {
