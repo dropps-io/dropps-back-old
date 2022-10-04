@@ -12,5 +12,6 @@ export const API_URL: string = config.get('api_url');
 export const MAX_OFFCHAIN_REGISTRY_CHANGES = 30;
 export const POSTS_PER_LOAD = 30;
 export const PROFILES_PER_LOAD = 50;
+export const PROFILES_PER_SEARCH = 5;
 export const IPFS_GATEWAY = 'https://2eff.lukso.dev/ipfs/';
 export const ARWEAVE_GATEWAY = 'https://arweave.net/';

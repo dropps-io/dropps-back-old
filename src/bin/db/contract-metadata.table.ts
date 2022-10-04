@@ -20,10 +20,22 @@ export async function queryContractName(address: string): Promise<string> {
 	else return '';
 }
 
+export async function searchContractMetadataByAddressCount(input: string): Promise<number> {
+	const res = await executeQuery('SELECT COUNT(*) FROM contract_metadata WHERE address LIKE $1', ['%' + input + '%']);
+	if (res.rows[0]) return res.rows[0].count;
+	else throw 'Unable to fetch';
+}
+
 export async function searchContractMetadataByAddress(input: string, limit: number, offset: number): Promise<{address: string, name: string}[]> {
 	const res = await executeQuery('SELECT address,name FROM contract_metadata WHERE address LIKE $1 ORDER BY address LIMIT $2 OFFSET $3', ['%' + input + '%', limit, offset]);
 	if (res.rows.length > 0) return res.rows;
 	else return [];
+}
+
+export async function searchContractMetadataByNameCount(input: string): Promise<number> {
+	const res = await executeQuery("SELECT COUNT(*) FROM contract_metadata WHERE LOWER(name) LIKE LOWER($1)", ['%' + input + '%']);
+	if (res.rows[0]) return res.rows[0].count;
+	else throw 'Unable to fetch';
 }
 
 export async function searchContractMetadataByName(input: string, limit: number, offset: number): Promise<{address: string, name: string}[]> {
