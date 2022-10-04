@@ -18,7 +18,7 @@ import {looksoProfileRoutes} from "./lookso-profile.route";
 import {insertNotification} from "../../../bin/db/notification.table";
 import {search} from "../../../bin/lookso/search";
 import {insertRegistryChange, queryRegistryChangesCountOfAddress} from "../../../bin/db/registry-change.table";
-import {API_URL, MAX_OFFCHAIN_REGISTRY_CHANGES, POSTS_PER_LOAD} from "../../../environment/config";
+import {API_URL, MAX_OFFCHAIN_REGISTRY_CHANGES, POSTS_PER_LOAD, PROFILES_PER_SEARCH} from "../../../environment/config";
 import {applyChangesToRegistry} from "../../../bin/lookso/registry/apply-changes-to-registry";
 import {buildJsonUrl} from "../../../bin/utils/json-url";
 import {upload} from "../../../bin/arweave/utils/upload";
@@ -163,29 +163,28 @@ export async function looksoRoute (fastify: FastifyInstance) {
 			description: 'Get posts linked to a profile.',
 			tags: ['lookso'],
 			querystring: {
-				page: { type: 'number' },
+				page: { type: 'number', minimum: 0 },
 				postType: { enum: ['post', 'event'] },
 				viewOf: ADDRESS_SCHEMA_VALIDATION,
 			},
 			summary: 'Get profile feed.',
 		},
 		handler: async (request, reply) => {
-			const {page, postType, viewOf} = request.query as { page?: number, postType?: 'event' | 'post', viewOf?: string };
-			if (page && page < 0) return reply.code(400).send(error(400, ERROR_INVALID_PAGE));
+			const query = request.query as { page?: number, postType?: 'event' | 'post', viewOf?: string };
 
 			try {
-				const postsCount = await queryPostsCount(postType);
-				if (page && page > postsCount / POSTS_PER_LOAD) return reply.code(400).send(error(400, ERROR_INVALID_PAGE));
-				const pagination: number = page !== undefined ? page : Math.floor(postsCount / POSTS_PER_LOAD);
-				const posts: Post[] = await queryPosts(POSTS_PER_LOAD, pagination * POSTS_PER_LOAD, postType);
-				const feed = await constructFeed(posts, viewOf);
+				const count = await queryPostsCount(query.postType);
+				const page = query.page ? query.page : Math.ceil(count / POSTS_PER_LOAD) - 1;
+				if (page >= count / POSTS_PER_LOAD) return reply.code(400).send(error(400, ERROR_INVALID_PAGE));
+				const posts: Post[] = await queryPosts(POSTS_PER_LOAD, page * POSTS_PER_LOAD, query.postType);
+				const feed = await constructFeed(posts, query.viewOf);
 
-				const queryUrl = `${API_URL}/lookso/feed?${postType ? 'postType=' + postType + '&' : ''}${viewOf ? 'viewOf=' + viewOf + '&' : ''}page=`;
+				const queryUrl = `${API_URL}/lookso/feed?${query.postType ? 'postType=' + query.postType + '&' : ''}${query.viewOf ? 'viewOf=' + query.viewOf + '&' : ''}page=`;
 
 				return reply.code(200).send({
-					count: postsCount,
-					next: pagination < Math.floor(postsCount / POSTS_PER_LOAD) ? queryUrl + (pagination + 1).toString() : null,
-					previous: pagination > 0 ? queryUrl + (pagination - 1).toString() : null,
+					count,
+					next: page < Math.ceil(count / POSTS_PER_LOAD) - 1 ? queryUrl + (page + 1).toString() : null,
+					previous: page > 0 ? queryUrl + (page - 1).toString() : null,
 					results: feed
 				});
 				/* eslint-disable */
@@ -203,18 +202,25 @@ export async function looksoRoute (fastify: FastifyInstance) {
 			description: 'Search in our database with an input.',
 			tags: ['lookso'],
 			querystring: {
-				page: {type: 'number'}
+				page: { type: 'number', minimum: 0 }
 			},
 			summary: 'Search in our database with an input.',
 		},
 		handler: async (request, reply) => {
 			const {input} = request.params as { input: string };
-			const {page} = request.query as { page?: number };
+			const query = request.query as { page?: number };
+			const page = query.page ? query.page : 0;
 
 			try {
-				const profiles = await search(input, page ? page : 0);
+				const profiles = await search(input, page);
 
-				return reply.code(200).send(profiles);
+				const queryUrl = `${API_URL}/lookso/search/${input}?page=`;
+
+				return reply.code(200).send({
+					...profiles,
+					next: page < Math.ceil(profiles.count / PROFILES_PER_SEARCH) - 1 ? queryUrl + (page + 1).toString() : null,
+					previous: page > 0 ? queryUrl + (page - 1).toString() : null,
+				});
 				/* eslint-disable */
 			} catch (e: any) {
 				logError(e);

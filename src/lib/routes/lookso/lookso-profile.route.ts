@@ -1,8 +1,8 @@
 import {Post} from "../../../models/types/post";
-import {queryPostsOfUser, queryPostsOfUsers} from "../../../bin/db/post.table";
+import {queryPostsOfUser, queryPostsOfUserCount, queryPostsOfUsers, queryPostsOfUsersCount} from "../../../bin/db/post.table";
 import {constructFeed} from "../../../bin/lookso/feed/construct-feed";
 import {logError} from "../../../bin/logger";
-import {error, ERROR_ADR_INVALID, ERROR_INTERNAL, ERROR_NOT_FOUND} from "../../../bin/utils/error-messages";
+import {error, ERROR_ADR_INVALID, ERROR_INTERNAL, ERROR_INVALID_PAGE, ERROR_NOT_FOUND} from "../../../bin/utils/error-messages";
 import {
   queryFollow, queryFollowersCount, queryFollowersWithNames,
   queryFollowing,
@@ -15,7 +15,11 @@ import {queryImages, queryImagesByType} from "../../../bin/db/image.table";
 import {selectImage} from "../../../bin/utils/select-image";
 import {FastifyInstance} from "fastify";
 import {isAddress} from "../../../bin/utils/validators";
-import {queryNotificationsCountOfAddress, queryNotificationsOfAddress, setViewedToAddressNotifications} from "../../../bin/db/notification.table";
+import {
+  queryNotificationsCountOfAddress,
+  queryNotificationsOfAddress, queryNotViewedNotificationsCountOfAddress,
+  setViewedToAddressNotifications
+} from "../../../bin/db/notification.table";
 import {NotificationWithSenderDetails} from "../../../models/types/notification";
 import {verifyJWT} from "../../../bin/json-web-token";
 import {applyChangesToRegistry} from "../../../bin/lookso/registry/apply-changes-to-registry";
@@ -23,6 +27,8 @@ import {objectToBuffer} from "../../../bin/utils/file-converters";
 import {upload} from "../../../bin/arweave/utils/upload";
 import {buildJsonUrl} from "../../../bin/utils/json-url";
 import {deleteAddressRegistryChanges} from "../../../bin/db/registry-change.table";
+import {ADDRESS_SCHEMA_VALIDATION} from "../../../models/json/utils.schema";
+import {API_URL, COMMENTS_PER_LOAD, NOTIFICATIONS_PER_LOAD, POSTS_PER_LOAD, PROFILES_PER_LOAD} from "../../../environment/config";
 
 
 export function looksoProfileRoutes(fastify: FastifyInstance) {
@@ -33,23 +39,32 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
       description: 'Get posts linked to a profile.',
       tags: ['lookso'],
       querystring: {
-        limit: { type: 'number' },
-        offset: { type: 'number' },
-        postType: { type: 'string' },
-        viewOf: { type: 'string' },
+        page: { type: 'number', minimum: 0 },
+        postType: { enum: ['post', 'event'] },
+        viewOf: ADDRESS_SCHEMA_VALIDATION,
       },
       summary: 'Get profile feed.',
     },
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
-      const {limit, offset, postType, viewOf} = request.query as { limit: number, offset: number, postType?: 'event' | 'post', viewOf?: string };
+      const query = request.query as { page?: number, postType?: 'event' | 'post', viewOf?: string };
       if (!isAddress(address)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
 
       try {
-        const posts: Post[] = await queryPostsOfUser(address, limit, offset, postType);
-        const feed = await constructFeed(posts, viewOf);
+        const count = await queryPostsOfUserCount(address, query.postType);
+        const page = query.page ? query.page : Math.ceil(count / POSTS_PER_LOAD) - 1;
+        if (page >= count / POSTS_PER_LOAD) return reply.code(400).send(error(400, ERROR_INVALID_PAGE));
+        const posts: Post[] = await queryPostsOfUser(address, POSTS_PER_LOAD, page * POSTS_PER_LOAD, query.postType);
+        const feed = await constructFeed(posts, query.viewOf);
 
-        return reply.code(200).send(feed);
+        const queryUrl = `${API_URL}/lookso/profile/${address}/activity?${query.postType ? 'postType=' + query.postType + '&' : ''}${query.viewOf ? 'viewOf=' + query.viewOf + '&' : ''}page=`;
+
+        return reply.code(200).send({
+          count,
+          next: page < Math.ceil(count / POSTS_PER_LOAD) - 1 ? queryUrl + (page + 1).toString() : null,
+          previous: page > 0 ? queryUrl + (page - 1).toString() : null,
+          results: feed
+        });
         /* eslint-disable */
       } catch (e: any) {
         logError(e);
@@ -65,24 +80,39 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
       description: 'Get posts linked to a profile.',
       tags: ['lookso'],
       querystring: {
-        limit: { type: 'number' },
-        offset: { type: 'number' },
-        postType: { type: 'string' },
+        page: { type: 'number', minimum: 0 },
+        postType: { enum: ['post', 'event'] },
       },
       summary: 'Get profile feed.',
     },
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
-      const {limit, offset, postType} = request.query as { limit: number, offset: number, postType?: 'event' | 'post' };
+      const query = request.query as { page?: number, postType?: 'event' | 'post' };
       if (!isAddress(address)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
 
       try {
         const followingList = await queryFollowing(address);
-        if (followingList.length === 0) return reply.code(200).send([]);
-        const posts: Post[] = await queryPostsOfUsers(followingList, limit, offset, postType);
+        if (followingList.length === 0) return reply.code(200).send({
+          count: 0,
+          next: null,
+          previous: null,
+          results: []
+        });
+
+        const count = await queryPostsOfUsersCount(followingList, query.postType);
+        const page = query.page ? query.page : Math.ceil(count / POSTS_PER_LOAD) - 1;
+        if (page >= count / POSTS_PER_LOAD) return reply.code(400).send(error(400, ERROR_INVALID_PAGE));
+        const posts: Post[] = await queryPostsOfUsers(followingList, POSTS_PER_LOAD, page * POSTS_PER_LOAD, query.postType);
         const feed = await constructFeed(posts, address);
 
-        return reply.code(200).send(feed);
+        const queryUrl = `${API_URL}/lookso/profile/${address}/feed?${query.postType ? 'postType=' + query.postType + '&' : ''}page=`;
+
+        return reply.code(200).send({
+          count,
+          next: page < Math.ceil(count / POSTS_PER_LOAD) - 1 ? queryUrl + (page + 1).toString() : null,
+          previous: page > 0 ? queryUrl + (page - 1).toString() : null,
+          results: feed
+        });
         /* eslint-disable */
       } catch (e: any) {
         logError(e);
@@ -186,34 +216,52 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
       tags: ['lookso'],
       summary: 'Get profile followers list.',
       querystring: {
-        limit: { type: 'number' },
-        offset: { type: 'number' },
-        followerAddress: { type: 'string' },
-        viewOf: { type: 'string' },
+        page: { type: 'number', minimum: 0 },
+        follower: ADDRESS_SCHEMA_VALIDATION,
+        viewOf: ADDRESS_SCHEMA_VALIDATION,
       }
     },
     handler: async (request, reply) => {
       const {address} = request.params as { address: string};
-      const {followerAddress, limit, offset, viewOf} = request.query as {followerAddress?:string, limit: number, offset: number, viewOf?: string};
+      const query = request.query as {follower?:string, page?: number, viewOf?: string};
+      const page = query.page ? query.page : 0;
       if (!isAddress(address)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
-      if (viewOf && !isAddress(viewOf)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
 
       try {
-        if (followerAddress) {
-          if (!isAddress(followerAddress)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
-          const isFollower = await queryFollow(followerAddress, address);
-          return reply.code(200).send(isFollower ? [followerAddress] : []);
+        if (query.follower) {
+          const isFollower = await queryFollow(query.follower, address);
+          return reply.code(200).send(isFollower ? {
+            count: 1,
+            next: null,
+            previous: null,
+            results: [query.follower]
+          } : {
+            count: 0,
+            next: null,
+            previous: null,
+            results: []
+          });
         }
         else {
           const response = [];
-          const followers = await queryFollowersWithNames(address, limit, offset);
+          const count = await queryFollowersCount(address);
+          if (page >= count / PROFILES_PER_LOAD) return reply.code(400).send(error(400, ERROR_INVALID_PAGE));
+          const followers = await queryFollowersWithNames(address, PROFILES_PER_LOAD, page * PROFILES_PER_LOAD);
           for (let follower of followers) {
             const images = await queryImagesByType(follower.address, 'profile');
             const selectedImage = selectImage(images, {minWidthExpected: 50});
-            const following = viewOf ? await queryFollow(viewOf, follower.address) : undefined;
+            const following = query.viewOf ? await queryFollow(query.viewOf, follower.address) : undefined;
             response.push({...follower, image: selectedImage ? selectedImage.url : '', following});
           }
-          return reply.code(200).send(response);
+
+          const queryUrl = `${API_URL}/lookso/profile/${address}/followers?${query.follower ? 'follower=' + query.follower + '&' : ''}${query.viewOf ? 'viewOf=' + query.viewOf + '&' : ''}page=`;
+
+          return reply.code(200).send({
+            count,
+            next: page < Math.ceil(count / PROFILES_PER_LOAD) - 1 ? queryUrl + (page + 1).toString() : null,
+            previous: page > 0 ? queryUrl + (page - 1).toString() : null,
+            results: response
+          });
         }
         /* eslint-disable */
       } catch (e: any) {
@@ -252,28 +300,36 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
       description: 'Get profile follow list with address, name and profile pictures.',
       tags: ['lookso'],
       querystring: {
-        limit: { type: 'number' },
-        offset: { type: 'number' },
-        viewOf: { type: 'string' },
+        page: { type: 'number', minimum: 0 },
+        viewOf: ADDRESS_SCHEMA_VALIDATION,
       },
       summary: 'Get all the profiles a user is following.',
     },
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
-      const {limit, offset, viewOf} = request.query as {limit: number, offset: number, viewOf?: string};
+      const query = request.query as {page?: number, viewOf?: string};
+      const page = query.page ? query.page : 0;
       if (!isAddress(address)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
-      if (viewOf && !isAddress(viewOf)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
 
       try {
         const response = [];
-        const following = await queryFollowingWithNames(address, limit, offset);
+        const count = await queryFollowingCount(address);
+        if (page >= count / PROFILES_PER_LOAD) return reply.code(400).send(error(400, ERROR_INVALID_PAGE));
+        const following = await queryFollowingWithNames(address, PROFILES_PER_LOAD, page * PROFILES_PER_LOAD);
         for (let followingProfile of following) {
           const images = await queryImagesByType(followingProfile.address, 'profile');
           const selectedImage = selectImage(images, {minWidthExpected: 50});
-          const following = viewOf ? await queryFollow(viewOf, followingProfile.address) : undefined;
+          const following = query.viewOf ? await queryFollow(query.viewOf, followingProfile.address) : undefined;
           response.push({...followingProfile, image: selectedImage ? selectedImage.url : '', following});
         }
-        return reply.code(200).send(response);
+        const queryUrl = `${API_URL}/lookso/profile/${address}/following?${query.viewOf ? 'viewOf=' + query.viewOf + '&' : ''}page=`;
+
+        return reply.code(200).send({
+          count,
+          next: page < Math.ceil(count / PROFILES_PER_LOAD) - 1 ? queryUrl + (page + 1).toString() : null,
+          previous: page > 0 ? queryUrl + (page - 1).toString() : null,
+          results: response
+        });
         /* eslint-disable */
       } catch (e: any) {
         logError(e);
@@ -289,18 +345,20 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
       description: 'Get notifications of an address.',
       tags: ['lookso'],
       querystring: {
-        limit: { type: 'number' },
-        offset: { type: 'number' },
+        page: { type: 'number', minimum: 0 },
       },
       summary: 'Get notifications of an address.',
     },
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
       if (!isAddress(address)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
-      const {limit, offset} = request.query as {limit: number, offset: number};
+      const query = request.query as {page: number};
 
       try {
-        const notifications = await queryNotificationsOfAddress(address, limit, offset);
+        const count = await queryNotificationsCountOfAddress(address);
+        const page = query.page ? query.page : Math.ceil(count / NOTIFICATIONS_PER_LOAD) - 1;
+        if (page >= count / NOTIFICATIONS_PER_LOAD) return reply.code(400).send(error(400, ERROR_INVALID_PAGE));
+        const notifications = await queryNotificationsOfAddress(address, NOTIFICATIONS_PER_LOAD, page * NOTIFICATIONS_PER_LOAD);
         const response: NotificationWithSenderDetails[] = [];
 
         for (const notification of notifications) {
@@ -325,7 +383,14 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
           });
         }
 
-        return reply.code(200).send(response);
+        const queryUrl = `${API_URL}/profile/${address}/notifications?page=`;
+
+        return reply.code(200).send({
+          count,
+          next: page < Math.ceil(count / COMMENTS_PER_LOAD) - 1 ? queryUrl + (page + 1).toString() : null,
+          previous: page > 0 ? queryUrl + (page - 1).toString() : null,
+          results: response
+        });
         /* eslint-disable */
       } catch (e: any) {
         logError(e);
@@ -347,7 +412,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
       if (!isAddress(address)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
 
       try {
-        const notificationsCount: number = await queryNotificationsCountOfAddress(address);
+        const notificationsCount: number = await queryNotViewedNotificationsCountOfAddress(address);
 
         return reply.code(200).send({notifications: notificationsCount});
         /* eslint-disable */

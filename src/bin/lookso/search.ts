@@ -14,7 +14,7 @@ export async function search(input: string, page: number): Promise<{ count: numb
     if (input.length < 42) {
       const response = [];
       const contractsCount = await searchContractMetadataByAddressCount(input);
-      if (page > contractsCount / PROFILES_PER_SEARCH) throw ERROR_INVALID_PAGE;
+      if (page >= contractsCount / PROFILES_PER_SEARCH) throw ERROR_INVALID_PAGE;
       const contracts = await searchContractMetadataByAddress(input, PROFILES_PER_SEARCH, page * PROFILES_PER_SEARCH);
       for (const contract of contracts) {
         const images = await queryImagesByType(contract.address, 'profile');
@@ -47,7 +47,7 @@ export async function search(input: string, page: number): Promise<{ count: numb
   } else {
     const response = [];
     const contractsCount = await searchContractMetadataByNameCount(input);
-    if (page > contractsCount / PROFILES_PER_SEARCH) throw ERROR_INVALID_PAGE;
+    if (page >= contractsCount / PROFILES_PER_SEARCH) throw ERROR_INVALID_PAGE;
     const contracts = await searchContractMetadataByName(input, PROFILES_PER_SEARCH, page * PROFILES_PER_SEARCH);
     for (const contract of contracts) {
       const images = await queryImagesByType(contract.address, 'profile');

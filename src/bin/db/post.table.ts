@@ -34,15 +34,23 @@ export async function queryPostsCount(type?: 'event' | 'post'): Promise<number> 
 }
 
 export async function queryPostComments(hash: string, limit: number, offset: number): Promise<Post[]> {
-	let query = 'SELECT * FROM "post" WHERE "parentHash" = $1 ORDER BY "date" DESC, "author", "hash" LIMIT $2 OFFSET $3';
+	let query = 'SELECT * FROM "post" WHERE "parentHash" = $1 ORDER BY "date", "author", "hash" LIMIT $2 OFFSET $3';
 	const res = await executeQuery(query, [hash, limit, offset]);
 	return res.rows as Post[];
+}
+
+export async function queryPostsOfUserCount(address: string, type?: 'event' | 'post'): Promise<number> {
+	let query = 'SELECT * FROM "post" WHERE "author" = $1 AND "parentHash" IS NULL';
+	if (type) query +=  type === 'event' ? ' AND "eventId" IS NOT NULL' : ' AND "eventId" IS NULL';
+	const res = await executeQuery(query, [address]);
+	if (res.rows[0]) return res.rows[0].count as number;
+	else throw Error('Unable to fetch');
 }
 
 export async function queryPostsOfUser(address: string, limit: number, offset: number, type?: 'event' | 'post'): Promise<Post[]> {
 	let query = 'SELECT * FROM "post" WHERE "author" = $1 AND "parentHash" IS NULL';
 	if (type) query +=  type === 'event' ? ' AND "eventId" IS NOT NULL' : ' AND "eventId" IS NULL';
-	query += ' ORDER BY "date" DESC, "author", "hash" LIMIT $2 OFFSET $3';
+	query += ' ORDER BY "date", "author", "hash" LIMIT $2 OFFSET $3';
 	const res = await executeQuery(query, [address, limit, offset]);
 	return res.rows as Post[];
 }
@@ -55,11 +63,20 @@ export async function queryPostHashesOfUser(address: string, limit: number, offs
 	return res.rows.map((p: {hash: string}) => p.hash);
 }
 
+export async function queryPostsOfUsersCount(addresses: string[],  type?: 'event' | 'post'): Promise<number> {
+	const params = addresses.map((a,i) => '$' + (i + 1).toString());
+	let query = 'SELECT * FROM "post" WHERE "parentHash" IS NULL AND "author" IN (' + params.join(',') + ')';
+	if (type) query +=  type === 'event' ? ' AND "eventId" IS NOT NULL' : ' AND "eventId" IS NULL';
+	const res = await executeQuery(query, [...addresses]);
+	if (res.rows[0]) return res.rows[0].count as number;
+	else throw Error('Unable to fetch');
+}
+
 export async function queryPostsOfUsers(addresses: string[], limit: number, offset: number,  type?: 'event' | 'post'): Promise<Post[]> {
 	const params = addresses.map((a,i) => '$' + (i + 3).toString());
 	let query = 'SELECT * FROM "post" WHERE "parentHash" IS NULL AND "author" IN (' + params.join(',') + ')';
 	if (type) query +=  type === 'event' ? ' AND "eventId" IS NOT NULL' : ' AND "eventId" IS NULL';
-	query += ' ORDER BY "date" DESC, "author", "hash" LIMIT $1 OFFSET $2';
+	query += ' ORDER BY "date", "author", "hash" LIMIT $1 OFFSET $2';
 	const res = await executeQuery(query, [limit, offset, ...addresses]);
 	return res.rows as Post[];
 }

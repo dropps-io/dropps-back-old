@@ -1,15 +1,15 @@
-import {queryPostLike, queryPostLikesWithNames} from "../../../bin/db/like.table";
+import {queryPostLike, queryPostLikesCount, queryPostLikesWithNames} from "../../../bin/db/like.table";
 import {queryImagesByType} from "../../../bin/db/image.table";
 import {selectImage} from "../../../bin/utils/select-image";
 import {logError} from "../../../bin/logger";
-import {error, ERROR_ADR_INVALID, ERROR_HASH_INVALID, ERROR_INTERNAL, FILE_TYPE_NOT_SUPPORTED} from "../../../bin/utils/error-messages";
+import {error, ERROR_ADR_INVALID, ERROR_HASH_INVALID, ERROR_INTERNAL, ERROR_INVALID_PAGE, FILE_TYPE_NOT_SUPPORTED} from "../../../bin/utils/error-messages";
 import {LSPXXProfilePost, ProfilePost} from "../../../bin/lookso/registry/types/profile-post";
 import {verifyJWT} from "../../../bin/json-web-token";
 import sharp from "sharp";
 import {arrayBufferKeccak256Hash, objectToBuffer, objectToKeccak256Hash} from "../../../bin/utils/file-converters";
 import {buildJsonUrl} from "../../../bin/utils/json-url";
 import {FastifyInstance} from "fastify";
-import {queryPost, queryPostComments} from "../../../bin/db/post.table";
+import {queryPost, queryPostComments, queryPostCommentsCount} from "../../../bin/db/post.table";
 import {FeedPost} from "../../../models/types/feed-post";
 import {constructFeed} from "../../../bin/lookso/feed/construct-feed";
 import {Post} from "../../../models/types/post";
@@ -18,6 +18,8 @@ import {upload} from "../../../bin/arweave/utils/upload";
 import multer from "fastify-multer";
 import {isAddress, isHash} from "../../../bin/utils/validators";
 import {queryFollow} from "../../../bin/db/follow.table";
+import {ADDRESS_SCHEMA_VALIDATION} from "../../../models/json/utils.schema";
+import {API_URL, COMMENTS_PER_LOAD, PROFILES_PER_LOAD} from "../../../environment/config";
 
 interface MulterRequest extends Request {
   file: any;
@@ -62,34 +64,45 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
       tags: ['lookso'],
       summary: 'Get profile likes list.',
       querystring: {
-        limit: { type: 'number' },
-        offset: { type: 'number' },
-        sender: { type: 'string' },
-        viewOf: { type: 'string' }
+        page: { type: 'number', minimum: 0 },
+        sender: ADDRESS_SCHEMA_VALIDATION,
+        viewOf: ADDRESS_SCHEMA_VALIDATION
       }
     },
     handler: async (request, reply) => {
       const {hash} = request.params as { hash: string};
-      const {viewOf, sender, limit, offset} = request.query as {viewOf?: string, sender?:string, limit: number, offset: number};
-      if (sender && !isAddress(sender)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
-      if (viewOf && !isAddress(viewOf)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
+      const query = request.query as {viewOf?: string, sender?:string, page?: number};
       if (!isHash(hash)) reply.code(400).send(error(400, ERROR_HASH_INVALID));
 
+      const page = query.page ? query.page : 0;
+
       try {
-        if (sender) {
-          const isLiking = await queryPostLike(sender, hash);
-          reply.code(200).send(isLiking ? [sender] : []);
+        if (query.sender) {
+          const isLiking = await queryPostLike(query.sender, hash);
+          reply.code(200).send(isLiking ? [query.sender] : []);
         } else {
           const response = [];
 
-          const likes = await queryPostLikesWithNames(hash, limit, offset);
+          const likesCount = await queryPostLikesCount(hash);
+          if (page >= likesCount / PROFILES_PER_LOAD) return reply.code(400).send(error(400, ERROR_INVALID_PAGE));
+          const likes = await queryPostLikesWithNames(hash, PROFILES_PER_LOAD, page ? page * PROFILES_PER_LOAD : 0);
           for (let like of likes) {
             const images = await queryImagesByType(like.address, 'profile');
-            const following = viewOf ? await queryFollow(viewOf, like.address) : undefined;
+            const following = query.viewOf ? await queryFollow(query.viewOf, like.address) : undefined;
             const image = selectImage(images, {minWidthExpected: 50});
             response.push({...like, image: image ? image.url : '', following});
           }
-          return reply.code(200).send(response);
+
+          const queryUrl = `${API_URL}/lookso/post/${hash}/likes?${query.sender ? 'sender=' + query.sender + '&' : ''}${query.viewOf ? 'viewOf=' + query.viewOf + '&' : ''}page=`;
+
+          return reply.code(200).send(
+            {
+              count: likesCount,
+              next: page < Math.ceil(likesCount / PROFILES_PER_LOAD) - 1 ? queryUrl + (page + 1).toString() : null,
+              previous: page > 0 ? queryUrl + (page - 1).toString() : null,
+              results: response
+            }
+          );
         }
         /* eslint-disable */
       } catch (e: any) {
@@ -106,23 +119,31 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
       description: 'Get post comments.',
       tags: ['lookso'],
       querystring: {
-        limit: { type: 'number' },
-        offset: { type: 'number' },
-        viewOf: { type: 'string' },
+        page: { type: 'number', minimum: 0 },
+        viewOf: ADDRESS_SCHEMA_VALIDATION,
       },
       summary: 'Get post comments.',
     },
     handler: async (request, reply) => {
       const {hash} = request.params as { hash: string };
-      const {limit, offset, viewOf} = request.query as { limit: number, offset: number, viewOf?: string };
-      if (viewOf && !isAddress(viewOf)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
+      const query = request.query as { page?: number, viewOf?: string };
       if (!isHash(hash)) reply.code(400).send(error(400, ERROR_HASH_INVALID));
 
       try {
-        const posts: Post[] = await queryPostComments(hash, limit, offset);
-        const feed = await constructFeed(posts, viewOf, true);
+        const count = await queryPostCommentsCount(hash);
+        const page = query.page ? query.page : Math.ceil(count / COMMENTS_PER_LOAD) - 1;
+        if (page >= count / COMMENTS_PER_LOAD) return reply.code(400).send(error(400, ERROR_INVALID_PAGE));
+        const posts: Post[] = await queryPostComments(hash, COMMENTS_PER_LOAD, page * COMMENTS_PER_LOAD);
+        const feed = await constructFeed(posts, query.viewOf, true);
 
-        return reply.code(200).send(feed);
+        const queryUrl = `${API_URL}/lookso/post/${hash}/comments?${query.viewOf ? 'viewOf=' + query.viewOf + '&' : ''}page=`;
+
+        return reply.code(200).send({
+          count,
+          next: page < Math.ceil(count / COMMENTS_PER_LOAD) - 1 ? queryUrl + (page + 1).toString() : null,
+          previous: page > 0 ? queryUrl + (page - 1).toString() : null,
+          results: feed
+        });
         /* eslint-disable */
       } catch (e: any) {
         logError(e);
