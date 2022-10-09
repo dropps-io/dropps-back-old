@@ -9,14 +9,15 @@ import {insertFollow} from "../../../bin/db/follow.table";
 import {HACKER_MAN_UP, SERIOUS_MAN_UP, UNIVERSAL_PROFILE_1, UNIVERSAL_PROFILE_2, UNIVERSAL_PROFILE_3} from "../../helpers/constants";
 import {insertImage} from "../../../bin/db/image.table";
 import {insertContractMetadata} from "../../../bin/db/contract-metadata.table";
-
+import {API_URL, PROFILES_PER_LOAD} from "../../../environment/config";
+import {generateRandomAddress} from "../../helpers/generate-mocks";
 
 export const ProfileFollowersGETTests = () => {
 
   describe('GET lookso/profile/:address/followers', () => {
 
     let res: LightMyRequestResponse;
-    let followers: any[];
+    let payload: {count: number, next: string | null, previous: string | null, results: any[]};
 
     beforeEach(async () => {
       await clearDB();
@@ -34,7 +35,7 @@ export const ProfileFollowersGETTests = () => {
       await insertFollow(UNIVERSAL_PROFILE_1, HACKER_MAN_UP);
 
       res = await fastify.inject({method: 'GET', url: `/lookso/profile/${HACKER_MAN_UP}/followers`});
-      followers = JSON.parse(res.payload);
+      payload = JSON.parse(res.payload);
     });
 
     it('should return 200', async () => {
@@ -42,43 +43,31 @@ export const ProfileFollowersGETTests = () => {
     });
 
     it('should return the right amount of followers', async () => {
-      expect(followers.length).to.equal(2);
+      expect(payload.results.length).to.equal(2);
     });
 
     it('should return the right followers names and profile images', async () => {
-      expect(followers.filter(f => f.address === SERIOUS_MAN_UP)[0].name).to.equal('SeriousMan');
-      expect(followers.filter(f => f.address === SERIOUS_MAN_UP)[0].image).to.equal('url');
-      expect(followers.filter(f => f.address === UNIVERSAL_PROFILE_1)[0].name).to.equal('UniversalProfile1');
-      expect(followers.filter(f => f.address === UNIVERSAL_PROFILE_1)[0].image).to.equal('url1');
+      expect(payload.results.filter(f => f.address === SERIOUS_MAN_UP)[0].name).to.equal('SeriousMan');
+      expect(payload.results.filter(f => f.address === SERIOUS_MAN_UP)[0].image).to.equal('url');
+      expect(payload.results.filter(f => f.address === UNIVERSAL_PROFILE_1)[0].name).to.equal('UniversalProfile1');
+      expect(payload.results.filter(f => f.address === UNIVERSAL_PROFILE_1)[0].image).to.equal('url1');
     });
 
-    it('should work with limit', async () => {
-      res = await fastify.inject({method: 'GET', url: `/lookso/profile/${HACKER_MAN_UP}/followers?limit=1`});
-      followers = JSON.parse(res.payload);
-      expect(followers.length).to.equal(1);
-    });
+    it('should work with follower address', async () => {
+      res = await fastify.inject({method: 'GET', url: `/lookso/profile/${HACKER_MAN_UP}/followers?follower=${SERIOUS_MAN_UP}`});
+      payload = JSON.parse(res.payload);
+      expect(payload.results.length).to.equal(1);
 
-    it('should work with offset', async () => {
-      res = await fastify.inject({method: 'GET', url: `/lookso/profile/${HACKER_MAN_UP}/followers?offset=1`});
-      followers = JSON.parse(res.payload);
-      expect(followers.length).to.equal(1);
-    });
-
-    it('should work with followerAddress', async () => {
-      res = await fastify.inject({method: 'GET', url: `/lookso/profile/${HACKER_MAN_UP}/followers?followerAddress=${SERIOUS_MAN_UP}`});
-      followers = JSON.parse(res.payload);
-      expect(followers.length).to.equal(1);
-
-      res = await fastify.inject({method: 'GET', url: `/lookso/profile/${HACKER_MAN_UP}/followers?followerAddress=${UNIVERSAL_PROFILE_3}`});
-      followers = JSON.parse(res.payload);
-      expect(followers.length).to.equal(0);
+      res = await fastify.inject({method: 'GET', url: `/lookso/profile/${HACKER_MAN_UP}/followers?follower=${UNIVERSAL_PROFILE_3}`});
+      payload = JSON.parse(res.payload);
+      expect(payload.results.length).to.equal(0);
     });
 
     it('should return following status with viewOf', async () => {
       res = await fastify.inject({method: 'GET', url: `/lookso/profile/${HACKER_MAN_UP}/followers?viewOf=${HACKER_MAN_UP}`});
-      followers = JSON.parse(res.payload);
-      expect(followers.filter(f => f.address === SERIOUS_MAN_UP)[0].following).to.equal(true);
-      expect(followers.filter(f => f.address === UNIVERSAL_PROFILE_1)[0].following).to.equal(false);
+      payload = JSON.parse(res.payload);
+      expect(payload.results.filter(f => f.address === SERIOUS_MAN_UP)[0].following).to.equal(true);
+      expect(payload.results.filter(f => f.address === UNIVERSAL_PROFILE_1)[0].following).to.equal(false);
     });
 
     it('should return 400 if invalid address', async () => {
@@ -91,9 +80,54 @@ export const ProfileFollowersGETTests = () => {
       expect(res.statusCode).to.equal(400);
     });
 
-    it('should return 400 if invalid followerAddress address', async () => {
-      res = await fastify.inject({method: 'GET', url: `/lookso/profile/${HACKER_MAN_UP}/followers?followerAddress=${HACKER_MAN_UP}q`});
+    it('should return 400 if invalid follower address', async () => {
+      res = await fastify.inject({method: 'GET', url: `/lookso/profile/${HACKER_MAN_UP}/followers?follower=${HACKER_MAN_UP}q`});
       expect(res.statusCode).to.equal(400);
     });
+
+    describe ('With pagination', () => {
+      beforeEach(async () => {
+        for (let i = 0; i < PROFILES_PER_LOAD * 2 - 2; i++) {
+          const address: string = generateRandomAddress();
+          await insertContract(address, 'LSP0');
+          await insertContractMetadata(address, '', '', '', false, '');
+          await insertFollow(address, HACKER_MAN_UP);
+        }
+      });
+
+      it ('should return the next page when not in the query', async () => {
+        const res = await fastify.inject({method: 'GET', url: `/lookso/profile/${HACKER_MAN_UP}/followers`});
+        payload = JSON.parse(res.payload);
+        expect(payload.previous).to.be.null;
+        expect(payload.next).to.equal(`${API_URL}/lookso/profile/${HACKER_MAN_UP}/followers?page=1`);
+      });
+
+      it ('should return the right amount of posts', async () => {
+        const res = await fastify.inject({method: 'GET', url: `/lookso/profile/${HACKER_MAN_UP}/followers`});
+        payload = JSON.parse(res.payload);
+        expect(payload.results.length).to.be.equal(PROFILES_PER_LOAD);
+      });
+
+      it ('should return the next page', async () => {
+        const res = await fastify.inject({method: 'GET', url: `/lookso/profile/${HACKER_MAN_UP}/followers?page=1`});
+        payload = JSON.parse(res.payload);
+        expect(payload.next).to.be.null;
+        expect(payload.previous).to.equal(`${API_URL}/lookso/profile/${HACKER_MAN_UP}/followers?page=0`);
+      });
+
+      it ('should return only one post on the last page if 61 posts in the feed', async () => {
+        const address: string = generateRandomAddress();
+        await insertContract(address, 'LSP0');
+        await insertContractMetadata(address, '', '', '', false, '');
+        await insertFollow(address, HACKER_MAN_UP);
+        const res = await fastify.inject({method: 'GET', url: `/lookso/profile/${HACKER_MAN_UP}/followers?page=2`});
+        payload = JSON.parse(res.payload);
+        expect(payload.next).to.be.null;
+        expect(payload.previous).to.equal(`${API_URL}/lookso/profile/${HACKER_MAN_UP}/followers?page=1`);
+        expect(payload.count).to.equal((PROFILES_PER_LOAD  * 2 + 1));
+        expect(payload.results.length).to.equal(1);
+      });
+    });
+
   });
 }
