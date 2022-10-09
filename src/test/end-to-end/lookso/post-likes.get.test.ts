@@ -65,7 +65,6 @@ export const PostLikesGETTests = () => {
     it('should work with sender', async () => {
       res = await fastify.inject({method: 'GET', url: `/lookso/post/${POST_HASH}/likes?sender=${SERIOUS_MAN_UP}`});
       payload = JSON.parse(res.payload);
-      console.log(payload)
       expect(payload.results.length).to.equal(1);
 
       res = await fastify.inject({method: 'GET', url: `/lookso/post/${POST_HASH}/likes?sender=${UNIVERSAL_PROFILE_3}`});
