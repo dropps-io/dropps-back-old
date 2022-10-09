@@ -136,7 +136,7 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
 
       try {
         const count = await queryPostCommentsCount(hash);
-        const page = query.page ? query.page : Math.ceil(count / COMMENTS_PER_LOAD) - 1;
+        const page = query.page !== undefined ? query.page : Math.ceil(count / COMMENTS_PER_LOAD) - 1;
         if (page >= count / COMMENTS_PER_LOAD) return reply.code(400).send(error(400, ERROR_INVALID_PAGE));
         const posts: Post[] = await queryPostComments(hash, COMMENTS_PER_LOAD, page * COMMENTS_PER_LOAD);
         const feed = await constructFeed(posts, query.viewOf, true);
