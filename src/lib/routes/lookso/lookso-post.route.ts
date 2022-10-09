@@ -79,7 +79,12 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
       try {
         if (query.sender) {
           const isLiking = await queryPostLike(query.sender, hash);
-          reply.code(200).send(isLiking ? [query.sender] : []);
+          reply.code(200).send({
+            count: isLiking ? 1 : 0,
+            next: null,
+            previous: null,
+            results: isLiking ? [query.sender] : []
+          });
         } else {
           const response = [];
 
