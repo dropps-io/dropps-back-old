@@ -40,7 +40,7 @@ export async function queryPostComments(hash: string, limit: number, offset: num
 }
 
 export async function queryPostsOfUserCount(address: string, type?: 'event' | 'post'): Promise<number> {
-	let query = 'SELECT * FROM "post" WHERE "author" = $1 AND "parentHash" IS NULL';
+	let query = 'SELECT COUNT(*) FROM "post" WHERE "author" = $1 AND "parentHash" IS NULL';
 	if (type) query +=  type === 'event' ? ' AND "eventId" IS NOT NULL' : ' AND "eventId" IS NULL';
 	const res = await executeQuery(query, [address]);
 	if (res.rows[0]) return res.rows[0].count as number;
@@ -65,7 +65,7 @@ export async function queryPostHashesOfUser(address: string, limit: number, offs
 
 export async function queryPostsOfUsersCount(addresses: string[],  type?: 'event' | 'post'): Promise<number> {
 	const params = addresses.map((a,i) => '$' + (i + 1).toString());
-	let query = 'SELECT * FROM "post" WHERE "parentHash" IS NULL AND "author" IN (' + params.join(',') + ')';
+	let query = 'SELECT COUNT(*) FROM "post" WHERE "parentHash" IS NULL AND "author" IN (' + params.join(',') + ')';
 	if (type) query +=  type === 'event' ? ' AND "eventId" IS NOT NULL' : ' AND "eventId" IS NULL';
 	const res = await executeQuery(query, [...addresses]);
 	if (res.rows[0]) return res.rows[0].count as number;
