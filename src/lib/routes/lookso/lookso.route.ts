@@ -174,7 +174,7 @@ export async function looksoRoute (fastify: FastifyInstance) {
 
 			try {
 				const count = await queryPostsCount(query.postType);
-				const page = query.page ? query.page : Math.ceil(count / POSTS_PER_LOAD) - 1;
+				const page = query.page !== undefined ? query.page : Math.ceil(count / POSTS_PER_LOAD) - 1;
 				if (page >= count / POSTS_PER_LOAD) return reply.code(400).send(error(400, ERROR_INVALID_PAGE));
 				const posts: Post[] = await queryPosts(POSTS_PER_LOAD, page * POSTS_PER_LOAD, query.postType);
 				const feed = await constructFeed(posts, query.viewOf);
