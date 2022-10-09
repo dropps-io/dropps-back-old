@@ -98,6 +98,20 @@ export const FeedGETTests = () => {
         expect(payload.next).to.equal(API_URL + '/lookso/feed?page=1');
       });
 
+      it ('should return the next page with query params', async () => {
+        res = await fastify.inject({method: 'GET', url: `/lookso/feed?viewOf=${SERIOUS_MAN_UP}&postType=post&page=0`});
+        payload = JSON.parse(res.payload);
+        expect(payload.previous).to.be.null;
+        expect(payload.next).to.equal(`${API_URL}/lookso/feed?postType=post&viewOf=${SERIOUS_MAN_UP}&page=1`);
+      });
+
+      it ('should return the previous page with query params', async () => {
+        res = await fastify.inject({method: 'GET', url: `/lookso/feed?viewOf=${SERIOUS_MAN_UP}&postType=post`});
+        payload = JSON.parse(res.payload);
+        expect(payload.next).to.be.null;
+        expect(payload.previous).to.equal(`${API_URL}/lookso/feed?postType=post&viewOf=${SERIOUS_MAN_UP}&page=0`);
+      });
+
       it ('should return only one post on the last page if 61 posts in the feed', async () => {
         await insertPost(generateRandomKeccakHash(), SERIOUS_MAN_UP, new Date('2022-09-27T12:03:32.089Z'), 'test1', '', null, null, null);
         res = await fastify.inject({method: 'GET', url: `/lookso/feed`});
