@@ -28,7 +28,7 @@ import {upload} from "../../../bin/arweave/utils/upload";
 import {buildJsonUrl} from "../../../bin/utils/json-url";
 import {deleteAddressRegistryChanges} from "../../../bin/db/registry-change.table";
 import {ADDRESS_SCHEMA_VALIDATION} from "../../../models/json/utils.schema";
-import {API_URL, COMMENTS_PER_LOAD, NOTIFICATIONS_PER_LOAD, POSTS_PER_LOAD, PROFILES_PER_LOAD} from "../../../environment/config";
+import {API_URL, NOTIFICATIONS_PER_LOAD, POSTS_PER_LOAD, PROFILES_PER_LOAD} from "../../../environment/config";
 
 
 export function looksoProfileRoutes(fastify: FastifyInstance) {
@@ -356,7 +356,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
 
       try {
         const count = await queryNotificationsCountOfAddress(address);
-        const page = query.page ? query.page : Math.ceil(count / NOTIFICATIONS_PER_LOAD) - 1;
+        const page = query.page !== undefined ? query.page : Math.ceil(count / NOTIFICATIONS_PER_LOAD) - 1;
         if (page >= count / NOTIFICATIONS_PER_LOAD) return reply.code(400).send(error(400, ERROR_INVALID_PAGE));
         const notifications = await queryNotificationsOfAddress(address, NOTIFICATIONS_PER_LOAD, page * NOTIFICATIONS_PER_LOAD);
         const response: NotificationWithSenderDetails[] = [];
@@ -383,11 +383,11 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
           });
         }
 
-        const queryUrl = `${API_URL}/profile/${address}/notifications?page=`;
+        const queryUrl = `${API_URL}/lookso/profile/${address}/notifications?page=`;
 
         return reply.code(200).send({
           count,
-          next: page < Math.ceil(count / COMMENTS_PER_LOAD) - 1 ? queryUrl + (page + 1).toString() : null,
+          next: page < Math.ceil(count / NOTIFICATIONS_PER_LOAD) - 1 ? queryUrl + (page + 1).toString() : null,
           previous: page > 0 ? queryUrl + (page - 1).toString() : null,
           results: response
         });
