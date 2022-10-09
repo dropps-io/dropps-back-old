@@ -10,12 +10,13 @@ import {insertImage} from "../../../bin/db/image.table";
 import {insertContractMetadata} from "../../../bin/db/contract-metadata.table";
 import {insertNotification, setViewedToAddressNotifications} from "../../../bin/db/notification.table";
 import {insertPost} from "../../../bin/db/post.table";
+import {API_URL, NOTIFICATIONS_PER_LOAD} from "../../../environment/config";
 
 
 export const ProfileNotificationsGETTests = () => {
 
   let res: LightMyRequestResponse;
-  let notifications: any[];
+  let payload: {count: number, next: string | null, previous: string | null, results: any[]};
 
   beforeEach(async () => {
     await clearDB();
@@ -35,7 +36,7 @@ export const ProfileNotificationsGETTests = () => {
     await insertNotification(HACKER_MAN_UP, UNIVERSAL_PROFILE_2, new Date('2022-09-27T12:03:35.089Z'), 'repost', POST_HASH);
 
     res = await fastify.inject({method: 'GET', url: `/lookso/profile/${HACKER_MAN_UP}/notifications`});
-    notifications = JSON.parse(res.payload);
+    payload = JSON.parse(res.payload);
   });
 
   describe('GET lookso/profile/:address/notifications', () => {
@@ -45,55 +46,81 @@ export const ProfileNotificationsGETTests = () => {
     });
 
     it('should return the right amount of notifications', async () => {
-      expect(notifications.length).to.equal(5);
+      expect(payload.results.length).to.equal(5);
     });
 
     it('should return the right notifications in chronological order', async () => {
-      expect(notifications[0].sender.address).to.equal(UNIVERSAL_PROFILE_2);
-      expect(notifications[1].sender.address).to.equal(UNIVERSAL_PROFILE_1);
-      expect(notifications[2].sender.address).to.equal(UNIVERSAL_PROFILE_1);
-      expect(notifications[3].sender.address).to.equal(UNIVERSAL_PROFILE_1);
-      expect(notifications[4].sender.address).to.equal(SERIOUS_MAN_UP);
+      expect(payload.results[0].sender.address).to.equal(UNIVERSAL_PROFILE_2);
+      expect(payload.results[1].sender.address).to.equal(UNIVERSAL_PROFILE_1);
+      expect(payload.results[2].sender.address).to.equal(UNIVERSAL_PROFILE_1);
+      expect(payload.results[3].sender.address).to.equal(UNIVERSAL_PROFILE_1);
+      expect(payload.results[4].sender.address).to.equal(SERIOUS_MAN_UP);
     });
 
     it('should return the right notifications data', async () => {
-      expect(notifications[0].address).to.equal(HACKER_MAN_UP);
-      expect(notifications[0].sender.address).to.equal(UNIVERSAL_PROFILE_2);
-      expect(notifications[0].sender.image).to.equal('url');
-      expect(notifications[0].sender.name).to.equal('UniversalProfile2');
-      expect(notifications[0].type).to.equal('repost');
-      expect(notifications[0].postHash).to.equal(POST_HASH);
+      expect(payload.results[0].address).to.equal(HACKER_MAN_UP);
+      expect(payload.results[0].sender.address).to.equal(UNIVERSAL_PROFILE_2);
+      expect(payload.results[0].sender.image).to.equal('url');
+      expect(payload.results[0].sender.name).to.equal('UniversalProfile2');
+      expect(payload.results[0].type).to.equal('repost');
+      expect(payload.results[0].postHash).to.equal(POST_HASH);
 
-      expect(notifications[4].address).to.equal(HACKER_MAN_UP);
-      expect(notifications[4].sender.address).to.equal(SERIOUS_MAN_UP);
-      expect(notifications[4].sender.image).to.equal('');
-      expect(notifications[4].sender.name).to.equal('');
-      expect(notifications[4].type).to.equal('follow');
+      expect(payload.results[4].address).to.equal(HACKER_MAN_UP);
+      expect(payload.results[4].sender.address).to.equal(SERIOUS_MAN_UP);
+      expect(payload.results[4].sender.image).to.equal('');
+      expect(payload.results[4].sender.name).to.equal('');
+      expect(payload.results[4].type).to.equal('follow');
     });
 
     it('should return the right viewed status', async () => {
-      expect(notifications[0].viewed).to.equal(false);
-      expect(notifications[1].viewed).to.equal(false);
-      expect(notifications[2].viewed).to.equal(false);
-      expect(notifications[3].viewed).to.equal(true);
-      expect(notifications[4].viewed).to.equal(true);
-    });
-
-    it('should work with offset', async () => {
-      res = await fastify.inject({method: 'GET', url: `/lookso/profile/${HACKER_MAN_UP}/notifications?offset=2`});
-      notifications = JSON.parse(res.payload);
-      expect(notifications.length).to.equal(3);
-    });
-
-    it('should work with limit', async () => {
-      res = await fastify.inject({method: 'GET', url: `/lookso/profile/${HACKER_MAN_UP}/notifications?limit=2`});
-      notifications = JSON.parse(res.payload);
-      expect(notifications.length).to.equal(2);
+      expect(payload.results[0].viewed).to.equal(false);
+      expect(payload.results[1].viewed).to.equal(false);
+      expect(payload.results[2].viewed).to.equal(false);
+      expect(payload.results[3].viewed).to.equal(true);
+      expect(payload.results[4].viewed).to.equal(true);
     });
 
     it('should return 400 on invalid address', async () => {
       res = await fastify.inject({method: 'GET', url: `/lookso/profile/${HACKER_MAN_UP}a/notifications`});
       expect(res.statusCode).to.equal(400);
+    });
+
+    describe ('With pagination', () => {
+      beforeEach(async () => {
+        for (let i = 0; i < NOTIFICATIONS_PER_LOAD * 2 - 5; i++) {
+          await insertNotification(HACKER_MAN_UP, UNIVERSAL_PROFILE_1, new Date('2022-09-27T12:03:33.089Z'), 'comment', POST_HASH);
+        }
+      });
+
+      it ('should return the previous page when not in the query', async () => {
+        const res = await fastify.inject({method: 'GET', url: `/lookso/profile/${HACKER_MAN_UP}/notifications`});
+        payload = JSON.parse(res.payload);
+        expect(payload.next).to.be.null;
+        expect(payload.previous).to.equal(`${API_URL}/lookso/profile/${HACKER_MAN_UP}/notifications?page=0`);
+      });
+
+      it ('should return the right amount of posts', async () => {
+        const res = await fastify.inject({method: 'GET', url: `/lookso/profile/${HACKER_MAN_UP}/notifications`});
+        payload = JSON.parse(res.payload);
+        expect(payload.results.length).to.be.equal(NOTIFICATIONS_PER_LOAD);
+      });
+
+      it ('should return the next page', async () => {
+        const res = await fastify.inject({method: 'GET', url: `/lookso/profile/${HACKER_MAN_UP}/notifications?page=0`});
+        payload = JSON.parse(res.payload);
+        expect(payload.previous).to.be.null;
+        expect(payload.next).to.equal(`${API_URL}/lookso/profile/${HACKER_MAN_UP}/notifications?page=1`);
+      });
+
+      it ('should return only one post on the last page if 61 posts in the feed', async () => {
+        await insertNotification(HACKER_MAN_UP, UNIVERSAL_PROFILE_1, new Date('2022-09-27T12:03:33.089Z'), 'comment', POST_HASH);
+        const res = await fastify.inject({method: 'GET', url: `/lookso/profile/${HACKER_MAN_UP}/notifications`});
+        payload = JSON.parse(res.payload);
+        expect(payload.next).to.be.null;
+        expect(payload.previous).to.equal(`${API_URL}/lookso/profile/${HACKER_MAN_UP}/notifications?page=1`);
+        expect(payload.count).to.equal((NOTIFICATIONS_PER_LOAD  * 2 + 1));
+        expect(payload.results.length).to.equal(1);
+      });
     });
 
   });
