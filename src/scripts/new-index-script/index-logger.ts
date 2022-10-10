@@ -2,12 +2,6 @@ import * as readline from "readline";
 import {DEBUG_INDEX_SCRIPT} from "./config";
 import {Log} from "../../models/types/log";
 
-interface StringMap { [key: string]: number; }
-
-interface Extracted {
-  contracts: StringMap
-}
-
 const chunk = {
   fromBlock: 0,
   toBlock: 0,
@@ -15,15 +9,9 @@ const chunk = {
   logsExtracted: 0,
 }
 let currentBlock: number = 0;
-const errors = {
-  extractLSP3Data: 0,
-  extractLSP7Data: 0,
-  extractLSP4Data: 0,
-  extractContract: 0
-};
-const extracted: Extracted = {
-  contracts: {},
-};
+const errors: { [key: string]: number } = {};
+const extractedContracts: { [key: string]: number; } = {};
+const extracted: { [key: string]: number; } = {};
 let currentLog: Log;
 
 function logToConsole() {
@@ -34,8 +22,10 @@ function logToConsole() {
   console.log(`Chunk logs: ${chunk.logsAmount}`);
   console.log(`Chunk extraction: ${Math.round(chunk.logsExtracted / chunk.logsAmount * 100 * 100) / 100}%`);
   console.log(`Current block: ${currentBlock}`);
+  console.log('-----EXTRACTED-CONTRACTS----');
+  console.table(extractedContracts);
   console.log('----------EXTRACTED----------');
-  console.table(extracted.contracts);
+  console.table(extracted);
   console.log('----------ERRORS------------');
   console.table(errors);
 }
@@ -58,13 +48,20 @@ export function setLogExtractingToLog(log: Log) {
 }
 
 export function incrementContractExtractedInLog(code: string) {
-  if (extracted.contracts[code]) extracted.contracts[code]++;
-  else extracted.contracts[code] = 1;
+  if (extractedContracts[code]) extractedContracts[code]++;
+  else extractedContracts[code] = 1;
   logToConsole();
 }
 
-export async function reportIndexingScriptError(fn: 'extractLSP3Data' | 'extractLSP7Data' | 'extractLSP4Data' | 'extractContract', e: any) {
-  errors[fn]++;
+export function incrementExtractedToLogOf(element: string) {
+  if (extracted[element]) extracted[element]++;
+  else extracted[element] = 1;
+  logToConsole();
+}
+
+export async function reportIndexingScriptError(fn: string, e: any) {
+  if (errors[fn]) errors[fn]++;
+  else errors[fn] = 1;
   if (DEBUG_INDEX_SCRIPT) await promptError(fn, e);
   logToConsole();
 }
