@@ -3,7 +3,8 @@ import {executeQuery} from './database';
 
 export async function queryTransaction(hash: string): Promise<Transaction> {
 	const res = await executeQuery('SELECT * FROM "transaction" WHERE "hash" = $1', [hash]);
-	return res.rows[0] as Transaction;
+	if (res.rows[0]) return res.rows[0] as Transaction;
+	else throw 'No transaction found';
 }
 
 export async function insertTransaction(hash: string, from: string, to: string, value: string, input: string, blockNumber: number): Promise<void> {
