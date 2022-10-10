@@ -13,14 +13,14 @@ export async function extractLSP7Data(address: string): Promise<ContractFullMeta
     const lsp7contract = new web3.eth.Contract(LSP7DigitalAsset.abi as AbiItem[], address);
     isNFT = (await lsp7contract.methods.decimals().call()) === '0';
   } catch (e) {
-    reportIndexingScriptError('extractLSP7Data');
+    await reportIndexingScriptError('extractLSP7Data', e);
   }
   return {
     name: lsp4.name,
-    description: lsp4.metadata.description,
+    description: lsp4.metadata ? lsp4.metadata.description : '',
     symbol: lsp4.symbol,
-    images: lsp4.metadata.images,
-    assets: lsp4.metadata.assets,
+    images: lsp4.metadata ? lsp4.metadata.images : [],
+    assets: lsp4.metadata ? lsp4.metadata.assets : [],
     tags: [],
     backgroundImage: [],
     profileImage: [],

@@ -15,11 +15,15 @@ export async function extractLSP3Data(address: string): Promise<ContractFullMeta
 
   try {
     const data = await erc725Y.getData('LSP3Profile');
-    const url = formatUrl((data.value as URLDataWithHash).url);
-    const res = (await axios.get(url)).data;
-    lsp3 = res ? (res as any).LSP3Profile as LSP3UniversalProfile : initialUniversalProfile();
+    if (data.value) {
+      const url = formatUrl((data.value as URLDataWithHash).url);
+      const res = (await axios.get(url)).data;
+      lsp3 = res ? (res as any).LSP3Profile as LSP3UniversalProfile : initialUniversalProfile();
+    } else {
+      lsp3 = initialUniversalProfile();
+    }
   } catch (e) {
-    reportIndexingScriptError('extractLSP3Data');
+    await reportIndexingScriptError('extractLSP3Data', e);
     lsp3 = initialUniversalProfile();
   }
 

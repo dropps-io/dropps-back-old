@@ -3,7 +3,7 @@ import {logError, logMessage} from "../../bin/logger";
 import {sleep} from "../blockchain-indexing/utils/sleep";
 import {Log} from "../../models/types/log";
 import {DB, executeQuery} from "../../bin/db/database";
-import {changeIndexingChunkOnLog} from "./index-logger";
+import {changeIndexingChunkOnLog, setLogExtractingToLog} from "./index-logger";
 import {extractAndIndex} from "./extractAndIndex";
 
 const web3 = new Web3('https://rpc.l16.lukso.network');
@@ -23,7 +23,10 @@ export async function indexL16() {
 
       const logsRes = await getLogs(latestIndexedBlock, lastBlock);
       changeIndexingChunkOnLog(latestIndexedBlock, lastBlock, logsRes.length);
-      for (let log of logsRes) await extractAndIndex(log);
+      for (let log of logsRes) {
+        setLogExtractingToLog(log);
+        await extractAndIndex(log);
+      }
 
       await setValueOnConfig('latest_indexed_block', lastBlock.toString());
       await sleep(sleepBetweenIteration);

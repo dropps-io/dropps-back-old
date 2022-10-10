@@ -15,11 +15,14 @@ export async function extractLSP4Data(address: string): Promise<LSP4DigitalAsset
   try {
     data = await erc725Y.getData(['LSP4TokenName', 'LSP4TokenSymbol']);
     const metadataData = await erc725Y.getData('LSP4Metadata');
-    const url = formatUrl((metadataData.value as URLDataWithHash).url);
-    lsp4Metadata = (await axios.get(url)).data;
+    if (metadataData.value) {
+      const url = formatUrl((metadataData.value as URLDataWithHash).url);
+      lsp4Metadata = (await axios.get(url)).data;
+    }
+    else lsp4Metadata = {value: null}
   } catch (e) {
     lsp4Metadata = {value: null};
-    reportIndexingScriptError('extractLSP4Data');
+    await reportIndexingScriptError('extractLSP4Data', e);
   }
 
   return {

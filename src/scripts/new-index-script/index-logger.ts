@@ -1,3 +1,7 @@
+import * as readline from "readline";
+import {DEBUG_INDEX_SCRIPT} from "./config";
+import {Log} from "../../models/types/log";
+
 interface StringMap { [key: string]: number; }
 
 interface Extracted {
@@ -20,6 +24,7 @@ const errors = {
 const extracted: Extracted = {
   contracts: {},
 };
+let currentLog: Log;
 
 function logToConsole() {
   console.clear();
@@ -43,9 +48,12 @@ export function changeIndexingChunkOnLog(from: number, to: number, logsAmount: n
   logToConsole();
 }
 
-export function setLogExtractedToLog(block: number) {
-  currentBlock = block;
-  chunk.logsExtracted++;
+export function setLogExtractingToLog(log: Log) {
+  if (currentLog) {
+    currentBlock = currentLog.blockNumber;
+    chunk.logsExtracted++;
+  }
+  currentLog = log;
   logToConsole();
 }
 
@@ -55,7 +63,31 @@ export function incrementContractExtractedInLog(code: string) {
   logToConsole();
 }
 
-export function reportIndexingScriptError(fn: 'extractLSP3Data' | 'extractLSP7Data' | 'extractLSP4Data' | 'extractContract') {
+export async function reportIndexingScriptError(fn: 'extractLSP3Data' | 'extractLSP7Data' | 'extractLSP4Data' | 'extractContract', e: any) {
   errors[fn]++;
+  if (DEBUG_INDEX_SCRIPT) await promptError(fn, e);
   logToConsole();
+}
+
+async function promptError(fn: string, e: any) {
+  console.log('--------ERROR--------');
+  console.log(`Location: ${fn}`);
+  console.log('--------LOG--------');
+  console.log(currentLog);
+  console.log('--------DETAILS--------');
+  console.log(e);
+  await pause();
+}
+
+async function pause(): Promise<void> {
+  return new Promise(resolve => {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+    rl.question("Continue? (any) ", function () {
+      rl.close();
+      resolve();
+    });
+  })
 }

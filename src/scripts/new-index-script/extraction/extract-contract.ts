@@ -22,7 +22,7 @@ export async function extractContract(address: string): Promise<{ metadata: Cont
         break;
     }
   } catch (e) {
-    reportIndexingScriptError('extractContract');
+    await reportIndexingScriptError('extractContract', e);
   }
 
   incrementContractExtractedInLog(contractInterface?.code ? contractInterface?.code : '');
