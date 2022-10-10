@@ -11,6 +11,5 @@ export function decodeTransactionFinalInput(input: string): string {
       return decodeTransactionFinalInput(web3.eth.abi.decodeParameters(['bytes', 'uint256',{name: 'bytes', type: 'bytes'}], input.slice(10))['bytes'] as string);
     default:
       return input;
-
   }
 }

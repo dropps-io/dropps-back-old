@@ -101,9 +101,10 @@ export async function generateDataChangedDisplay(event: Event, parameters: Map<s
   if (!dataKey) return await generateEventDisplay(event.topic.slice(0, 10), parameters);
 
   try {
-      schema = await queryErc725ySchema(dataKey.value);
+    schema = await queryErc725ySchema(dataKey.value);
   } catch (e) {
-      return await generateEventDisplay(event.topic.slice(0, 10), parameters);
+    console.log(1)
+    return await generateEventDisplay(event.topic.slice(0, 10), parameters);
   }
 
   try {

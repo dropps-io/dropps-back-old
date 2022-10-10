@@ -1,6 +1,7 @@
 import {executeQuery} from '../../bin/db/database';
 
 const clearDBQueries = [
+	'delete from "config"',
 	'delete from "registry_change"',
 	'delete from "notification"',
 	'delete from "nonces"',
@@ -25,11 +26,6 @@ const clearDBQueries = [
 	'delete from "key_display"',
 	'delete from "erc725y_schema"',
 ];
-
-// before(async () => {
-//   logMessage('CLEAR DATABASE');
-//   await clearDB();
-// });
 
 export async function clearDB(): Promise<void> {
 	for(let query of clearDBQueries) {
