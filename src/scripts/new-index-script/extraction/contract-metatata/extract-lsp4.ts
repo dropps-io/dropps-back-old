@@ -15,7 +15,7 @@ export async function extractLSP4Data(address: string): Promise<LSP4DigitalAsset
   try {
     data = await erc725Y.getData(['LSP4TokenName', 'LSP4TokenSymbol']);
     const metadataData = await erc725Y.getData('LSP4Metadata');
-    if (metadataData.value) {
+    if (metadataData.value && (metadataData.value as string).length > 3) {
       const url = formatUrl((metadataData.value as URLDataWithHash).url);
       lsp4Metadata = (await axios.get(url)).data;
     }

@@ -9,22 +9,21 @@ import {IPFS_GATEWAY} from "../../../../environment/config";
 import {ContractFullMetadata} from "../../models/contract-metadata.model";
 import {reportIndexingScriptError} from "../../index-logger";
 
+//TODO validate json extracted (not type-safe now)
 export async function extractLSP3Data(address: string): Promise<ContractFullMetadata> {
   const erc725Y = new ERC725(LSP3UniversalProfileMetadataJSON as ERC725JSONSchema[], address, web3.currentProvider, {ipfsGateway: IPFS_GATEWAY});
-  let lsp3: LSP3UniversalProfile;
+  let lsp3: LSP3UniversalProfile = initialUniversalProfile();
+  let data;
 
   try {
-    const data = await erc725Y.getData('LSP3Profile');
+    data = await erc725Y.getData('LSP3Profile');
     if (data.value) {
       const url = formatUrl((data.value as URLDataWithHash).url);
       const res = (await axios.get(url)).data;
-      lsp3 = res ? (res as any).LSP3Profile as LSP3UniversalProfile : initialUniversalProfile();
-    } else {
-      lsp3 = initialUniversalProfile();
+      lsp3 = res ? (res as any).LSP3Profile : initialUniversalProfile();
     }
   } catch (e) {
-    await reportIndexingScriptError('extractLSP3Data', e);
-    lsp3 = initialUniversalProfile();
+    await reportIndexingScriptError('extractLSP3Data', e, {data, lsp3});
   }
 
   return {

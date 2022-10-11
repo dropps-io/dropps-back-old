@@ -6,8 +6,8 @@ import {insertDecodedEventParameter} from "../../../bin/db/decoded-event-paramet
 import {Log} from "../../../models/types/log";
 import {SolMethod} from "../../../models/types/sol-method";
 import {tryExecuting} from "../../../bin/utils/try-executing";
-import {INDEX_DATA} from "../../blockchain-indexing/config";
 import {reportIndexingScriptError} from "../index-logger";
+import {INDEX_DATA} from "../config";
 
 export async function indexEvent(log: Log, decodedParameters: {[p: string]: string}, eventInterface?: SolMethod) {
   if (!INDEX_DATA || !log.id) return;

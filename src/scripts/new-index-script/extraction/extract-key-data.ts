@@ -27,7 +27,7 @@ export async function extractDataFromKey(log: Log, lastBlock: number, key: strin
           await indexUpdateSymbol(log.address, symbol);
         } else {
           const symbol: string = (await erc725Y.getData('LSP4TokenSymbol')).value as string;
-          await indexUpdateSymbol(log.address, symbol);
+          if (symbol) await indexUpdateSymbol(log.address, symbol);
         }
         break;
       case '0xdeba1e292f8ba88238e10ab3c7f88bd4be4fac56cad5194b6ecceaf653468af1': // LSP4TokenName
@@ -36,7 +36,7 @@ export async function extractDataFromKey(log: Log, lastBlock: number, key: strin
           await indexUpdateName(log.address, name);
         } else {
           const name: string = (await erc725Y.getData('LSP4TokenName')).value as string;
-          await indexUpdateName(log.address, name);
+          if (name) await indexUpdateName(log.address, name);
         }
         break;
       case '0x9afb95cacc9f95858ec44aa8c3b685511002e30ae54415823f406128b85b238e': // LSP4Metadata

@@ -41,7 +41,7 @@ export async function updateLSP4Metadata(address: string, lsp4: LSP4DigitalAsset
       try {
         await insertImage(address, image.url, image.width, image.height, '', image.hash);
       } catch (e) {
-        await reportIndexingScriptError('updateLSP4Metadata:imageAdd', e);
+        await reportIndexingScriptError('updateLSP4Metadata:imageAdd', e, {image, imagesToAdd, lsp4});
       }
     }
     for (let image of iconsToAdd) {

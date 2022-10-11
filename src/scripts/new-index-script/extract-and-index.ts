@@ -72,6 +72,7 @@ async function extractAndIndexLog(log: Log, lastBlock: number) {
 
 
 export async function extractAndIndexContract(address: string) {
+  if (!address) return;
   let contract: { metadata: ContractFullMetadata | null, interfaceCode: string | null };
   try {
     await queryContract(address);

@@ -7,7 +7,7 @@ export async function indexUpdateName(address: string, name: string) {
   try {
     await updateContractName(address, name);
   } catch (e) {
-    await reportIndexingScriptError('indexUpdateName', e);
+    await reportIndexingScriptError('indexUpdateName', e, {address, name});
   }
 }
 

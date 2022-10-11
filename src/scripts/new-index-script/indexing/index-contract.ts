@@ -13,7 +13,7 @@ export async function indexContract(address: string, code: string | null, metada
   try {
     await insertContract(address, code);
   } catch (e) {
-    await reportIndexingScriptError('indexContract', e, {code});
+    await reportIndexingScriptError('indexContract', e, {address, code});
   }
   if (metadata) {
     try {
