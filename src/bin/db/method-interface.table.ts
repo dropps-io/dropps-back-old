@@ -5,7 +5,8 @@ import {SolMethod} from "../../models/types/sol-method";
 
 export async function queryMethodInterface(id: string): Promise<MethodInterface> {
 	const res = await executeQuery('SELECT * FROM "method_interface" WHERE "id" = $1', [id]);
-	return res.rows[0] as MethodInterface;
+	if (res.rows[0]) return res.rows[0] as MethodInterface;
+	else throw 'No method interface found';
 }
 
 export async function queryMethodInterfaceWithParameters(id: string): Promise<SolMethod> {
