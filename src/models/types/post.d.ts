@@ -9,4 +9,5 @@ export interface Post {
     eventId?: number;
     inRegistry?: boolean;
     transactionHash?: string;
+    trusted?: boolean;
 }
