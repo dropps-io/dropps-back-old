@@ -60,7 +60,6 @@ async function extractRegistryPosts(log: Log, posts: {hash: string, url: string}
           trusted
         });
         incrementExtractedToLogOf('Registry:Post');
-
       }
     } catch (e) {
       await reportIndexingScriptError('extractRegistryPosts', e);

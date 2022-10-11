@@ -15,6 +15,7 @@ import {indexEvent} from "./indexing/index-event";
 import {indexTransaction} from "./indexing/index-transaction";
 import {MethodParameter} from "../../models/types/method-parameter";
 import {indexContract} from "./indexing/index-contract";
+import {indexRegistryPosts} from "./indexing/index-registry-posts";
 
 
 export async function extractAndIndex(log: Log, lastBlock: number) {
@@ -85,5 +86,5 @@ export async function extractAndIndexContract(address: string) {
 
 export async function extractAndIndexRegistry(log: Log, jsonUrl?: string) {
   const posts = await extractRegistry(log, jsonUrl);
-  // TODO Add posts indexing
+  await indexRegistryPosts(log, posts);
 }
