@@ -9,6 +9,7 @@ const chunk = {
   logsExtracted: 0,
 }
 let currentBlock: number = 0;
+let lastBlock: number = 0;
 const errors: { [key: string]: number } = {};
 const extractedContracts: { [key: string]: number; } = {};
 const extracted: { [key: string]: number; } = {};
@@ -17,6 +18,7 @@ let currentLog: Log;
 function logToConsole() {
   console.clear();
   console.log('---INDEXING-L16-NETWORK---');
+  console.log(`L16 extraction: ${Math.round(currentBlock / lastBlock * 100 * 100) / 100}%`);
   console.log('---------------------------');
   console.log(`Chunk ${chunk.fromBlock}:${chunk.toBlock}`);
   console.log(`Chunk logs: ${chunk.logsAmount}`);
@@ -30,11 +32,12 @@ function logToConsole() {
   console.table(errors);
 }
 
-export function changeIndexingChunkOnLog(from: number, to: number, logsAmount: number) {
+export function changeIndexingChunkOnLog(from: number, to: number, _lastBlock: number, logsAmount: number) {
   chunk.fromBlock = from;
   chunk.toBlock = to;
   chunk.logsExtracted = 0;
   chunk.logsAmount = logsAmount;
+  lastBlock = _lastBlock;
   logToConsole();
 }
 

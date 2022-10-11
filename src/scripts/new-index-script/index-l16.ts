@@ -17,18 +17,18 @@ export async function indexL16() {
     const sleepBetweenIteration = parseInt(await getValueFromConfig('sleep_between_indexing_iteration'));
 
     try {
-      let lastBlock = await web3.eth.getBlockNumber();
-      if (lastBlock - latestIndexedBlock > blockIteration) lastBlock = latestIndexedBlock + blockIteration;
+      const lastBlock = await web3.eth.getBlockNumber();
+      const toBlock = lastBlock - latestIndexedBlock > blockIteration ? latestIndexedBlock + blockIteration : lastBlock;
 
 
-      const logsRes = await getLogs(latestIndexedBlock, lastBlock);
-      changeIndexingChunkOnLog(latestIndexedBlock, lastBlock, logsRes.length);
+      const logsRes = await getLogs(latestIndexedBlock, toBlock);
+      changeIndexingChunkOnLog(latestIndexedBlock, toBlock, lastBlock, logsRes.length);
       for (let log of logsRes) {
         setLogExtractingToLog(log);
-        await extractAndIndex(log);
+        await extractAndIndex(log, lastBlock);
       }
 
-      await setValueOnConfig('latest_indexed_block', lastBlock.toString());
+      await setValueOnConfig('latest_indexed_block', toBlock.toString());
       await sleep(sleepBetweenIteration);
     } catch (e) {
       logError(e);
