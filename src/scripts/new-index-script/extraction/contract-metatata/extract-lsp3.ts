@@ -32,6 +32,7 @@ export async function extractLSP3Data(address: string): Promise<ContractFullMeta
     isNFT: false,
     symbol: '',
     images: [],
-    assets: []
+    assets: [],
+    icon: []
   }
 }

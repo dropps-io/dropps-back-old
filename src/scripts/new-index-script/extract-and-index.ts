@@ -9,10 +9,16 @@ import {extractLog} from "./extraction/extract-log";
 import {extractRegistry} from "./extraction/extract-registry";
 import {queryEventByTh} from "../../bin/db/event.table";
 import {extractAndIndexDataChangedEvent} from "./extraction/extract-data-changed";
+import {POST_VALIDATOR_ADDRESS} from "../../environment/config";
+import {KEY_LSPXXSocialRegistry} from "../../bin/utils/constants";
+import {indexEvent} from "./indexing/index-event";
+import {indexTransaction} from "./indexing/index-transaction";
+import {MethodParameter} from "../../models/types/method-parameter";
+import {indexContract} from "./indexing/index-contract";
 
 
 export async function extractAndIndex(log: Log, lastBlock: number) {
-  let tx: { transaction: Transaction, params: { [key: string]: any }};
+  let tx: {transaction: Transaction, params: MethodParameter[], decodedParams: { [key: string]: any }};
 
   await extractAndIndexContract(log.address);
 
@@ -20,23 +26,24 @@ export async function extractAndIndex(log: Log, lastBlock: number) {
     await queryTransaction(log.transactionHash);
   } catch (e) {
     tx = await extractTransaction(log);
+    await indexTransaction(tx.transaction, log, tx.params, tx.decodedParams);
   }
 
   await extractAndIndexLog(log, lastBlock);
-
-  // If (event related to the registry, do not index it as a post (so it does not appear in the feed)
-  // if (!(POST_VALIDATOR_ADDRESS.includes(decodedParameters['to']) || (decodedParameters['dataKey'] && decodedParameters['dataKey'] === KEY_LSPXXSocialRegistry))) {
-  //   await indexEvent(log, decodedParameters, eventInterface);
-  // }
 }
 
 async function extractAndIndexLog(log: Log, lastBlock: number) {
   let event;
   try {
-    if (log.id) await queryEventByTh(log.transactionHash, log.id);
+    await queryEventByTh(log.transactionHash, (log.id as string).slice(4, 12));
   } catch (e) {
     try {
       event = await extractLog(log);
+
+      // If (event related to the registry, do not index it as a post (so it does not appear in the feed)
+      if (!(POST_VALIDATOR_ADDRESS.includes(event.params['to']) || (event.params['dataKey'] && event.params['dataKey'] === KEY_LSPXXSocialRegistry))) {
+        await indexEvent(log, event.params, event.eventInterface);
+      }
 
       switch (event.eventInterface.name) {
         case 'ContractCreated':
@@ -57,6 +64,7 @@ async function extractAndIndexLog(log: Log, lastBlock: number) {
           break;
       }
     } catch (e) {
+      await indexEvent(log, {});
       return;
     }
   }
@@ -64,16 +72,17 @@ async function extractAndIndexLog(log: Log, lastBlock: number) {
 
 
 export async function extractAndIndexContract(address: string) {
-  let contract: { metadata: ContractFullMetadata | null, interfaceCode: string };
+  let contract: { metadata: ContractFullMetadata | null, interfaceCode: string | null };
   try {
     await queryContract(address);
   }
   catch (e) {
     contract = await extractContract(address);
+    await indexContract(address, contract.interfaceCode, contract.metadata);
   }
-  //indexContract
 }
 
-export async function extractAndIndexRegistry(log: Log) {
-  const posts = await extractRegistry(log);
+export async function extractAndIndexRegistry(log: Log, jsonUrl?: string) {
+  const posts = await extractRegistry(log, jsonUrl);
+  // TODO Add posts indexing
 }

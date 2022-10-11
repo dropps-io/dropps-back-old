@@ -62,20 +62,24 @@ export function incrementExtractedToLogOf(element: string) {
   logToConsole();
 }
 
-export async function reportIndexingScriptError(fn: string, e: any) {
+export async function reportIndexingScriptError(fn: string, e: any, context?: any) {
   if (errors[fn]) errors[fn]++;
   else errors[fn] = 1;
-  if (DEBUG_INDEX_SCRIPT) await promptError(fn, e);
+  if (DEBUG_INDEX_SCRIPT) await promptError(fn, e, context);
   logToConsole();
 }
 
-async function promptError(fn: string, e: any) {
+async function promptError(fn: string, e: any, context?: any) {
   console.log('--------ERROR--------');
   console.log(`Location: ${fn}`);
   console.log('--------LOG--------');
   console.log(currentLog);
   console.log('--------DETAILS--------');
   console.log(e);
+  if (context) {
+    console.log('--------CONTEXT--------');
+    console.log(context);
+  }
   await pause();
 }
 

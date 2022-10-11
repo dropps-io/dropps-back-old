@@ -5,7 +5,7 @@ import {extractLSP8Data} from "./contract-metatata/extract-lsp8";
 import {extractLSP7Data} from "./contract-metatata/extract-lsp7";
 import {incrementContractExtractedInLog, reportIndexingScriptError} from "../index-logger";
 
-export async function extractContract(address: string): Promise<{ metadata: ContractFullMetadata | null, interfaceCode: string }> {
+export async function extractContract(address: string): Promise<{ metadata: ContractFullMetadata | null, interfaceCode: string | null }> {
   const contractInterface = await tryIdentifyingContract(address);
 
   let metadata: ContractFullMetadata | null = null;
@@ -25,6 +25,6 @@ export async function extractContract(address: string): Promise<{ metadata: Cont
     await reportIndexingScriptError('extractContract', e);
   }
 
-  incrementContractExtractedInLog(contractInterface?.code ? contractInterface?.code : '');
-  return {metadata, interfaceCode: contractInterface?.code ? contractInterface?.code : ''};
+  incrementContractExtractedInLog(contractInterface?.code ? contractInterface?.code : 'null');
+  return {metadata, interfaceCode: contractInterface?.code ? contractInterface?.code : null};
 }

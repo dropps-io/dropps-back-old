@@ -20,6 +20,7 @@ export async function extractLSP7Data(address: string): Promise<ContractFullMeta
     description: lsp4.metadata ? lsp4.metadata.description : '',
     symbol: lsp4.symbol,
     images: lsp4.metadata ? lsp4.metadata.images : [],
+    icon: lsp4.metadata ? lsp4.metadata.icon : [],
     assets: lsp4.metadata ? lsp4.metadata.assets : [],
     tags: [],
     backgroundImage: [],

@@ -6,9 +6,10 @@ import {Transaction} from "../../../models/types/transaction";
 import {Log} from "../../../models/types/log";
 import {incrementExtractedToLogOf, reportIndexingScriptError} from "../index-logger";
 
-export async function extractTransaction(log: Log): Promise<{transaction: Transaction, params: { [key: string]: any }}> {
+export async function extractTransaction(log: Log): Promise<{transaction: Transaction, params: MethodParameter[], decodedParams: { [key: string]: any }}> {
   let transaction: Transaction;
   let decodedParameters: { [key: string]: any; } = {};
+  let parameters: MethodParameter[] = [];
   try {
     transaction = {...await web3.eth.getTransaction(log.transactionHash), methodId: ''};
     transaction.input = decodeTransactionFinalInput(transaction.input);
@@ -17,7 +18,7 @@ export async function extractTransaction(log: Log): Promise<{transaction: Transa
     throw 'Failed to get transaction';
   }
   try {
-    const parameters: MethodParameter[] = await queryMethodParameters(transaction.input.slice(0, 10));
+    parameters = await queryMethodParameters(transaction.input.slice(0, 10));
     if (parameters.length > 0) {
       decodedParameters = web3.eth.abi.decodeParameters(parameters, transaction.input.slice(10));
       incrementExtractedToLogOf('txParams');
@@ -28,5 +29,5 @@ export async function extractTransaction(log: Log): Promise<{transaction: Transa
   }
 
   incrementExtractedToLogOf('transactions');
-  return {transaction, params: decodedParameters};
+  return {transaction, params: parameters, decodedParams: decodedParameters};
 }

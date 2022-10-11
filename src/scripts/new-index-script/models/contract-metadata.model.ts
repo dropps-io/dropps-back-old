@@ -10,6 +10,7 @@ export interface ContractFullMetadata {
   profileImage: MetadataImage[];
   backgroundImage: MetadataImage[];
   images: MetadataImage[];
+  icon: MetadataImage[];
   assets: MetadataAsset[];
   avatar?: MetadataAsset;
 }
