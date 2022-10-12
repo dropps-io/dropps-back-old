@@ -17,6 +17,12 @@ let currentLog: Log;
 
 function logToConsole() {
   console.clear();
+  console.log('-----EXTRACTED-CONTRACTS----');
+  console.table(extractedContracts);
+  console.log('----------EXTRACTED----------');
+  console.table(extracted);
+  console.log('----------ERRORS------------');
+  console.table(errors);
   console.log('---INDEXING-L16-NETWORK---');
   console.log(`L16 extraction: ${Math.round(currentBlock / lastBlock * 100 * 100) / 100}%`);
   console.log('---------------------------');
@@ -24,12 +30,6 @@ function logToConsole() {
   console.log(`Chunk logs: ${chunk.logsAmount}`);
   console.log(`Chunk extraction: ${Math.round(chunk.logsExtracted / chunk.logsAmount * 100 * 100) / 100}%`);
   console.log(`Current block: ${currentBlock}`);
-  console.log('-----EXTRACTED-CONTRACTS----');
-  console.table(extractedContracts);
-  console.log('----------EXTRACTED----------');
-  console.table(extracted);
-  console.log('----------ERRORS------------');
-  console.table(errors);
 }
 
 export function changeIndexingChunkOnLog(from: number, to: number, _lastBlock: number, logsAmount: number) {

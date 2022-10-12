@@ -2,9 +2,12 @@ import Web3 from "web3";
 import {logError, logMessage} from "../../bin/logger";
 import {sleep} from "../blockchain-indexing/utils/sleep";
 import {Log} from "../../models/types/log";
-import {DB, executeQuery} from "../../bin/db/database";
-import {changeIndexingChunkOnLog, setLogExtractingToLog} from "./index-logger";
-import {extractAndIndex} from "./extract-and-index";
+import {DB} from "../../bin/db/database";
+import {changeIndexingChunkOnLog} from "./index-logger";
+import {splitToChunks} from "./utils/split-in-chunks";
+import {extractAndIndexBatch} from "./extract-and-index";
+import {asyncPromiseAll} from "./utils/async-promise-all";
+import {getValueFromConfig, setValueOnConfig} from "../../bin/db/config.table";
 
 const web3 = new Web3('https://rpc.l16.lukso.network');
 
@@ -15,6 +18,7 @@ export async function indexL16() {
     const latestIndexedBlock = parseInt(await getValueFromConfig('latest_indexed_block'));
     const blockIteration = parseInt(await getValueFromConfig('block_iteration'));
     const sleepBetweenIteration = parseInt(await getValueFromConfig('sleep_between_indexing_iteration'));
+    const threadsAmount = parseInt(await getValueFromConfig('indexing_threads_amount'));
 
     try {
       const lastBlock = await web3.eth.getBlockNumber();
@@ -23,10 +27,11 @@ export async function indexL16() {
 
       const logsRes = await getLogs(latestIndexedBlock, toBlock);
       changeIndexingChunkOnLog(latestIndexedBlock, toBlock, lastBlock, logsRes.length);
-      for (let log of logsRes) {
-        setLogExtractingToLog(log);
-        await extractAndIndex(log, lastBlock);
-      }
+
+      // Split all the logs in n arrays indexed as threads (to make the script faster)
+      const promises: Promise<any>[] = [];
+      for (const chunk of splitToChunks(logsRes, threadsAmount)) promises.push(extractAndIndexBatch(chunk, lastBlock));
+      await asyncPromiseAll(promises);
 
       await setValueOnConfig('latest_indexed_block', toBlock.toString());
       await sleep(sleepBetweenIteration);
@@ -47,14 +52,4 @@ async function getLogs(fromBlock: number, toBlock: number): Promise<Log[]> {
       else reject(error);
     });
   })
-}
-
-export async function getValueFromConfig(key: string): Promise<string> {
-  const res = await executeQuery('SELECT (value) FROM "config" WHERE key=$1', [key]);
-  if (res.rows.length > 0) return res.rows[0].value;
-  else throw 'No value found for this key';
-}
-
-export async function setValueOnConfig(key: string, value: string): Promise<void> {
-  await executeQuery('UPDATE config SET value=$2 WHERE key=$1', [key, value]);
 }

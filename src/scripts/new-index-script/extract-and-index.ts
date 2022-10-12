@@ -16,9 +16,16 @@ import {indexTransaction} from "./indexing/index-transaction";
 import {MethodParameter} from "../../models/types/method-parameter";
 import {indexContract} from "./indexing/index-contract";
 import {indexRegistryPosts} from "./indexing/index-registry-posts";
+import {setLogExtractingToLog} from "./index-logger";
 
+export async function extractAndIndexBatch(logs: Log[], lastBlock: number) {
+  for (let i = 0 ; i < logs.length ; i++) {
+    setLogExtractingToLog(logs[i]);
+    await extractAndIndex(logs[i], lastBlock);
+  }
+}
 
-export async function extractAndIndex(log: Log, lastBlock: number) {
+async function extractAndIndex(log: Log, lastBlock: number) {
   let tx: {transaction: Transaction, params: MethodParameter[], decodedParams: { [key: string]: any }};
 
   await extractAndIndexContract(log.address);
