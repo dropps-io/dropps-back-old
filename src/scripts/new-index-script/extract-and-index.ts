@@ -80,13 +80,19 @@ async function extractAndIndexLog(log: Log, lastBlock: number) {
 
 export async function extractAndIndexContract(address: string) {
   if (!address) return;
+
+  const runIndexing = async (exists?: boolean) => {
+    contract = await extractContract(address);
+    await indexContract(address, contract.interfaceCode, contract.metadata, exists);
+  }
+
   let contract: { metadata: ContractFullMetadata | null, interfaceCode: string | null };
   try {
-    await queryContract(address);
+    const res = await queryContract(address);
+    if (res.interfaceCode === null) await runIndexing(true);
   }
   catch (e) {
-    contract = await extractContract(address);
-    await indexContract(address, contract.interfaceCode, contract.metadata);
+    await runIndexing();
   }
 }
 

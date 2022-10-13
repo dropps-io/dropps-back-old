@@ -1,4 +1,4 @@
-import {insertContract} from "../../../bin/db/contract.table";
+import {insertContract, updateContract} from "../../../bin/db/contract.table";
 import {INDEX_DATA} from "../config";
 import {reportIndexingScriptError} from "../index-logger";
 import {ContractFullMetadata} from "../models/contract-metadata.model";
@@ -8,10 +8,11 @@ import {insertImage} from "../../../bin/db/image.table";
 import {insertLink} from "../../../bin/db/link.table";
 import {insertTag} from "../../../bin/db/tag.table";
 
-export async function indexContract(address: string, code: string | null, metadata: ContractFullMetadata | null) {
+export async function indexContract(address: string, code: string | null, metadata: ContractFullMetadata | null, exists?: boolean) {
   if (!INDEX_DATA) return;
   try {
-    await insertContract(address, code);
+    if (!exists) await insertContract(address, code);
+    else await updateContract(address, code);
   } catch (e) {
     await reportIndexingScriptError('indexContract', e, {address, code});
   }
