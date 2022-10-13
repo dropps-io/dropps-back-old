@@ -5,13 +5,13 @@ import LSP6KeyManager from "@lukso/lsp-smart-contracts/artifacts/LSP6KeyManager.
 import LSP9Vault from "@lukso/lsp-smart-contracts/artifacts/LSP9Vault.json";
 import LSP1DelegateUP from "@lukso/lsp-smart-contracts/artifacts/LSP1UniversalReceiverDelegateUP.json";
 import LSP1DelegateVault from "@lukso/lsp-smart-contracts/artifacts/LSP1UniversalReceiverDelegateVault.json";
-import ERC1155 from "../assets/artifacts/ERC1155PresetMinterPauser.json";
-import ERC20 from "../assets/artifacts/ERC20PresetMinterPauser.json";
-import ERC777 from "../assets/artifacts/ERC777PresetFixedSupply.json";
-import ERC721 from "../assets/artifacts/ERC721PresetMinterPauserAutoId.json";
+import ERC1155 from "../../assets/artifacts/ERC1155PresetMinterPauser.json";
+import ERC20 from "../../assets/artifacts/ERC20PresetMinterPauser.json";
+import ERC777 from "../../assets/artifacts/ERC777PresetFixedSupply.json";
+import ERC721 from "../../assets/artifacts/ERC721PresetMinterPauserAutoId.json";
 import {AbiItem} from "web3-utils";
-import {insertContractInterface} from "../bin/db/contract-interface.table";
-import {generateAndPersistMethodInterfaces} from "./generate-method-interfaces";
+import {insertContractInterface} from "../../bin/db/contract-interface.table";
+import {generateAndPersistMethodInterfaces} from "../generate-method-interfaces";
 import {insertInDbJsonSchemas} from "./insert-in-db-json-schemas";
 import JSONSCHEMALSP1 from '@erc725/erc725.js/schemas/LSP1UniversalReceiverDelegate.json';
 import JSONSCHEMALSP3 from '@erc725/erc725.js/schemas/LSP3UniversalProfileMetadata.json';
@@ -22,9 +22,8 @@ import JSONSCHEMALSP9 from '@erc725/erc725.js/schemas/LSP9Vault.json';
 import JSONSCHEMALSP10 from '@erc725/erc725.js/schemas/LSP10ReceivedVaults.json';
 import JSONSCHEMALSP12 from '@erc725/erc725.js/schemas/LSP12IssuedAssets.json';
 import {ERC725JSONSchema} from "@erc725/erc725.js";
-import {tryExecuting} from "../bin/utils/try-executing";
-import {insertMethodParameterDisplayType} from "../bin/db/method-parameter.table";
-import {DB} from "../bin/db/database";
+import {tryExecuting} from "../../bin/utils/try-executing";
+import {insertMethodParameterDisplayType} from "../../bin/db/method-parameter.table";
 
 
 const standardInterfaces = [
@@ -34,9 +33,7 @@ const standardInterfaces = [
   {id: '0x49399145', code: 'LSP8', name: 'Identifiable Digital Asset'}
 ];
 
-fillDb();
-
-async function fillDb() {
+export async function fillDb() {
   for (let standardInterface of standardInterfaces) {
       await tryExecuting(insertContractInterface(standardInterface.code, standardInterface.id, standardInterface.name));
   }
@@ -71,8 +68,5 @@ async function fillDb() {
   await insertMethodParameterDisplayType('0x760d9bba', 'amount', 'tokenAmount');
   await insertMethodParameterDisplayType('0x7e71433d', 'value', 'native');
   await insertMethodParameterDisplayType('0x48108744', 'selector', 'methodId');
-
-  await DB.end();
-  return;
 }
 

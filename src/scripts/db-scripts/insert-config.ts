@@ -1,4 +1,4 @@
-import {executeQuery} from "../bin/db/database";
+import {executeQuery} from "../../bin/db/database";
 
 export async function insertConfig() {
   await executeQuery("INSERT INTO config VALUES ('latest_indexed_block', '60000')");
