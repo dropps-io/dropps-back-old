@@ -76,7 +76,7 @@ async function indexRegistryPosts(log: Log, posts: Post[]) {
         }
       }
     } catch (e) {
-      await reportIndexingScriptError('', e, {log, posts, post});
+      await reportIndexingScriptError('indexRegistryPosts', e, {log, posts, post});
     }
   }
 }
