@@ -64,7 +64,7 @@ export function incrementExtractedToLogOf(element: string) {
 }
 
 export async function reportIndexingScriptError(fn: string, e: any, context?: any) {
-  if (e.code && e.code==='23505') return;
+  if (e && e.code && e.code==='23505') return;
   if (errors[fn]) errors[fn]++;
   else errors[fn] = 1;
   await promptError(fn, e, context);
