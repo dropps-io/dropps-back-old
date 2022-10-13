@@ -1,6 +1,7 @@
 import * as readline from "readline";
 import {DEBUG_INDEX_SCRIPT} from "./config";
 import {Log} from "../../models/types/log";
+import * as fs from "fs";
 
 const chunk = {
   fromBlock: 0,
@@ -63,24 +64,46 @@ export function incrementExtractedToLogOf(element: string) {
 }
 
 export async function reportIndexingScriptError(fn: string, e: any, context?: any) {
+  if (e.code && e.code==='23505') return;
   if (errors[fn]) errors[fn]++;
   else errors[fn] = 1;
-  if (DEBUG_INDEX_SCRIPT) await promptError(fn, e, context);
+  await promptError(fn, e, context);
   logToConsole();
 }
 
 async function promptError(fn: string, e: any, context?: any) {
-  console.log('--------ERROR--------');
-  console.log(`Location: ${fn}`);
-  console.log('--------LOG--------');
-  console.log(currentLog);
-  console.log('--------DETAILS--------');
-  console.log(e);
-  if (context) {
-    console.log('--------CONTEXT--------');
-    console.log(context);
+  if (DEBUG_INDEX_SCRIPT) {
+    console.log('--------ERROR--------');
+    console.log(`Location: ${fn}`);
+    console.log('--------DETAILS--------');
+    console.log(e);
+    console.log('--------LOG--------');
+    console.log(currentLog);
+    if (context) {
+      console.log('--------CONTEXT--------');
+      console.log(context);
+    }
+    await pause();
+  } else {
+    const logs: string[] = [];
+
+    logs.push('--------ERROR--------');
+    logs.push(`Location: ${fn}`);
+    logs.push('--------DETAILS--------');
+    logs.push(JSON.stringify(e));
+    logs.push('--------LOG--------');
+    logs.push(JSON.stringify(currentLog));
+    if (context) {
+      logs.push('--------CONTEXT--------');
+      logs.push(JSON.stringify(context));
+    }
+    logs.push('\n\n');
+    writeInLogs(logs.reduce((p, c) => p + '\n' + c ));
   }
-  await pause();
+}
+
+function writeInLogs(d: string) {
+  fs.appendFile('logs/index-script-errors.log', d + '\n', () => {});
 }
 
 async function pause(): Promise<void> {

@@ -6,7 +6,7 @@ import {queryTransaction} from "../../bin/db/transaction.table";
 import {Transaction} from "../../models/types/transaction";
 import {extractTransaction} from "./extraction/extract-transaction";
 import {extractLog} from "./extraction/extract-log";
-import {extractRegistry} from "./extraction/extract-registry";
+import {extractRegistry, RegistryChangesToIndex} from "./extraction/extract-registry";
 import {queryEventByTh} from "../../bin/db/event.table";
 import {extractAndIndexDataChangedEvent} from "./extraction/extract-data-changed";
 import {POST_VALIDATOR_ADDRESS} from "../../environment/config";
@@ -78,7 +78,6 @@ async function extractAndIndexLog(log: Log, lastBlock: number) {
   }
 }
 
-
 export async function extractAndIndexContract(address: string) {
   if (!address) return;
   let contract: { metadata: ContractFullMetadata | null, interfaceCode: string | null };
@@ -91,7 +90,12 @@ export async function extractAndIndexContract(address: string) {
   }
 }
 
-export async function extractAndIndexRegistry(log: Log, jsonUrl?: string) {
-  const registryChangesToIndex = await extractRegistry(log, jsonUrl);
+export async function extractAndIndexRegistry(log: Log, lastBlock: number, jsonUrl?: string) {
+  let registryChangesToIndex: RegistryChangesToIndex;
+  if (jsonUrl && log.blockNumber > lastBlock - 10) {
+    registryChangesToIndex = await extractRegistry(log, jsonUrl);
+  } else {
+    registryChangesToIndex = await extractRegistry(log);
+  }
   await indexRegistry(log, registryChangesToIndex);
 }

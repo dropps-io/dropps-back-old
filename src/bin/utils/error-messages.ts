@@ -1,8 +1,8 @@
 export const ERROR_USER_NOT_FOUND = 'User not found';
 export const ERROR_USER_EXISTS = 'User already exists';
 
-export const ERROR_NOT_FOUND = 'Table not found';
-export const ERROR_EXISTS = 'Table already exists';
+export const ERROR_NOT_FOUND = 'Entry not found';
+export const ERROR_EXISTS = 'Entry already exists';
 
 export const ERROR_ADR_INVALID = 'Invalid address format';
 export const ERROR_HASH_INVALID = 'Invalid hash format';

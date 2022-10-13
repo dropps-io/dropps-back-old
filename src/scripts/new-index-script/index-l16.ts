@@ -8,6 +8,7 @@ import {splitToChunks} from "./utils/split-in-chunks";
 import {extractAndIndexBatch} from "./extract-and-index";
 import {asyncPromiseAll} from "./utils/async-promise-all";
 import {getValueFromConfig, setValueOnConfig} from "../../bin/db/config.table";
+import {DEBUG_INDEX_SCRIPT} from "./config";
 
 const web3 = new Web3('https://rpc.l16.lukso.network');
 
@@ -17,8 +18,8 @@ export async function indexL16() {
     indexing = await getValueFromConfig('indexing');
     const latestIndexedBlock = parseInt(await getValueFromConfig('latest_indexed_block'));
     const blockIteration = parseInt(await getValueFromConfig('block_iteration'));
-    const sleepBetweenIteration = parseInt(await getValueFromConfig('sleep_between_indexing_iteration'));
-    const threadsAmount = parseInt(await getValueFromConfig('indexing_threads_amount'));
+    const sleepBetweenIteration = DEBUG_INDEX_SCRIPT ? 0 :  parseInt(await getValueFromConfig('sleep_between_indexing_iteration'));
+    const threadsAmount = DEBUG_INDEX_SCRIPT ? 1 : parseInt(await getValueFromConfig('indexing_threads_amount'));
 
     try {
       const lastBlock = await web3.eth.getBlockNumber();

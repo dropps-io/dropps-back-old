@@ -22,8 +22,9 @@ export async function extractLSP3Data(address: string): Promise<ContractFullMeta
       const res = (await axios.get(url)).data;
       lsp3 = res ? (res as any).LSP3Profile : initialUniversalProfile();
     }
-  } catch (e) {
-    await reportIndexingScriptError('extractLSP3Data', e, {data, lsp3});
+  } catch (e: any) {
+    if (!e.toString().includes('Chosen hashFunction'))
+      await reportIndexingScriptError('extractLSP3Data', e, {address, data, lsp3});
   }
 
   return {
