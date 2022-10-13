@@ -9,9 +9,35 @@ import {Log} from "../../../models/types/log";
 import {insertNotification} from "../../../bin/db/notification.table";
 import {INDEX_DATA} from "../config";
 import {reportIndexingScriptError} from "../index-logger";
+import {RegistryChangesToIndex} from "../extraction/extract-registry";
+import {insertLike} from "../../../bin/db/like.table";
+import {insertFollow} from "../../../bin/db/follow.table";
 
-export async function indexRegistryPosts(log: Log, posts: Post[]) {
+export async function indexRegistry(log:Log, toIndex: RegistryChangesToIndex) {
   if (!INDEX_DATA) return;
+  try {
+    await indexRegistryPosts(log, toIndex.posts.toAdd);
+  } catch (e) {
+    await reportIndexingScriptError('indexRegistry:posts', e);
+  }
+  for (const like of toIndex.likes.toAdd) {
+    try {
+      await insertLike(log.address, like);
+    } catch (e) {
+      await reportIndexingScriptError('indexRegistry:like', e);
+    }
+  }
+
+  for (const follow of toIndex.follows.toAdd) {
+    try {
+      await insertFollow(log.address, follow);
+    } catch (e) {
+      await reportIndexingScriptError('indexRegistry:follow', e);
+    }
+  }
+}
+
+async function indexRegistryPosts(log: Log, posts: Post[]) {
   for (let post of posts) {
     try {
       await insertPost(

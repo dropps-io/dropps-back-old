@@ -14,19 +14,41 @@ import {ProfilePost} from "../../../bin/lookso/registry/types/profile-post";
 import PostValidatorContract from '../../../assets/artifacts/ValidatorContractArtifact.json';
 import {Post} from "../../../models/types/post";
 import {incrementExtractedToLogOf, reportIndexingScriptError} from "../index-logger";
+import {querySenderLikes} from "../../../bin/db/like.table";
+import {queryFollowing} from "../../../bin/db/follow.table";
 
-export async function extractRegistry(log: Log, _jsonUrl?: string): Promise<Post[]> {
+export type RegistryChangesToIndex = {posts: {toAdd: Post[]}, likes: {toAdd: string[]}, follows: {toAdd: string[]}};
+
+export async function extractRegistry(log: Log, _jsonUrl?: string): Promise<RegistryChangesToIndex> {
+  const response: RegistryChangesToIndex = {posts: {toAdd: []}, follows: {toAdd: []}, likes: {toAdd: []}};
+  let registry: SocialRegistry;
   try {
     const profile: UniversalProfileReader = new UniversalProfileReader(log.address, IPFS_GATEWAY, web3);
     const jsonUrl: string = _jsonUrl ? _jsonUrl : (await profile.getDataUnverified([KEY_LSPXXSocialRegistry]))[0] as string;
-    const registry: SocialRegistry = (await axios.get(formatUrl(decodeJsonUrl(jsonUrl)))).data as SocialRegistry;
-    incrementExtractedToLogOf('Registry');
-    return await extractRegistryPosts(log, registry.posts);
-    // TODO Extract Likes and Follows as well
+    registry = (await axios.get(formatUrl(decodeJsonUrl(jsonUrl)))).data as SocialRegistry;
   } catch (e) {
     await reportIndexingScriptError('extractRegistry', e);
-    return [];
+    return response;
   }
+
+  try {
+    response.posts.toAdd = await extractRegistryPosts(log, registry.posts);
+  } catch (e) {
+    await reportIndexingScriptError('extractRegistry:Posts', e);
+  }
+  try {
+    response.likes.toAdd = await extractRegistryLikes(log, registry.likes);
+  } catch (e) {
+    await reportIndexingScriptError('extractRegistry:Likes', e);
+  }
+  try {
+    response.follows.toAdd = await extractRegistryFollows(log, registry.follows);
+  } catch (e) {
+    await reportIndexingScriptError('extractRegistry:Follows', e);
+  }
+
+  incrementExtractedToLogOf('Registry');
+  return response;
 }
 
 async function extractRegistryPosts(log: Log, posts: {hash: string, url: string}[]): Promise<Post[]> {
@@ -67,4 +89,38 @@ async function extractRegistryPosts(log: Log, posts: {hash: string, url: string}
   }
 
   return newPosts;
+}
+
+//TODO Right now it just add the likes from the registry, we need to handle the case where people deleted likes directly from the registry
+async function extractRegistryLikes(log: Log, likes: string[]): Promise<string[]> {
+  let indexedLikes: string[] = [];
+  try {
+    indexedLikes = await querySenderLikes(log.address);
+  } catch (e) {
+    await reportIndexingScriptError('extractRegistryLikes', e);
+  }
+
+  const likesToAdd: string[] = [];
+  likes.forEach(like => {
+    if (!indexedLikes.includes(like)) likesToAdd.push(like)
+  });
+
+  return likesToAdd;
+}
+
+//TODO Right now it just add the follows from the registry, we need to handle the case where people deleted likes directly from the registry
+async function extractRegistryFollows(log: Log, follows: string[]): Promise<string[]> {
+  let indexedFollows: string[] = [];
+  try {
+    indexedFollows = await queryFollowing(log.address);
+  } catch (e) {
+    await reportIndexingScriptError('extractRegistryFollows', e);
+  }
+
+  const followsToAdd: string[] = [];
+  follows.forEach(like => {
+    if (!indexedFollows.includes(like)) followsToAdd.push(like)
+  });
+
+  return followsToAdd;
 }

@@ -15,8 +15,8 @@ import {indexEvent} from "./indexing/index-event";
 import {indexTransaction} from "./indexing/index-transaction";
 import {MethodParameter} from "../../models/types/method-parameter";
 import {indexContract} from "./indexing/index-contract";
-import {indexRegistryPosts} from "./indexing/index-registry-posts";
 import {setLogExtractingToLog} from "./index-logger";
+import {indexRegistry} from "./indexing/index-registry";
 
 export async function extractAndIndexBatch(logs: Log[], lastBlock: number) {
   for (let i = 0 ; i < logs.length ; i++) {
@@ -92,6 +92,6 @@ export async function extractAndIndexContract(address: string) {
 }
 
 export async function extractAndIndexRegistry(log: Log, jsonUrl?: string) {
-  const posts = await extractRegistry(log, jsonUrl);
-  await indexRegistryPosts(log, posts);
+  const registryChangesToIndex = await extractRegistry(log, jsonUrl);
+  await indexRegistry(log, registryChangesToIndex);
 }
