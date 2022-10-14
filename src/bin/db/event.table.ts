@@ -9,7 +9,8 @@ export async function queryEvent(id: number): Promise<Event> {
 
 export async function queryEventByTh(transactionHash: string, logId: string): Promise<Event> {
 	const res = await executeQuery('SELECT * FROM "event" WHERE "transactionHash" = $1 AND "logId" = $2', [transactionHash, logId]);
-	return res.rows[0] as Event;
+	if (res.rows[0]) return res.rows[0] as Event;
+	else throw 'No event found';
 }
 
 export async function insertEvent(address: string, transactionHash: string, logId: string, blockNumber: number, topic: string, type: string): Promise<number> {

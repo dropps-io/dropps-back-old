@@ -1,8 +1,8 @@
-import {insertMethodDisplay} from "../bin/db/method-display.table";
-import {DB, executeQuery} from "../bin/db/database";
-import {insertKeyDisplay} from "../bin/db/key-display.table";
+import {insertMethodDisplay} from "../../bin/db/method-display.table";
+import {executeQuery} from "../../bin/db/database";
+import {insertKeyDisplay} from "../../bin/db/key-display.table";
 
-async function setDisplays() {
+export async function setDisplays() {
   await executeQuery('delete from "key_display"');
   await executeQuery('delete from "method_display"');
   await insertMethodDisplay('0x4e71e0c8', 'Claimed ownership on the {executionContract} contract', '', '', '');
@@ -41,8 +41,4 @@ async function setDisplays() {
   await insertMethodDisplay('0x7e71433d', 'Received {value}{nativeToken} from {sender}', 'sender', '', '');
   await insertMethodDisplay('0x9c3ba68e', 'Received {from}', 'from', '', 'from');
   await insertKeyDisplay('0x5ef83ad9559033e6e941db7d7c495acdce616347d28e90c7ce47cbfcfcad3bc5', 'Profile metadata updated', 'Profile metadata updated');
-  await DB.end();
-  return;
 }
-
-setDisplays();
