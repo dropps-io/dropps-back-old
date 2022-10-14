@@ -183,6 +183,7 @@ export async function looksoRoute (fastify: FastifyInstance) {
 
 				return reply.code(200).send({
 					count,
+					page,
 					next: page < Math.ceil(count / POSTS_PER_LOAD) - 1 ? queryUrl + (page + 1).toString() : null,
 					previous: page > 0 ? queryUrl + (page - 1).toString() : null,
 					results: feed

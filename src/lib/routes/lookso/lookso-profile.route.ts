@@ -61,6 +61,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
 
         return reply.code(200).send({
           count,
+          page,
           next: page < Math.ceil(count / POSTS_PER_LOAD) - 1 ? queryUrl + (page + 1).toString() : null,
           previous: page > 0 ? queryUrl + (page - 1).toString() : null,
           results: feed
@@ -109,6 +110,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
 
         return reply.code(200).send({
           count,
+          page,
           next: page < Math.ceil(count / POSTS_PER_LOAD) - 1 ? queryUrl + (page + 1).toString() : null,
           previous: page > 0 ? queryUrl + (page - 1).toString() : null,
           results: feed
@@ -258,6 +260,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
 
           return reply.code(200).send({
             count,
+            page,
             next: page < Math.ceil(count / PROFILES_PER_LOAD) - 1 ? queryUrl + (page + 1).toString() : null,
             previous: page > 0 ? queryUrl + (page - 1).toString() : null,
             results: response
@@ -326,6 +329,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
 
         return reply.code(200).send({
           count,
+          page,
           next: page < Math.ceil(count / PROFILES_PER_LOAD) - 1 ? queryUrl + (page + 1).toString() : null,
           previous: page > 0 ? queryUrl + (page - 1).toString() : null,
           results: response
@@ -387,6 +391,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
 
         return reply.code(200).send({
           count,
+          page,
           next: page < Math.ceil(count / NOTIFICATIONS_PER_LOAD) - 1 ? queryUrl + (page + 1).toString() : null,
           previous: page > 0 ? queryUrl + (page - 1).toString() : null,
           results: response
