@@ -23,7 +23,6 @@ import JSONSCHEMALSP10 from '@erc725/erc725.js/schemas/LSP10ReceivedVaults.json'
 import JSONSCHEMALSP12 from '@erc725/erc725.js/schemas/LSP12IssuedAssets.json';
 import {ERC725JSONSchema} from "@erc725/erc725.js";
 import {tryExecuting} from "../../bin/utils/try-executing";
-import {insertMethodParameterDisplayType} from "../../bin/db/method-parameter.table";
 
 
 const standardInterfaces = [
@@ -65,10 +64,5 @@ export async function fillDb() {
           ERC721.abi as AbiItem[],
           ERC20.abi as AbiItem[],
       ]);
-
-  await insertMethodParameterDisplayType('0x7580d920', 'amount', 'tokenAmount');
-  await insertMethodParameterDisplayType('0x760d9bba', 'amount', 'tokenAmount');
-  await insertMethodParameterDisplayType('0x7e71433d', 'value', 'native');
-  await insertMethodParameterDisplayType('0x48108744', 'selector', 'methodId');
 }
 
