@@ -71,7 +71,7 @@ export async function constructFeed(posts: Post[], profile?: string, noRecursive
                 }
                 break;
               case '0xcdf4e344c0d23d4cdd0474039d176c55b19d531070dbe17856bfb993a5b5720b': // DataChanged(bytes32)
-                // case '0xece574603820d07bc9b91f2a932baadf4628aabcb8afba49776529c14a6104b2': // DataChanged(bytes32,bytes)
+              case '0xece574603820d07bc9b91f2a932baadf4628aabcb8afba49776529c14a6104b2': // DataChanged(bytes32,bytes)
                 feedObject.display = await generateDataChangedDisplay(event, parameters);
                 break;
               case '0x9c3ba68eb5742b8e3961aea0afc7371a71bf433c8a67a831803b64c064a178c2': // UniversalReceiver
