@@ -17,7 +17,7 @@
     "pre-release": "standard-version --prerelease",
     "release": "standard-version",
     "script": "node dist/scripts/index.js -- exit",
-    "fill-db": "node dist/scripts/fill-db.js -- exit",
+    "init-db": "node dist/scripts/init-db.js -- exit",
     "set-displays": "node dist/scripts/set-displays.js -- exit",
     "refresh-metadata": "node dist/scripts/refresh-all-up-metadata.js -- exit",
     "index-blockchain": "node dist/scripts/blockchain-indexing/run-indexing-script.js -- exit"
@@ -49,11 +49,11 @@
   },
   "dependencies": {
     "@bundlr-network/client": "^0.8.1",
-    "@erc725/erc725.js": "^0.14.4",
+    "@erc725/erc725.js": "^0.15.0",
     "@fastify/cookie": "^8.3.0",
     "@fastify/cors": "^8.1.0",
     "@fastify/swagger": "^7.6.1",
-    "@lukso/lsp-smart-contracts": "^0.6.2",
+    "@lukso/lsp-smart-contracts": "^0.7.0",
     "arweave": "^1.11.6",
     "axios": "^0.27.2",
     "config": "^3.3.7",
