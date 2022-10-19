@@ -56,31 +56,35 @@ export async function constructFeed(posts: Post[], profile?: string, noRecursive
             isLiked: isLiked
           };
 
-          switch (event.type) {
-              case 'ContractCreated':
+          try {
+            switch (event.topic) {
+              case '0x01c42bd7e97a66166063b02fce6924e6656b6c2c61966630165095c4fb0b7b2f': // ContractCreated
+                feedObject.display = await generateEventDisplay(event.topic.slice(0, 10), parameters);
+                break;
+              case '0x4810874456b8e6487bd861375cf6abd8e1c8bb5858c8ce36a86a04dabfac199e': // Executed
+                const transactionParameters: Map<string, DecodedParameter> = new Map((await queryDecodedFunctionParameters(event.transactionHash)).map(x => {return [x.name, x]}));
+                const [selector, executionContract] = [parameters.get('selector'), parameters.get('to')];
+                try {
+                  feedObject.display = await generateEventDisplay(selector ? selector.value : '', transactionParameters, {executionContract: executionContract ? executionContract.value : '', senderProfile: event.address});
+                } catch (e) {
                   feedObject.display = await generateEventDisplay(event.topic.slice(0, 10), parameters);
-                  break;
-              case 'Executed':
-                  const [selector, executionContract] = [parameters.get('selector'), parameters.get('to')];
-                  const transactionParameters: Map<string, DecodedParameter> = new Map((await queryDecodedFunctionParameters(event.transactionHash)).map(x => {return [x.name, x]}));
-                  try {
-                    feedObject.display = await generateEventDisplay(selector ? selector.value : '', transactionParameters, {executionContract: executionContract ? executionContract.value : '', senderProfile: event.address});
-                  } catch (e) {
-                    feedObject.display = await generateEventDisplay(event.topic.slice(0, 10), parameters);
-                  }
-                  break;
-              case 'DataChanged':
+                }
+                break;
+              case '0xcdf4e344c0d23d4cdd0474039d176c55b19d531070dbe17856bfb993a5b5720b': // DataChanged(bytes32)
+                // case '0xece574603820d07bc9b91f2a932baadf4628aabcb8afba49776529c14a6104b2': // DataChanged(bytes32,bytes)
                 feedObject.display = await generateDataChangedDisplay(event, parameters);
                 break;
-              case 'UniversalReceiver':
+              case '0x9c3ba68eb5742b8e3961aea0afc7371a71bf433c8a67a831803b64c064a178c2': // UniversalReceiver
                 feedObject.display = await generateUniversalReceiverEventDisplay(parameters);
                 break;
-              case 'OwnershipTransferred':
-                  feedObject.display = await generateEventDisplay(event.topic.slice(0, 10), parameters);
-                  break;
-              case 'ValueReceived':
-                  feedObject.display = await generateEventDisplay(event.topic.slice(0, 10), parameters);
-                  break;
+              case '0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0': //OwnershipTransferred(address,address)
+                feedObject.display = await generateEventDisplay(event.topic.slice(0, 10), parameters);
+                break;
+              case '0x7e71433ddf847725166244795048ecf3e3f9f35628254ecbf736056664233493': // ValueReceived
+                feedObject.display = await generateEventDisplay(event.topic.slice(0, 10), parameters);
+                break;
+            }
+          } catch (e) {
           }
           feed.push(feedObject);
       } else {
