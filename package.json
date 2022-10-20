@@ -6,7 +6,7 @@
   "scripts": {
     "build": "npx tsc",
     "watch": "npx tsc --watch",
-    "start:dev": "npm run build&&set NODE_ENV=development&&node dist/index.js",
+    "start:dev": "set NODE_ENV=development&&node dist/index.js",
     "start:staging": "npm run build&&NODE_ENV='staging' node dist/index.js",
     "start:prod": "npm run build&&NODE_ENV='production' node dist/index.js",
     "lint": "eslint src/**/*",
@@ -52,6 +52,7 @@
     "@erc725/erc725.js": "^0.15.0",
     "@fastify/cookie": "^8.3.0",
     "@fastify/cors": "^8.1.0",
+    "@fastify/jwt": "^6.3.2",
     "@fastify/swagger": "^7.6.1",
     "@lukso/lsp-smart-contracts": "^0.7.0",
     "arweave": "^1.11.6",
@@ -68,6 +69,7 @@
     "prettier": "^2.5.1",
     "sharp": "^0.30.7",
     "standard-version": "^9.3.2",
+    "ts-node": "^10.9.1",
     "web3": "^1.7.0"
   }
 }

@@ -7,8 +7,9 @@ import {LOGGER} from '../environment/config';
 import {looksoRoute} from "./routes/lookso/lookso.route";
 import multer from "fastify-multer";
 import cookie from "@fastify/cookie";
+import jwt from "@fastify/jwt";
 import type { FastifyCookieOptions } from "@fastify/cookie";
-import { JWT_SECRET } from '../environment/endpoints';
+import {COOKIE_SECRET, JWT_SECRET} from '../environment/endpoints';
 
 
 export const fastify = fastifyFactory({logger: LOGGER});
@@ -16,6 +17,17 @@ fastify.register(fastifyCors, {
 	origin: '*',
 	methods: ['POST', 'GET', 'PUT', 'DELETE']
 })
+	.register(jwt, {
+		secret: JWT_SECRET,
+		cookie: {
+			cookieName: 'token',
+			signed: true
+		}
+	})
+	.register(cookie, {
+		secret: COOKIE_SECRET,
+		parseOptions: {},
+	} as FastifyCookieOptions)
 	.register(fastifySwagger, {
 		prefix: '/documentation',
 		swagger: {
@@ -56,10 +68,6 @@ fastify.register(fastifyCors, {
 		transformStaticCSP: (header) => header,
 		exposeRoute: true
 	})
-	.register(cookie, {
-		secret: JWT_SECRET,
-		parseOptions: {}
-	} as FastifyCookieOptions)
 	.register(multer.contentParser)
 	.register(authRoute, { prefix: '/auth' })
 	.register(looksoRoute, { prefix: '/lookso' });
