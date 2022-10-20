@@ -172,9 +172,7 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
       const body = request.body as { lspXXProfilePost: string};
       const documentFile: any = (request as unknown as MulterRequest).file;
       const post: LSPXXProfilePost = JSON.parse(body.lspXXProfilePost) as LSPXXProfilePost;
-
-      const jwtError = await verifyJWT(request, reply, post.author);
-      if (jwtError) return jwtError;
+      await verifyJWT(request, reply, post.author);
 
       let buffer = documentFile.buffer;
       let fileType = documentFile.mimetype;
@@ -214,11 +212,9 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
     },
     handler: async (request, reply) => {
       const body = request.body as { lspXXProfilePost: LSPXXProfilePost, signature: string };
+      await verifyJWT(request, reply, body.lspXXProfilePost.author);
 
       try {
-        const jwtError = await verifyJWT(request, reply, body.lspXXProfilePost.author);
-        if (jwtError) return jwtError;
-
         const post: ProfilePost = {
           LSPXXProfilePost: body.lspXXProfilePost,
           LSPXXProfilePostHash: '0x' + objectToKeccak256Hash(body.lspXXProfilePost),

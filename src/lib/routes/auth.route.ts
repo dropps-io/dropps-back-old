@@ -7,7 +7,6 @@ import {
 } from '../../bin/utils/error-messages';
 import {insertNonce, queryNonce, updateNonce} from '../../bin/db/nonces.table';
 import {generateAddressWithSignature} from '../../bin/web3/auth';
-import {generateJWT} from '../../bin/json-web-token';
 import {FastifyInstance} from 'fastify';
 import {IPFS_GATEWAY, JWT_VALIDITY_TIME} from '../../environment/config';
 import {logError, logMessage} from '../../bin/logger';
@@ -69,11 +68,17 @@ export async function authRoute (fastify: FastifyInstance) {
 
         await updateNonce(userAddress);
 
-        return reply.code(200).send({
-          token: generateJWT(userAddress),
-          userAddress: userAddress,
-          message: 'Token valid for ' + JWT_VALIDITY_TIME + 'h'
-        });
+        const jwtToken = fastify.jwt.sign({ address: userAddress }, { expiresIn: JWT_VALIDITY_TIME + 'h' });
+        const date = new Date();
+        date.setTime(date.getTime() + JWT_VALIDITY_TIME * 60 * 60 * 1000) // 6 hours from now
+
+        return reply.setCookie('token', jwtToken,{
+          path: '/',
+          expires: date,
+          httpOnly: true,
+          signed: true,
+          sameSite: true
+        }).code(200).send('JWT successfully set in cookies');
         /* eslint-disable */
       } catch (e: any) {
         logError(e);
@@ -114,22 +119,23 @@ export async function authRoute (fastify: FastifyInstance) {
 
                 await updateNonce(userAddress);
 
-                let jwtToken = generateJWT(userAddress);
-                let date = new Date();
-                date.setTime(date.getTime() + 6 * 60 * 60 * 1000) // 6 hours from now
+                let jwtToken = fastify.jwt.sign({ address: userAddress }, { expiresIn: JWT_VALIDITY_TIME + 'h' });
+                const date = new Date();
+                date.setTime(date.getTime() + JWT_VALIDITY_TIME * 60 * 60 * 1000) // 6 hours from now
                 
-                return reply.setCookie('jwt', jwtToken,{path: '/', expires: date, httpOnly:true}).code(200).send({
-                    token: jwtToken,
-                    address: userAddress,
-                    validity: JWT_VALIDITY_TIME
-                });
+                return reply.setCookie('token', jwtToken,{
+                  path: '/',
+                  expires: date,
+                  httpOnly: true,
+                  signed: true,
+                  sameSite: true
+                }).code(200).send('JWT successfully set in cookies');
                 /* eslint-disable */
             } catch (e: any) {
                 logError(e);
-                if (e.message.includes('Invalid signature')) return reply.code(400).send(error(400, ERROR_INVALID_SIGNATURE));
+                if (e.message && e.message.includes('Invalid signature')) return reply.code(400).send(error(400, ERROR_INVALID_SIGNATURE));
                 else return reply.code(500).send(error(500, ERROR_INTERNAL));
             }
         }
     });
-
 }
