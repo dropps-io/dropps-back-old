@@ -17,6 +17,6 @@ export function generateJWT(address: string): string {
 }
 
 export async function verifyJWT(req: FastifyRequest, res: FastifyReply, userAddress: string) {
-	const payload = await (req as any).jwtVerify();
+	const payload = await req.jwtVerify();
 	if (userAddress !== (payload as any).address) return res.code(403).send(error(403, ERROR_UNAUTHORIZED));
 }
