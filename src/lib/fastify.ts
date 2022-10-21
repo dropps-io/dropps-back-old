@@ -14,7 +14,7 @@ import {COOKIE_SECRET, JWT_SECRET} from '../environment/endpoints';
 
 export const fastify = fastifyFactory({logger: LOGGER});
 fastify.register(fastifyCors, {
-	origin: '*',
+	origin: ['http://localhost:3000', 'https://lookso.io', 'https://staging.lookso.io'],
 	credentials: true,
 	methods: ['POST', 'GET', 'PUT', 'DELETE']
 })
