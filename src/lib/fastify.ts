@@ -14,7 +14,8 @@ import {COOKIE_SECRET, JWT_SECRET} from '../environment/endpoints';
 
 export const fastify = fastifyFactory({logger: LOGGER});
 fastify.register(fastifyCors, {
-	origin: '*',
+	origin: 'http://localhost:3000',
+	credentials: true,
 	methods: ['POST', 'GET', 'PUT', 'DELETE']
 })
 	.register(jwt, {

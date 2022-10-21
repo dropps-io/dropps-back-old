@@ -76,6 +76,7 @@ export async function authRoute (fastify: FastifyInstance) {
           path: '/',
           expires: date,
           httpOnly: true,
+          secure: true,
           signed: true,
           sameSite: true
         }).code(200).send('JWT successfully set in cookies');
@@ -126,6 +127,7 @@ export async function authRoute (fastify: FastifyInstance) {
                 return reply.setCookie('token', jwtToken,{
                   path: '/',
                   expires: date,
+                  secure: true,
                   httpOnly: true,
                   signed: true,
                   sameSite: true
