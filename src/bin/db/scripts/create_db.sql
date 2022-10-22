@@ -5,7 +5,7 @@
 -- Dumped from database version 14.4
 -- Dumped by pg_dump version 14.4
 
--- Started on 2022-10-13 20:02:02
+-- Started on 2022-10-22 17:39:29
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -365,7 +365,7 @@ ALTER TABLE public.method_parameter OWNER TO postgres;
 
 CREATE TABLE public.nonces (
     "userAddress" character(42) NOT NULL,
-    nonce character(6) NOT NULL
+    nonce character(8) NOT NULL
 );
 
 
@@ -904,7 +904,7 @@ ALTER TABLE ONLY public.tag
     ADD CONSTRAINT tag_address_fkey FOREIGN KEY (address) REFERENCES public.contract_metadata(address) NOT VALID;
 
 
--- Completed on 2022-10-13 20:02:02
+-- Completed on 2022-10-22 17:39:29
 
 --
 -- PostgreSQL database dump complete
