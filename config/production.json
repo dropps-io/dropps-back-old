@@ -6,5 +6,6 @@
   "post_validator_address": ["0xCF3f83D711844E72947172Ebe8EadAF92900B146"],
   "http_rpc": "https://rpc.l16.lukso.network",
   "port": "3030",
-  "api_url": "https://api.lookso.io"
+  "api_url": "https://api.lookso.io",
+  "front_url": "https://lookso.io"
 }
