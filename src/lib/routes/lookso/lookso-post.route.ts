@@ -89,7 +89,7 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
           const response = [];
 
           const likesCount = await queryPostLikesCount(hash);
-          if (page >= likesCount / PROFILES_PER_LOAD) return reply.code(400).send(error(400, ERROR_INVALID_PAGE));
+          if (page && page >= likesCount / PROFILES_PER_LOAD) return reply.code(400).send(error(400, ERROR_INVALID_PAGE));
           const likes = await queryPostLikesWithNames(hash, PROFILES_PER_LOAD, page ? page * PROFILES_PER_LOAD : 0);
           for (let like of likes) {
             const images = await queryImagesByType(like.address, 'profile');
