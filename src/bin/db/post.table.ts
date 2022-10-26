@@ -8,17 +8,17 @@ export async function queryPost(hash: string): Promise<Post> {
 }
 
 export async function queryPostCommentsCount(hash: string): Promise<number> {
-	const res = await executeQuery('SELECT COUNT(*) FROM "post" WHERE "parentHash" = $1', [hash]);
+	const res = await executeQuery('SELECT COUNT(*) FROM "post" WHERE "parentHash" = $1 AND ("trusted" IS NULL OR "trusted"=true)', [hash]);
 	return parseInt(res.rows[0].count);
 }
 
 export async function queryPostRepostsCount(hash: string): Promise<number> {
-	const res = await executeQuery('SELECT COUNT(*) FROM "post" WHERE "childHash" = $1', [hash]);
+	const res = await executeQuery('SELECT COUNT(*) FROM "post" WHERE "childHash" = $1 AND ("trusted" IS NULL OR "trusted"=true)', [hash]);
 	return parseInt(res.rows[0].count);
 }
 
 export async function queryPosts(limit: number, offset: number, type?: 'event' | 'post'): Promise<Post[]> {
-	let query = 'SELECT * FROM "post" INNER JOIN "contract" ON post.author=contract.address WHERE "interfaceCode" = \'LSP0\' AND "parentHash" IS NULL';
+	let query = 'SELECT * FROM "post" INNER JOIN "contract" ON post.author=contract.address WHERE "interfaceCode" = \'LSP0\' AND "parentHash" IS NULL AND ("trusted" IS NULL OR "trusted"=true)';
 	if (type) query +=  type === 'event' ? ' AND "eventId" IS NOT NULL' : ' AND "eventId" IS NULL';
 	query += ' ORDER BY "date", "author", "hash" LIMIT $1 OFFSET $2';
 	const res = await executeQuery(query, [limit, offset]);
@@ -26,7 +26,7 @@ export async function queryPosts(limit: number, offset: number, type?: 'event' |
 }
 
 export async function queryPostsCount(type?: 'event' | 'post'): Promise<number> {
-	let query = 'SELECT COUNT(*) FROM "post" INNER JOIN "contract" ON post.author=contract.address WHERE "interfaceCode" = \'LSP0\' AND "parentHash" IS NULL';
+	let query = 'SELECT COUNT(*) FROM "post" INNER JOIN "contract" ON post.author=contract.address WHERE "interfaceCode" = \'LSP0\' AND "parentHash" IS NULL AND ("trusted" IS NULL OR "trusted"=true)';
 	if (type) query +=  type === 'event' ? ' AND "eventId" IS NOT NULL' : ' AND "eventId" IS NULL';
 	const res = await executeQuery(query);
 	if (res.rows[0]) return res.rows[0].count as number;
@@ -34,21 +34,21 @@ export async function queryPostsCount(type?: 'event' | 'post'): Promise<number> 
 }
 
 export async function queryPostComments(hash: string, limit: number, offset: number): Promise<Post[]> {
-	let query = 'SELECT * FROM "post" WHERE "parentHash" = $1 ORDER BY "date", "author", "hash" LIMIT $2 OFFSET $3';
+	let query = 'SELECT * FROM "post" WHERE "parentHash" = $1 ORDER BY "date", "author", "hash" LIMIT $2 OFFSET $3 AND ("trusted" IS NULL OR "trusted"=true)';
 	const res = await executeQuery(query, [hash, limit, offset]);
 	return res.rows as Post[];
 }
 
 export async function queryPostsOfUserCount(address: string, type?: 'event' | 'post'): Promise<number> {
-	let query = 'SELECT COUNT(*) FROM "post" WHERE "author" = $1 AND "parentHash" IS NULL';
-	if (type) query +=  type === 'event' ? ' AND "eventId" IS NOT NULL' : ' AND "eventId" IS NULL';
+	let query = 'SELECT COUNT(*) FROM "post" WHERE "author" = $1 AND "parentHash" IS NULL AND ("trusted" IS NULL OR "trusted"=true)';
+	if (type) query +=  type === 'event' ? ' AND "eventId" IS NOT NULL' : ' AND "eventId" IS NULL ';
 	const res = await executeQuery(query, [address]);
 	if (res.rows[0]) return res.rows[0].count as number;
 	else throw Error('Unable to fetch');
 }
 
 export async function queryPostsOfUser(address: string, limit: number, offset: number, type?: 'event' | 'post'): Promise<Post[]> {
-	let query = 'SELECT * FROM "post" WHERE "author" = $1 AND "parentHash" IS NULL';
+	let query = 'SELECT * FROM "post" WHERE "author" = $1 AND "parentHash" IS NULL AND ("trusted" IS NULL OR "trusted"=true)';
 	if (type) query +=  type === 'event' ? ' AND "eventId" IS NOT NULL' : ' AND "eventId" IS NULL';
 	query += ' ORDER BY "date", "author", "hash" LIMIT $2 OFFSET $3';
 	const res = await executeQuery(query, [address, limit, offset]);
@@ -65,7 +65,7 @@ export async function queryPostHashesOfUser(address: string, limit: number, offs
 
 export async function queryPostsOfUsersCount(addresses: string[],  type?: 'event' | 'post'): Promise<number> {
 	const params = addresses.map((a,i) => '$' + (i + 1).toString());
-	let query = 'SELECT COUNT(*) FROM "post" WHERE "parentHash" IS NULL AND "author" IN (' + params.join(',') + ')';
+	let query = 'SELECT COUNT(*) FROM "post" WHERE "parentHash" IS NULL AND "author" IN (' + params.join(',') + ') AND ("trusted" IS NULL OR "trusted"=true)';
 	if (type) query +=  type === 'event' ? ' AND "eventId" IS NOT NULL' : ' AND "eventId" IS NULL';
 	const res = await executeQuery(query, [...addresses]);
 	if (res.rows[0]) return res.rows[0].count as number;
@@ -74,7 +74,7 @@ export async function queryPostsOfUsersCount(addresses: string[],  type?: 'event
 
 export async function queryPostsOfUsers(addresses: string[], limit: number, offset: number,  type?: 'event' | 'post'): Promise<Post[]> {
 	const params = addresses.map((a,i) => '$' + (i + 3).toString());
-	let query = 'SELECT * FROM "post" WHERE "parentHash" IS NULL AND "author" IN (' + params.join(',') + ')';
+	let query = 'SELECT * FROM "post" WHERE "parentHash" IS NULL AND "author" IN (' + params.join(',') + ') AND ("trusted" IS NULL OR "trusted"=true)';
 	if (type) query +=  type === 'event' ? ' AND "eventId" IS NOT NULL' : ' AND "eventId" IS NULL';
 	query += ' ORDER BY "date", "author", "hash" LIMIT $1 OFFSET $2';
 	const res = await executeQuery(query, [limit, offset, ...addresses]);
