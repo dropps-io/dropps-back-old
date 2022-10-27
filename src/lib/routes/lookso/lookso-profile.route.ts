@@ -2,7 +2,7 @@ import {Post} from "../../../models/types/post";
 import {queryPostsOfUser, queryPostsOfUserCount, queryPostsOfUsers, queryPostsOfUsersCount} from "../../../bin/db/post.table";
 import {constructFeed} from "../../../bin/lookso/feed/construct-feed";
 import {logError} from "../../../bin/logger";
-import {error, ERROR_ADR_INVALID, ERROR_INTERNAL, ERROR_INVALID_PAGE, ERROR_NOT_FOUND} from "../../../bin/utils/error-messages";
+import {error, ERROR_INTERNAL, ERROR_INVALID_PAGE, ERROR_NOT_FOUND} from "../../../bin/utils/error-messages";
 import {
   queryFollow, queryFollowersCount, queryFollowersWithNames,
   queryFollowing,
@@ -14,7 +14,6 @@ import {queryLinks} from "../../../bin/db/link.table";
 import {queryImages, queryImagesByType} from "../../../bin/db/image.table";
 import {selectImage} from "../../../bin/utils/select-image";
 import {FastifyInstance} from "fastify";
-import {isAddress} from "../../../bin/utils/validators";
 import {
   queryNotificationsCountOfAddress,
   queryNotificationsOfAddress, queryNotViewedNotificationsCountOfAddress,
@@ -27,7 +26,7 @@ import {objectToBuffer} from "../../../bin/utils/file-converters";
 import {upload} from "../../../bin/arweave/utils/upload";
 import {buildJsonUrl} from "../../../bin/utils/json-url";
 import {deleteAddressRegistryChanges} from "../../../bin/db/registry-change.table";
-import {ADDRESS_SCHEMA_VALIDATION} from "../../../models/json/utils.schema";
+import {ADDRESS_SCHEMA_VALIDATION, PAGE_SCHEMA_VALIDATION, POST_TYPE_SCHEMA_VALIDATION} from "../../../models/json/utils.schema";
 import {API_URL, NOTIFICATIONS_PER_LOAD, POSTS_PER_LOAD, PROFILES_PER_LOAD} from "../../../environment/config";
 
 
@@ -39,16 +38,18 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
       description: 'Get posts linked to a profile.',
       tags: ['lookso'],
       querystring: {
-        page: { type: 'number', minimum: 0 },
-        postType: { enum: ['post', 'event'] },
+        page: PAGE_SCHEMA_VALIDATION,
+        postType: POST_TYPE_SCHEMA_VALIDATION,
         viewOf: ADDRESS_SCHEMA_VALIDATION,
+      },
+      params: {
+        address: ADDRESS_SCHEMA_VALIDATION
       },
       summary: 'Get profile feed.',
     },
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
       const query = request.query as { page?: number, postType?: 'event' | 'post', viewOf?: string };
-      if (!isAddress(address)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
 
       try {
         const count = await queryPostsOfUserCount(address, query.postType);
@@ -85,12 +86,14 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
         page: { type: 'number', minimum: 0 },
         postType: { enum: ['post', 'event'] },
       },
+      params: {
+        address: ADDRESS_SCHEMA_VALIDATION
+      },
       summary: 'Get profile feed.',
     },
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
       const query = request.query as { page?: number, postType?: 'event' | 'post' };
-      if (!isAddress(address)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
 
       try {
         const followingList = await queryFollowing(address);
@@ -132,10 +135,12 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
       description: 'Get profile name, description, picture, tags, links and background.',
       tags: ['lookso'],
       summary: 'Get profile info.',
+      params: {
+        address: ADDRESS_SCHEMA_VALIDATION
+      },
     },
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
-      if (!isAddress(address)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
 
       try {
         let metadata;
@@ -197,6 +202,9 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
       description: 'Get profile following count.',
       tags: ['lookso'],
       summary: 'Get profile following count.',
+      params: {
+        address: ADDRESS_SCHEMA_VALIDATION
+      },
     },
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
@@ -220,16 +228,18 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
       tags: ['lookso'],
       summary: 'Get profile followers list.',
       querystring: {
-        page: { type: 'number', minimum: 0 },
+        page: PAGE_SCHEMA_VALIDATION,
         follower: ADDRESS_SCHEMA_VALIDATION,
         viewOf: ADDRESS_SCHEMA_VALIDATION,
-      }
+      },
+      params: {
+        address: ADDRESS_SCHEMA_VALIDATION
+      },
     },
     handler: async (request, reply) => {
       const {address} = request.params as { address: string};
       const query = request.query as {follower?:string, page?: number, viewOf?: string};
       const page = query.page ? query.page : 0;
-      if (!isAddress(address)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
 
       try {
         if (query.follower) {
@@ -282,7 +292,10 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
     schema: {
       description: 'Get profile followers count.',
       tags: ['lookso'],
-      summary: 'Get profile followers count.'
+      summary: 'Get profile followers count.',
+      params: {
+        address: ADDRESS_SCHEMA_VALIDATION
+      },
     },
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
@@ -308,13 +321,15 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
         page: { type: 'number', minimum: 0 },
         viewOf: ADDRESS_SCHEMA_VALIDATION,
       },
+      params: {
+        address: ADDRESS_SCHEMA_VALIDATION
+      },
       summary: 'Get all the profiles a user is following.',
     },
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
       const query = request.query as {page?: number, viewOf?: string};
       const page = query.page ? query.page : 0;
-      if (!isAddress(address)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
 
       try {
         const response = [];
@@ -351,13 +366,15 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
       description: 'Get notifications of an address.',
       tags: ['lookso'],
       querystring: {
-        page: { type: 'number', minimum: 0 },
+        page: PAGE_SCHEMA_VALIDATION,
+      },
+      params: {
+        address: ADDRESS_SCHEMA_VALIDATION
       },
       summary: 'Get notifications of an address.',
     },
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
-      if (!isAddress(address)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
       const query = request.query as {page: number};
 
       try {
@@ -413,10 +430,12 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
       description: 'Get unviewed notifications count of an address.',
       tags: ['lookso'],
       summary: 'Get unviewed notifications count of an address.',
+      params: {
+        address: ADDRESS_SCHEMA_VALIDATION
+      },
     },
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
-      if (!isAddress(address)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
 
       try {
         const notificationsCount: number = await queryNotViewedNotificationsCountOfAddress(address);
@@ -437,10 +456,12 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
       description: 'Set all the notifications as viewed.',
       tags: ['lookso'],
       summary: 'Set all the notifications as viewed.',
+      params: {
+        address: ADDRESS_SCHEMA_VALIDATION
+      },
     },
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
-      if (!isAddress(address)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
       const jwtError = await verifyJWT(request, reply, address);
       if (jwtError) return jwtError;
 
@@ -463,10 +484,12 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
       description: 'Upload and get the new registry JSONURL.',
       tags: ['lookso'],
       summary: 'Upload and get the new registry JSONURL.',
+      params: {
+        address: ADDRESS_SCHEMA_VALIDATION
+      },
     },
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
-      if (!isAddress(address)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
       const jwtError = await verifyJWT(request, reply, address);
       if (jwtError) return jwtError;
 
@@ -490,10 +513,12 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
       description: 'Remove all the current registry pending changes.',
       tags: ['lookso'],
       summary: 'Remove all the current registry pending changes.',
+      params: {
+        address: ADDRESS_SCHEMA_VALIDATION
+      },
     },
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
-      if (!isAddress(address)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
       const jwtError = await verifyJWT(request, reply, address);
       if (jwtError) return jwtError;
 

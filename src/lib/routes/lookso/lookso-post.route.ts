@@ -2,7 +2,7 @@ import {queryPostLike, queryPostLikesCount, queryPostLikesWithNames} from "../..
 import {queryImagesByType} from "../../../bin/db/image.table";
 import {selectImage} from "../../../bin/utils/select-image";
 import {logError} from "../../../bin/logger";
-import {error, ERROR_ADR_INVALID, ERROR_HASH_INVALID, ERROR_INTERNAL, ERROR_INVALID_PAGE, FILE_TYPE_NOT_SUPPORTED} from "../../../bin/utils/error-messages";
+import {error, ERROR_INTERNAL, ERROR_INVALID_PAGE, FILE_TYPE_NOT_SUPPORTED} from "../../../bin/utils/error-messages";
 import {LSPXXProfilePost, ProfilePost} from "../../../bin/lookso/registry/types/profile-post";
 import {verifyJWT} from "../../../bin/json-web-token";
 import sharp from "sharp";
@@ -16,9 +16,8 @@ import {Post} from "../../../models/types/post";
 import {applyChangesToRegistry} from "../../../bin/lookso/registry/apply-changes-to-registry";
 import {upload} from "../../../bin/arweave/utils/upload";
 import multer from "fastify-multer";
-import {isAddress, isHash} from "../../../bin/utils/validators";
 import {queryFollow} from "../../../bin/db/follow.table";
-import {ADDRESS_SCHEMA_VALIDATION} from "../../../models/json/utils.schema";
+import {ADDRESS_SCHEMA_VALIDATION, HASH_SCHEMA_VALIDATION, PAGE_SCHEMA_VALIDATION} from "../../../models/json/utils.schema";
 import {API_URL, COMMENTS_PER_LOAD, PROFILES_PER_LOAD} from "../../../environment/config";
 
 interface MulterRequest extends Request {
@@ -35,14 +34,15 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
       tags: ['lookso'],
       summary: 'Get a post information.',
       querystring: {
-        viewOf: { type: 'string' },
+        viewOf: ADDRESS_SCHEMA_VALIDATION,
+      },
+      params: {
+        hash: HASH_SCHEMA_VALIDATION
       },
     },
     handler: async (request, reply) => {
       const {hash} = request.params as { hash: string};
       const {viewOf} = request.query as { viewOf?: string };
-      if (viewOf && !isAddress(viewOf)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
-      if (!isHash(hash)) reply.code(400).send(error(400, ERROR_HASH_INVALID));
 
       try {
         const post = await queryPost(hash);
@@ -64,16 +64,17 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
       tags: ['lookso'],
       summary: 'Get profile likes list.',
       querystring: {
-        page: { type: 'number', minimum: 0 },
+        page: PAGE_SCHEMA_VALIDATION,
         sender: ADDRESS_SCHEMA_VALIDATION,
         viewOf: ADDRESS_SCHEMA_VALIDATION
-      }
+      },
+      params: {
+        hash: HASH_SCHEMA_VALIDATION
+      },
     },
     handler: async (request, reply) => {
       const {hash} = request.params as { hash: string};
       const query = request.query as {viewOf?: string, sender?:string, page?: number};
-      if (!isHash(hash)) reply.code(400).send(error(400, ERROR_HASH_INVALID));
-
       const page = query.page ? query.page : 0;
 
       try {
@@ -127,12 +128,14 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
         page: { type: 'number', minimum: 0 },
         viewOf: ADDRESS_SCHEMA_VALIDATION,
       },
+      params: {
+        hash: HASH_SCHEMA_VALIDATION
+      },
       summary: 'Get post comments.',
     },
     handler: async (request, reply) => {
       const {hash} = request.params as { hash: string };
       const query = request.query as { page?: number, viewOf?: string };
-      if (!isHash(hash)) reply.code(400).send(error(400, ERROR_HASH_INVALID));
 
       try {
         const count = await queryPostCommentsCount(hash);
@@ -166,7 +169,7 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
     schema: {
       description: 'Upload a media to arweave.',
       tags: ['lookso'],
-      summary: 'Upload a media to arweave.'
+      summary: 'Upload a media to arweave.',
     },
     handler: async (request, reply) => {
       const body = request.body as { lspXXProfilePost: string};

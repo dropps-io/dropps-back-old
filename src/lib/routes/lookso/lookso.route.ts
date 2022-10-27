@@ -23,7 +23,7 @@ import {applyChangesToRegistry} from "../../../bin/lookso/registry/apply-changes
 import {buildJsonUrl} from "../../../bin/utils/json-url";
 import {upload} from "../../../bin/arweave/utils/upload";
 import {objectToBuffer} from "../../../bin/utils/file-converters";
-import {ADDRESS_SCHEMA_VALIDATION} from "../../../models/json/utils.schema";
+import {ADDRESS_SCHEMA_VALIDATION, HASH_SCHEMA_VALIDATION, PAGE_SCHEMA_VALIDATION, POST_TYPE_SCHEMA_VALIDATION} from "../../../models/json/utils.schema";
 
 export async function looksoRoute (fastify: FastifyInstance) {
 
@@ -34,6 +34,15 @@ export async function looksoRoute (fastify: FastifyInstance) {
 			description: 'Follow a new profile.',
 			tags: ['lookso'],
 			summary: 'Follow a new profile',
+			body: {
+				type: 'object',
+				required: ['follower', 'following'],
+				additionalProperties: false,
+				properties: {
+					follower: {...ADDRESS_SCHEMA_VALIDATION, description: 'Address of the logged user'},
+					following: {...ADDRESS_SCHEMA_VALIDATION, description: 'Address to follow'}
+				}
+			}
 		},
 		handler: async (request, reply) => {
 			const body = request.body as Follow;
@@ -75,6 +84,15 @@ export async function looksoRoute (fastify: FastifyInstance) {
 			description: 'Follow a new profile.',
 			tags: ['lookso'],
 			summary: 'Follow a new profile',
+			body: {
+				type: 'object',
+				required: ['follower', 'following'],
+				additionalProperties: false,
+				properties: {
+					follower: {...ADDRESS_SCHEMA_VALIDATION, description: 'Address of the logged user'},
+					following: {...ADDRESS_SCHEMA_VALIDATION, description: 'Address to unfollow'}
+				}
+			}
 		},
 		handler: async (request, reply) => {
 			const body = request.body as Follow;
@@ -115,6 +133,15 @@ export async function looksoRoute (fastify: FastifyInstance) {
 			description: 'Like or unlike a post.',
 			tags: ['lookso'],
 			summary: 'Like or unlike a post',
+			body: {
+				type: 'object',
+				required: ['sender', 'postHash'],
+				additionalProperties: false,
+				properties: {
+					sender: {...ADDRESS_SCHEMA_VALIDATION, description: 'Address of the logged user'},
+					postHash: {...HASH_SCHEMA_VALIDATION, description: 'Hash of the post to like'}
+				}
+			}
 		},
 		handler: async (request, reply) => {
 			const body = request.body as Like;
@@ -163,9 +190,9 @@ export async function looksoRoute (fastify: FastifyInstance) {
 			description: 'Get posts linked to a profile.',
 			tags: ['lookso'],
 			querystring: {
-				page: { type: 'number', minimum: 0 },
-				postType: { enum: ['post', 'event'] },
-				viewOf: ADDRESS_SCHEMA_VALIDATION,
+				page: PAGE_SCHEMA_VALIDATION,
+				postType: POST_TYPE_SCHEMA_VALIDATION,
+				viewOf: {...ADDRESS_SCHEMA_VALIDATION, description: 'Address of the user connected to the feed'},
 			},
 			summary: 'Get profile feed.',
 		},
@@ -204,7 +231,7 @@ export async function looksoRoute (fastify: FastifyInstance) {
 			description: 'Search in our database with an input.',
 			tags: ['lookso'],
 			querystring: {
-				page: { type: 'number', minimum: 0 }
+				page: PAGE_SCHEMA_VALIDATION
 			},
 			summary: 'Search in our database with an input.',
 		},
