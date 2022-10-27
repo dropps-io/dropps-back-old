@@ -37,7 +37,8 @@ export async function looksoRoute (fastify: FastifyInstance) {
 		},
 		handler: async (request, reply) => {
 			const body = request.body as Follow;
-			await verifyJWT(request, reply, body.follower);
+			const jwtError = await verifyJWT(request, reply, body.follower);
+			if (jwtError) return jwtError;
 
 			const registryChangesCount = await queryRegistryChangesCountOfAddress(body.follower);
 			if (registryChangesCount >= MAX_OFFCHAIN_REGISTRY_CHANGES) return reply.code(409).send(error(409, PUSH_REGISTRY_REQUIRED));
@@ -77,7 +78,8 @@ export async function looksoRoute (fastify: FastifyInstance) {
 		},
 		handler: async (request, reply) => {
 			const body = request.body as Follow;
-			await verifyJWT(request, reply, body.follower);
+			const jwtError = await verifyJWT(request, reply, body.follower);
+			if (jwtError) return jwtError;
 
 			const registryChangesCount = await queryRegistryChangesCountOfAddress(body.follower);
 			if (registryChangesCount >= MAX_OFFCHAIN_REGISTRY_CHANGES) return reply.code(409).send(error(409, PUSH_REGISTRY_REQUIRED));
@@ -116,7 +118,8 @@ export async function looksoRoute (fastify: FastifyInstance) {
 		},
 		handler: async (request, reply) => {
 			const body = request.body as Like;
-			await verifyJWT(request, reply, body.sender);
+			const jwtError = await verifyJWT(request, reply, body.sender);
+			if (jwtError) return jwtError;
 
 			const registryChangesCount = await queryRegistryChangesCountOfAddress(body.sender);
 			if (registryChangesCount >= MAX_OFFCHAIN_REGISTRY_CHANGES) return reply.code(409).send(error(409, PUSH_REGISTRY_REQUIRED));

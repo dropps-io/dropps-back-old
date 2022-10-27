@@ -21,6 +21,7 @@ import {
   setViewedToAddressNotifications
 } from "../../../bin/db/notification.table";
 import {NotificationWithSenderDetails} from "../../../models/types/notification";
+import {verifyJWT} from "../../../bin/json-web-token";
 import {applyChangesToRegistry} from "../../../bin/lookso/registry/apply-changes-to-registry";
 import {objectToBuffer} from "../../../bin/utils/file-converters";
 import {upload} from "../../../bin/arweave/utils/upload";
@@ -28,7 +29,6 @@ import {buildJsonUrl} from "../../../bin/utils/json-url";
 import {deleteAddressRegistryChanges} from "../../../bin/db/registry-change.table";
 import {ADDRESS_SCHEMA_VALIDATION} from "../../../models/json/utils.schema";
 import {API_URL, NOTIFICATIONS_PER_LOAD, POSTS_PER_LOAD, PROFILES_PER_LOAD} from "../../../environment/config";
-import {verifyJWT} from "../../../bin/json-web-token";
 
 
 export function looksoProfileRoutes(fastify: FastifyInstance) {
@@ -441,7 +441,8 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
       if (!isAddress(address)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
-      await verifyJWT(request, reply, address);
+      const jwtError = await verifyJWT(request, reply, address);
+      if (jwtError) return jwtError;
 
       try {
         await setViewedToAddressNotifications(address);
@@ -466,7 +467,8 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
       if (!isAddress(address)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
-      await verifyJWT(request, reply, address);
+      const jwtError = await verifyJWT(request, reply, address);
+      if (jwtError) return jwtError;
 
       try {
         const registry = await applyChangesToRegistry(address);
@@ -492,7 +494,8 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
     handler: async (request, reply) => {
       const {address} = request.params as { address: string };
       if (!isAddress(address)) reply.code(400).send(error(400, ERROR_ADR_INVALID));
-      await verifyJWT(request, reply, address);
+      const jwtError = await verifyJWT(request, reply, address);
+      if (jwtError) return jwtError;
 
       try {
         await deleteAddressRegistryChanges(address);

@@ -136,7 +136,7 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
 
       try {
         const count = await queryPostCommentsCount(hash);
-        if (count == 0) return reply.code(200).send({count: 0, page: null, next: null, previous: null, results: []});
+        if (count === 0) return reply.code(200).send({count: 0, page: null, next: null, previous: null, results: []});
         const page = query.page !== undefined ? query.page : Math.ceil(count / COMMENTS_PER_LOAD) - 1;
         if (page >= count / COMMENTS_PER_LOAD) return reply.code(400).send(error(400, ERROR_INVALID_PAGE));
         const posts: Post[] = await queryPostComments(hash, COMMENTS_PER_LOAD, page * COMMENTS_PER_LOAD);
@@ -172,7 +172,8 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
       const body = request.body as { lspXXProfilePost: string};
       const documentFile: any = (request as unknown as MulterRequest).file;
       const post: LSPXXProfilePost = JSON.parse(body.lspXXProfilePost) as LSPXXProfilePost;
-      await verifyJWT(request, reply, post.author);
+      const jwtError = await verifyJWT(request, reply, post.author);
+      if (jwtError) return jwtError;
 
       let buffer = documentFile.buffer;
       let fileType = documentFile.mimetype;
@@ -212,9 +213,11 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
     },
     handler: async (request, reply) => {
       const body = request.body as { lspXXProfilePost: LSPXXProfilePost, signature: string };
-      await verifyJWT(request, reply, body.lspXXProfilePost.author);
 
       try {
+        const jwtError = await verifyJWT(request, reply, body.lspXXProfilePost.author);
+        if (jwtError) return jwtError;
+
         const post: ProfilePost = {
           LSPXXProfilePost: body.lspXXProfilePost,
           LSPXXProfilePostHash: '0x' + objectToKeccak256Hash(body.lspXXProfilePost),

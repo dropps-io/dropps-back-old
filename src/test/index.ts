@@ -4,8 +4,8 @@ import {LooksoTests} from "./end-to-end/lookso/lookso.test";
 import {after} from "mocha";
 import {DB} from "../bin/db/database";
 
-after(() => {
-  DB.end()
+after(async () => {
+  await DB.end()
 })
 
 describe('Test', () => {

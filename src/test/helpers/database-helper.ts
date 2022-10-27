@@ -30,5 +30,6 @@ const clearDBQueries = [
 export async function clearDB(): Promise<void> {
 	for(let query of clearDBQueries) {
 		await executeQuery(query);
+		await executeQuery('COMMIT');
 	}
 }
