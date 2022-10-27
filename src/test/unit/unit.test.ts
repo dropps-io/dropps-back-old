@@ -21,6 +21,7 @@ import {KeyDisplayTests} from "./db/key-display.test";
 import {Erc725ySchemaTests} from "./db/erc725y-schema.test";
 import {NotificationTests} from "./db/notification.test";
 import {RegistryChangeTests} from "./db/registry-changes.test";
+import {GenerateRegistryTest} from "./lookso/generate-registry.test";
 
 export const UnitTests = () => {
     describe('Unit Tests', () => {
@@ -48,5 +49,6 @@ export const UnitTests = () => {
             NotificationTests();
             RegistryChangeTests();
         });
+        GenerateRegistryTest();
     });
 }
