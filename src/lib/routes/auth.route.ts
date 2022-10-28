@@ -9,12 +9,12 @@ import {UniversalProfileReader} from "../../bin/UniversalProfile/UniversalProfil
 import {web3} from "../../bin/web3/web3";
 import {SiweMessage} from "siwe";
 
-function createSiweMessage(address: string, issuedAt: string, nonce: string) {
+function createSiweMessage(address: string, issuedAt: string, path: string, nonce: string) {
   return (new SiweMessage({
     domain: FRONT_URL.split('//')[1],
     address,
     statement: 'Welcome to LOOKSO!',
-    uri: FRONT_URL,
+    uri: FRONT_URL + path,
     version: '1',
     chainId: 2828, // For LUKSO L16
     nonce,
@@ -31,16 +31,23 @@ export async function authRoute (fastify: FastifyInstance) {
 			description: 'Get the current nonce of a specific user.',
 			tags: ['auth'],
 			summary: 'Get a user nonce',
+      querystring: {
+        type: 'object',
+        properties: {
+          path: {type: 'string', description: 'Path of the URI'},
+        }
+      }
 		},
 		handler: async (request, reply) => {
 			try {
 				const {address} = request.params as { address: string };
+				const {path} = request.query as { path?: string };
 				if (!isAddress(address)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
 				let nonce: string = await queryNonce(address);
 				if (!nonce) nonce = await insertNonce(address);
 
         const issuedAt = new Date().toISOString();
-        const message = createSiweMessage(address, issuedAt, nonce);
+        const message = createSiweMessage(address, issuedAt, path ? path : '/', nonce);
 
 				return reply.code(200).send({message, issuedAt});
 				/* eslint-disable */
@@ -114,18 +121,19 @@ export async function authRoute (fastify: FastifyInstance) {
                 required: ['signedMessage', 'issuedAt'],
                 properties: {
                   signedMessage: {type: 'string', description: 'Message signed by the user'},
-                  issuedAt: {type: 'string', description: 'Date in ISO format when the message to sign has been sent to the user'}
+                  issuedAt: {type: 'string', description: 'Date in ISO format when the message to sign has been sent to the user'},
+                  path: {type: 'string', description: 'Path of the URI'},
                 }
             }
         },
         handler: async (request, reply) => {
             const {address} = request.params as { address: string };
-            const {signedMessage, issuedAt} = request.body as { signedMessage: string, issuedAt: string };
+            const {signedMessage, issuedAt, path} = request.body as { signedMessage: string, issuedAt: string, path?: string };
 
             try {
               if (!isAddress(address)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
               const nonce: string = await queryNonce(address);
-              const message = createSiweMessage(address, issuedAt, nonce);
+              const message = createSiweMessage(address, issuedAt, path ? path : '/', nonce);
 
               const controllerAddress = generateAddressWithSignature(message, signedMessage);
               const profile = new UniversalProfileReader(address, IPFS_GATEWAY, web3);
