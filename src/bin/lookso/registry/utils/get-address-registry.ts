@@ -6,6 +6,8 @@ import axios from "axios";
 import {formatUrl} from "../../../utils/format-url";
 import {decodeJsonUrl} from "../../../utils/json-url";
 import {IPFS_GATEWAY} from "../../../../environment/config";
+import {querySenderLikes} from "../../../db/like.table";
+import {queryFollowing} from "../../../db/follow.table";
 
 export async function getProfileRegistry(address: string): Promise<SocialRegistry> {
   const universalProfile = new UniversalProfileReader(address, IPFS_GATEWAY, web3);
@@ -21,6 +23,12 @@ export async function getProfileRegistry(address: string): Promise<SocialRegistr
   }
   catch (error:any) {
     if (error.message.includes('Cannot read properties of null')) return {posts: [], likes: [], follows: []};
+    else if (error.message.includes('unescaped')) {
+      // TODO also fetch the posts (to do so we need to save the posts URLs when we fetch them)
+      const likes = await querySenderLikes(address);
+      const following = await queryFollowing(address);
+      return {posts: [], likes: likes, follows: following};
+    }
     else throw error;
   }
 }
