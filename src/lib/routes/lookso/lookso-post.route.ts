@@ -216,11 +216,10 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
     },
     handler: async (request, reply) => {
       const body = request.body as { lspXXProfilePost: LSPXXProfilePost, signature: string };
+      const jwtError = await verifyJWT(request, reply, body.lspXXProfilePost.author);
+      if (jwtError) return jwtError;
 
       try {
-        const jwtError = await verifyJWT(request, reply, body.lspXXProfilePost.author);
-        if (jwtError) return jwtError;
-
         const post: ProfilePost = {
           LSPXXProfilePost: body.lspXXProfilePost,
           LSPXXProfilePostHash: '0x' + objectToKeccak256Hash(body.lspXXProfilePost),
