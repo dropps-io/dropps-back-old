@@ -6,7 +6,7 @@
   "scripts": {
     "build": "npx tsc",
     "watch": "npx tsc --watch",
-    "start:dev": "set NODE_ENV=development&&node dist/index.js",
+    "start:dev": "set NODE_ENV=development&&ts-node src/index.ts",
     "start:staging": "npm run build&&NODE_ENV='staging' node dist/index.js",
     "start:prod": "npm run build&&NODE_ENV='production' node dist/index.js",
     "lint": "eslint src/**/*",

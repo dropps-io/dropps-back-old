@@ -96,6 +96,7 @@ export async function generateEventDisplay(methodId: string, params: Map<string,
 
 export async function generateDataChangedDisplay(event: Event, parameters: Map<string, DecodedParameter>): Promise<FeedDisplay> {
   const dataKey = parameters.get('dataKey');
+  const dataValue = parameters.get('dataValue');
   let schema: Erc725ySchema, display: KeyDisplay, value: string;
 
   if (!dataKey) return await generateEventDisplay(event.topic.slice(0, 10), parameters);
@@ -107,10 +108,19 @@ export async function generateDataChangedDisplay(event: Event, parameters: Map<s
   }
 
   try {
-      display = await queryKeyDisplay(dataKey ? dataKey.value : '');
+    display = await queryKeyDisplay(dataKey ? dataKey.value : '');
   } catch (e) {
-      parameters.set(dataKey.name, {name: dataKey.name, value: schema.name, displayType: '', type: 'string'});
-      return await generateEventDisplay(event.topic.slice(0, 10), parameters);
+    if (!dataValue) return await generateEventDisplay(event.topic.slice(0, 10), parameters);
+    parameters.set(dataKey.name, {name: dataKey.name, value: schema.name, displayType: '', type: 'string'});
+    parameters.set('dataValue', {...dataValue, type: schema.valueType});
+
+    if (schema.key !== dataKey.value && schema.keyType === 'Array') {
+      parameters.set(dataKey.name, {name: dataKey.name, value: schema.name.slice(0, schema.name.length - 1) + web3.utils.toNumber(dataKey.value.slice(34)).toString() + ']', displayType: '', type: 'string'});
+    }
+    else if (schema.key === dataKey.value && schema.keyType === 'Array' && dataValue) {
+      parameters.set('dataValue', {...dataValue, value: web3.utils.toNumber(dataValue.value).toString(), type: 'number'});
+    }
+    return await generateEventDisplay(event.topic.slice(0, 10), parameters);
   }
 
   let displayParams: {[key: string]: FeedDisplayParam} = {};

@@ -2,7 +2,7 @@ import {executeQuery} from "./database";
 import {Erc725ySchema} from "../../models/types/erc725y-schema";
 
 export async function queryErc725ySchema(key: string): Promise<Erc725ySchema> {
-  const res = await executeQuery('SELECT * FROM "erc725y_schema" WHERE "key" = $1', [key]);
+  const res = await executeQuery('SELECT * FROM "erc725y_schema" WHERE LOWER(key) LIKE LOWER($1)', [`%${key.slice(0, 26)}%`]);
   if (res.rows.length > 0) return res.rows[0];
   else throw 'No schema found for the key: ' + key;
 }
