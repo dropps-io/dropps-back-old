@@ -191,7 +191,7 @@ CREATE TABLE public.erc725y_schema (
     "keyType" character varying NOT NULL,
     "valueType" character varying NOT NULL,
     "valueContent" character varying NOT NULL,
-    "displayValueType" character varying
+    "valueDisplay" character varying
 );
 
 
