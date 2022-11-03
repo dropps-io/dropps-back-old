@@ -43,6 +43,7 @@ export async function setDisplays() {
   await insertMethodDisplay('0x7e71433d', 'Received {value}{nativeToken} from {sender}', 'sender', '', '');
   await insertMethodDisplay('0x9c3ba68e', 'Received {from}', 'from', '', 'from');
   await insertKeyDisplay('0x5ef83ad9559033e6e941db7d7c495acdce616347d28e90c7ce47cbfcfcad3bc5', 'Profile metadata updated', 'Profile metadata updated');
+  await insertKeyDisplay('0x4b80742de2bf82acb3630000<address>', 'Permissions of {address} set to {dataValue}', 'Permissions set for the {address}');
   await insertMethodParameterDisplayType('0x7580d920', 'amount', 'tokenAmount');
   await insertMethodParameterDisplayType('0x760d9bba', 'amount', 'tokenAmount');
   await insertMethodParameterDisplayType('0x7e71433d', 'value', 'native');

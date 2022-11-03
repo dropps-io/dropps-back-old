@@ -26,6 +26,18 @@ export async function getDisplayParam(value: string, type: string): Promise<Feed
             } catch (e) {
                 return {display: 'unknown function', value, type, additionalProperties: {}};
             }
+        case 'permissions':
+            try {
+                const permissions = ERC725.decodePermissions(value);
+                let permissionsDisplay: string = '';
+                for (let permissionsKey in permissions) {
+                    // @ts-ignore
+                    if (permissions[permissionsKey]) permissionsDisplay += permissionsDisplay !== '' ?  `;${permissionsKey}` : permissionsKey;
+                }
+                return {value, display: permissionsDisplay, type, additionalProperties: {}};
+            } catch (e) {
+                return {value, display: '', type, additionalProperties: {}};
+            }
         default:
             return {value, display: '', type, additionalProperties: {}};
     }

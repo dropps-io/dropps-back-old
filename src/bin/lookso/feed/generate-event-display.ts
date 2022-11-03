@@ -10,7 +10,6 @@ import {queryMethodParameterDisplayType} from "../../db/method-parameter.table";
 import {FeedDisplay, FeedDisplayParam} from "../../../models/types/feed-post";
 import {selectImage} from "../../utils/select-image";
 import {Event} from "../../../models/types/event";
-import {queryDataKeyValueAtBlockNumber} from "../../db/data-changed.table";
 import {KeyDisplay} from "../../../models/types/key-display";
 import {queryKeyDisplay} from "../../db/key-display.table";
 import {ERC725, ERC725JSONSchema} from "@erc725/erc725.js";
@@ -29,6 +28,7 @@ import {AbiItem} from "web3-utils";
 import LSP7DigitalAsset from "@lukso/lsp-smart-contracts/artifacts/LSP7DigitalAsset.json";
 import Web3 from "web3";
 import {logError} from "../../logger";
+import {decodeKeyHash} from "../../erc725/decodeKeyHash";
 
 
 export async function generateEventDisplay(methodId: string, params: Map<string, DecodedParameter>, context?: {senderProfile?: string, executionContract?: string}): Promise<FeedDisplay> {
@@ -97,7 +97,7 @@ export async function generateEventDisplay(methodId: string, params: Map<string,
 export async function generateDataChangedDisplay(event: Event, parameters: Map<string, DecodedParameter>): Promise<FeedDisplay> {
   const dataKey = parameters.get('dataKey');
   const dataValue = parameters.get('dataValue');
-  let schema: Erc725ySchema, display: KeyDisplay, value: string;
+  let schema: Erc725ySchema, display: KeyDisplay;
 
   if (!dataKey) return await generateEventDisplay(event.topic.slice(0, 10), parameters);
 
@@ -125,15 +125,18 @@ export async function generateDataChangedDisplay(event: Event, parameters: Map<s
 
   let displayParams: {[key: string]: FeedDisplayParam} = {};
 
-  try {
-    value = await queryDataKeyValueAtBlockNumber(event.address, dataKey ? dataKey.value : '', event.blockNumber);
-    const decodedData = ERC725.decodeData([{value: value, keyName: schema.name}], [schema])[schema.name];
+  for (const dynamicPart of decodeKeyHash(dataKey.value, schema)) {
+    displayParams[dynamicPart.type] = await getDisplayParam(dynamicPart.value.toString(), dynamicPart.type);
+  }
 
+  if (dataValue) {
     for (let word of getWordsBetweenCurlies(display.display)) {
-      if (word === 'dataValue') displayParams['dataValue'] = await getDisplayParam(decodedData, schema.displayValueType ? schema.displayValueType : schema.valueType);
+      if (word === 'dataValue') displayParams['dataValue'] = await getDisplayParam(dataValue.value, schema.valueDisplay ? schema.valueDisplay : schema.valueType);
     }
+
     return {text: display.display, params: displayParams, image: '', tags: {standard: 'ERC725Y', standardType: null, copies: null}};
-  } catch (e) {
+  }
+  else {
     logError('Failed to fetch the value of the key ' + dataKey.value + ' at the block ' + event.blockNumber + ' for the address ' + event.address);
     return {text: display.displayWithoutValue, params: displayParams, image: '', tags: {standard: null, standardType: null, copies: null}};
   }

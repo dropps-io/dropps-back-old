@@ -2,7 +2,7 @@ import {executeQuery} from "./database";
 import {KeyDisplay} from "../../models/types/key-display";
 
 export async function queryKeyDisplay(key: string): Promise<KeyDisplay> {
-  const res = await executeQuery('SELECT * FROM "key_display" WHERE "key" = $1', [key]);
+  const res = await executeQuery('SELECT * FROM "key_display" WHERE LOWER(key) LIKE LOWER($1)', [`%${key.slice(0, 26)}%`]);
   if (res.rows.length > 0) return res.rows[0];
   else throw 'No display found for the key: ' + key;
 }
