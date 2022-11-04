@@ -45,24 +45,25 @@ export async function getDisplayParam(value: string, type: string): Promise<Feed
 
 async function queryAddressDisplayParam(address:string): Promise<FeedDisplayParam> {
     let contract: Contract, name: string;
+    const checkSumAddress = web3.utils.toChecksumAddress(address);
     try {
-        contract = await queryContract(address);
+        contract = await queryContract(checkSumAddress);
     } catch (e) {
-        return {value: address, display: '', type: 'address', additionalProperties: {interfaceCode: ''}};
+        return {value: checkSumAddress, display: '', type: 'address', additionalProperties: {interfaceCode: ''}};
     }
 
-    if (!contract || !contract.interfaceCode) return {value: address, display: '', type: 'address', additionalProperties: {interfaceCode: ''}};
+    if (!contract || !contract.interfaceCode) return {value: checkSumAddress, display: '', type: 'address', additionalProperties: {interfaceCode: ''}};
 
     try {
-        name = await queryContractName(address);
+        name = await queryContractName(checkSumAddress);
 
         if (name === '' && (contract.interfaceCode === 'LSP7' || contract.interfaceCode === 'LSP8')) {
             try {
-                const erc725Y = new ERC725(LSP4DigitalAssetJSON as ERC725JSONSchema[], address, web3.currentProvider, {ipfsGateway: IPFS_GATEWAY});
+                const erc725Y = new ERC725(LSP4DigitalAssetJSON as ERC725JSONSchema[], checkSumAddress, web3.currentProvider, {ipfsGateway: IPFS_GATEWAY});
                 const data = await erc725Y.getData('LSP4TokenName');
                 if (data && data.value) {
                     name = data.value as string;
-                    tryToUpdateName(address, name);
+                    tryToUpdateName(checkSumAddress, name);
                 }
             }
             catch (e) {
