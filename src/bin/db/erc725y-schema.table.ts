@@ -10,3 +10,7 @@ export async function queryErc725ySchema(key: string): Promise<Erc725ySchema> {
 export async function insertErc725ySchema(key: string, name: string, keyType: string, valueType: string, valueContent: string): Promise<void> {
   await executeQuery('INSERT INTO "erc725y_schema" VALUES ($1, $2, $3, $4, $5)', [key, name, keyType, valueType, valueContent]);
 }
+
+export async function setErc725ySchemaValueDisplay(name: string, valueDisplay: string): Promise<void> {
+  await executeQuery('UPDATE "erc725y_schema" SET "valueDisplay"=$2 WHERE name=$1', [name, valueDisplay]);
+}
