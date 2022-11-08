@@ -34,6 +34,7 @@ export async function getDisplayParam(value: string, type: string): Promise<Feed
                     // @ts-ignore
                     if (permissions[permissionsKey]) permissionsDisplay += permissionsDisplay !== '' ?  `;${permissionsKey}` : permissionsKey;
                 }
+                if (permissionsDisplay === '') permissionsDisplay = 'NONE';
                 return {value, display: permissionsDisplay, type, additionalProperties: {}};
             } catch (e) {
                 return {value, display: '', type, additionalProperties: {}};
