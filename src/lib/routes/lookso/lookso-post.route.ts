@@ -215,7 +215,7 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
       summary: 'Upload a post to arweave.'
     },
     handler: async (request, reply) => {
-      const body = request.body as { lspXXProfilePost: LSPXXProfilePost, signature: string };
+      const body = request.body as { lspXXProfilePost: LSPXXProfilePost };
       const jwtError = await verifyJWT(request, reply, body.lspXXProfilePost.author);
       if (jwtError) return jwtError;
 
@@ -223,7 +223,6 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
         const post: ProfilePost = {
           LSPXXProfilePost: body.lspXXProfilePost,
           LSPXXProfilePostHash: '0x' + objectToKeccak256Hash(body.lspXXProfilePost),
-          LSPXXProfilePostEOASignature: body.signature
         }
 
         const postUrl = await upload(objectToBuffer(post), 'application/json');

@@ -21,5 +21,4 @@ export type LSPXXProfilePost = {
 export type ProfilePost = {
   LSPXXProfilePost: LSPXXProfilePost
   LSPXXProfilePostHash: string,
-  LSPXXProfilePostEOASignature?: string,
 }
