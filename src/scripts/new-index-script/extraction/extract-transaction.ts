@@ -1,5 +1,4 @@
 import {web3} from "../../../bin/web3/web3";
-import {decodeTransactionFinalInput} from "../../blockchain-indexing/utils/tx-final-input";
 import {MethodParameter} from "../../../models/types/method-parameter";
 import {queryMethodParameters} from "../../../bin/db/method-parameter.table";
 import {Transaction} from "../../../models/types/transaction";
@@ -12,7 +11,6 @@ export async function extractTransaction(log: Log): Promise<{transaction: Transa
   let parameters: MethodParameter[] = [];
   try {
     transaction = {...await web3.eth.getTransaction(log.transactionHash), methodId: ''};
-    transaction.input = decodeTransactionFinalInput(transaction.input);
   } catch (e) {
     await reportIndexingScriptError('extractTransaction', e);
     throw 'Failed to get transaction';
