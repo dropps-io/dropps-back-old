@@ -1,4 +1,5 @@
 import {web3} from "../../../bin/web3/web3";
+import {decodeTransactionFinalInput} from "../../blockchain-indexing/utils/tx-final-input";
 import {MethodParameter} from "../../../models/types/method-parameter";
 import {queryMethodParameters} from "../../../bin/db/method-parameter.table";
 import {Transaction} from "../../../models/types/transaction";
@@ -16,9 +17,10 @@ export async function extractTransaction(log: Log): Promise<{transaction: Transa
     throw 'Failed to get transaction';
   }
   try {
-    parameters = await queryMethodParameters(transaction.input.slice(0, 10));
+    const finalInput = decodeTransactionFinalInput(transaction.input);
+    parameters = await queryMethodParameters(finalInput.slice(0, 10));
     if (parameters.length > 0) {
-      decodedParameters = web3.eth.abi.decodeParameters(parameters, transaction.input.slice(10));
+      decodedParameters = web3.eth.abi.decodeParameters(parameters, finalInput.slice(10));
       incrementExtractedToLogOf('txParams');
     }
   }
