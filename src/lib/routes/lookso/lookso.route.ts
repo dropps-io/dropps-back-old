@@ -24,6 +24,7 @@ import {buildJsonUrl} from "../../../bin/utils/json-url";
 import {upload} from "../../../bin/arweave/utils/upload";
 import {objectToBuffer} from "../../../bin/utils/file-converters";
 import {ADDRESS_SCHEMA_VALIDATION, HASH_SCHEMA_VALIDATION, PAGE_SCHEMA_VALIDATION, POST_TYPE_SCHEMA_VALIDATION} from "../../../models/json/utils.schema";
+import {looksoTxRoutes} from "./lookso-tx.route";
 
 export async function looksoRoute (fastify: FastifyInstance) {
 
@@ -262,4 +263,6 @@ export async function looksoRoute (fastify: FastifyInstance) {
 	looksoProfileRoutes(fastify);
 
 	looksoPostRoutes(fastify);
+
+	looksoTxRoutes(fastify);
 }
