@@ -13,9 +13,9 @@ export async function search(input: string, page: number): Promise<{ count: numb
     // If the address is not too long
     if (input.length < 42) {
       const response = [];
-      const contractsCount = await searchContractMetadataByAddressCount(input);
+      const contractsCount = await searchContractMetadataByAddressCount(input, 'LSP0');
       if (page >= contractsCount / PROFILES_PER_SEARCH) throw ERROR_INVALID_PAGE;
-      const contracts = await searchContractMetadataByAddress(input, PROFILES_PER_SEARCH, page * PROFILES_PER_SEARCH);
+      const contracts = await searchContractMetadataByAddress(input, 'LSP0', PROFILES_PER_SEARCH, page * PROFILES_PER_SEARCH);
       for (const contract of contracts) {
         const images = await queryImagesByType(contract.address, 'profile');
         response.push({...contract, image: images.length > 0 ? selectImage(images, {minWidthExpected: 50}).url : ''});
@@ -46,9 +46,9 @@ export async function search(input: string, page: number): Promise<{ count: numb
     }
   } else {
     const response = [];
-    const contractsCount = await searchContractMetadataByNameCount(input);
+    const contractsCount = await searchContractMetadataByNameCount(input, 'LSP0');
     if (page >= contractsCount / PROFILES_PER_SEARCH) throw ERROR_INVALID_PAGE;
-    const contracts = await searchContractMetadataByName(input, PROFILES_PER_SEARCH, page * PROFILES_PER_SEARCH);
+    const contracts = await searchContractMetadataByName(input, 'LSP0', PROFILES_PER_SEARCH, page * PROFILES_PER_SEARCH);
     for (const contract of contracts) {
       const images = await queryImagesByType(contract.address, 'profile');
       response.push({...contract, image: images.length > 0 ? selectImage(images, {minWidthExpected: 50}).url : ''});
