@@ -242,13 +242,13 @@ export async function looksoRoute (fastify: FastifyInstance) {
 			const page = query.page ? query.page : 0;
 
 			try {
-				const profiles = await search(input, page);
+				const searchResults = await search(input, page);
 
 				const queryUrl = `${API_URL}/lookso/search/${input}?page=`;
 
 				return reply.code(200).send({
-					...profiles,
-					next: page < Math.ceil(profiles.count / PROFILES_PER_SEARCH) - 1 ? queryUrl + (page + 1).toString() : null,
+					search: searchResults,
+					next: page < Math.ceil(searchResults.profiles.count / PROFILES_PER_SEARCH) - 1 ? queryUrl + (page + 1).toString() : null,
 					previous: page > 0 ? queryUrl + (page - 1).toString() : null,
 				});
 				/* eslint-disable */
