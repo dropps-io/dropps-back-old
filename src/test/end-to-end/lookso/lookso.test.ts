@@ -15,6 +15,7 @@ import {PostGETTests} from "./post.get.test";
 import {ProfileRegistryPOSTTests} from "./profile-registry.post.test";
 import {PostLikesGETTests} from "./post-likes.get.test";
 import {PostCommentsGETTests} from "./post-comments.get.test";
+import {TxGetTests} from "./tx.get.test";
 
 
 export const LooksoTests = () => {
@@ -38,6 +39,7 @@ export const LooksoTests = () => {
     PostLikesGETTests();
     PostCommentsGETTests();
     // PostAssetPOSTTests();
+    TxGetTests();
 
   });
 }

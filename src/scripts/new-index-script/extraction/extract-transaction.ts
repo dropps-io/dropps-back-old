@@ -3,15 +3,14 @@ import {decodeTransactionFinalInput} from "../../blockchain-indexing/utils/tx-fi
 import {MethodParameter} from "../../../models/types/method-parameter";
 import {queryMethodParameters} from "../../../bin/db/method-parameter.table";
 import {Transaction} from "../../../models/types/transaction";
-import {Log} from "../../../models/types/log";
 import {incrementExtractedToLogOf, reportIndexingScriptError} from "../index-logger";
 
-export async function extractTransaction(log: Log): Promise<{transaction: Transaction, params: MethodParameter[], decodedParams: { [key: string]: any }}> {
+export async function extractTransaction(hash: string): Promise<{transaction: Transaction, params: MethodParameter[], decodedParams: { [key: string]: any }}> {
   let transaction: Transaction;
   let decodedParameters: { [key: string]: any; } = {};
   let parameters: MethodParameter[] = [];
   try {
-    transaction = {...await web3.eth.getTransaction(log.transactionHash), methodId: ''};
+    transaction = {...await web3.eth.getTransaction(hash), methodId: ''};
   } catch (e) {
     await reportIndexingScriptError('extractTransaction', e);
     throw 'Failed to get transaction';

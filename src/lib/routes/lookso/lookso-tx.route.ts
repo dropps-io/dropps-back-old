@@ -1,7 +1,7 @@
 import {FastifyInstance} from "fastify";
 import {HASH_SCHEMA_VALIDATION} from "../../../models/json/utils.schema";
 import {logError} from "../../../bin/logger";
-import {error, ERROR_INTERNAL} from "../../../bin/utils/error-messages";
+import {error, ERROR_INTERNAL, ERROR_NOT_FOUND} from "../../../bin/utils/error-messages";
 import {queryTransaction} from "../../../bin/db/transaction.table";
 import {Transaction} from "../../../models/types/transaction";
 import {DecodedFunctionCall, decodeInputParts} from "../../../bin/lookso/utils/decode-input-parts";
@@ -10,7 +10,7 @@ import {queryContractName} from "../../../bin/db/contract-metadata.table";
 import {queryImages, queryImagesByType} from "../../../bin/db/image.table";
 import {selectImage} from "../../../bin/utils/select-image";
 
-interface GetTransactionResponse extends Transaction{
+export interface GetTransactionResponse extends Transaction{
   decodedFunctionCallParts: DecodedFunctionCall[]
 }
 
@@ -51,7 +51,8 @@ export function looksoTxRoutes(fastify: FastifyInstance) {
         /* eslint-disable */
       } catch (e: any) {
         logError(e);
-        reply.code(500).send(error(500, ERROR_INTERNAL));
+        if (e === 'No transaction found') return reply.code(404).send(error(404, ERROR_NOT_FOUND));
+        return reply.code(500).send(error(500, ERROR_INTERNAL));
       }
     }
   });

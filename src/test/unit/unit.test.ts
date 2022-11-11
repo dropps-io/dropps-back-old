@@ -22,6 +22,7 @@ import {Erc725ySchemaTests} from "./db/erc725y-schema.test";
 import {NotificationTests} from "./db/notification.test";
 import {RegistryChangeTests} from "./db/registry-changes.test";
 import {GenerateRegistryTest} from "./lookso/generate-registry.test";
+import {DecodeInputPartsTests} from "./lookso/decode-input-parts.test";
 
 export const UnitTests = () => {
     describe('Unit Tests', () => {
@@ -50,5 +51,6 @@ export const UnitTests = () => {
             RegistryChangeTests();
         });
         GenerateRegistryTest();
+        DecodeInputPartsTests();
     });
 }
