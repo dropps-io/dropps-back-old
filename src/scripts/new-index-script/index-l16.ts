@@ -23,8 +23,8 @@ export async function indexL16() {
 
     try {
       const lastBlock = await web3.eth.getBlockNumber();
-      const toBlock = lastBlock - latestIndexedBlock > blockIteration ? latestIndexedBlock + blockIteration : lastBlock;
-
+      let toBlock = lastBlock - latestIndexedBlock > blockIteration ? latestIndexedBlock + blockIteration : lastBlock;
+      if (lastBlock <= latestIndexedBlock) toBlock = latestIndexedBlock;
 
       const logsRes = await getLogs(latestIndexedBlock, toBlock);
       changeIndexingChunkOnLog(latestIndexedBlock, toBlock, lastBlock, logsRes.length);
