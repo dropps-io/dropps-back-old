@@ -35,6 +35,17 @@ const methods: {interface: Omit<MethodInterface, 'hash' | 'type'>, parameters: O
 export type Contract = {address: string, standard?: string, name?: string, image?: string};
 export type DecodedFunctionCall = {contract: Contract, methodInterface: Omit<MethodInterface, 'hash' | 'type'>, decodedParameters: DecodedParameter[]};
 
+/**
+ * Function used to extract all inputs from a transaction on Lukso, as Lukso use account abstraction
+ * This function run recursively until it reached the final function call
+ * Ex: executeRelayer -> execute -> mint
+ *
+ * @param input raw input from a transaction
+ * @param address address of the destination contract of the transaction; value "to" from the transaction receipt
+ * @param results value used for recursivity, an array of the DecodedFunctionCall already found
+ *
+ * @return: all decoded function call in execution order (ie. executeRelayer -> execute -> mint)
+ */
 export async function decodeInputParts(input: string, address: string, results: DecodedFunctionCall[]): Promise<DecodedFunctionCall[]> {
   if (!input) return [];
   let decodedParams: { [x: string]: any; };
@@ -93,13 +104,18 @@ export async function decodeInputParts(input: string, address: string, results: 
             contract: {address},
             methodInterface: methodInterface,
             decodedParameters: methodParameters.map(m => {
-              return {name: m.name, type: m.type, value: decodedParams[m.name]}
+              return {name: m.name, type: m.type, value: decodedParams[m.name] !== null ? decodedParams[m.name].toString() : 'null'}
             })
           };
-        return results.concat(functionCall);
       }
       catch (e) {
-        return results;
+        functionCall =
+          {
+            contract: {address},
+            methodInterface: {name: 'Unknown Function', id: '0x'},
+            decodedParameters: []
+          };
       }
+      return results.concat(functionCall);
   }
 }

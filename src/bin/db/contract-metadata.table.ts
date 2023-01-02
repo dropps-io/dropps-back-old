@@ -20,26 +20,26 @@ export async function queryContractName(address: string): Promise<string> {
 	else return '';
 }
 
-export async function searchContractMetadataByAddressCount(input: string): Promise<number> {
-	const res = await executeQuery('SELECT COUNT(*) FROM contract_metadata WHERE LOWER(address) LIKE LOWER($1)', ['%' + input + '%']);
+export async function searchContractMetadataByAddressCount(input: string, interfaceCode: string): Promise<number> {
+	const res = await executeQuery('SELECT COUNT(*) FROM contract_metadata INNER JOIN contract ON contract.address=contract_metadata.address WHERE LOWER(contract.address) LIKE LOWER($1) AND contract."interfaceCode"=$2', ['%' + input + '%', interfaceCode]);
 	if (res.rows[0]) return res.rows[0].count;
 	else throw 'Unable to fetch';
 }
 
-export async function searchContractMetadataByAddress(input: string, limit: number, offset: number): Promise<{address: string, name: string}[]> {
-	const res = await executeQuery('SELECT address,name FROM contract_metadata WHERE LOWER(address) LIKE LOWER($1) ORDER BY address LIMIT $2 OFFSET $3', ['%' + input + '%', limit, offset]);
+export async function searchContractMetadataByAddress(input: string, interfaceCode: string, limit: number, offset: number): Promise<{address: string, name: string}[]> {
+	const res = await executeQuery('SELECT contract.address,"interfaceCode",name FROM contract_metadata INNER JOIN contract ON contract.address=contract_metadata.address WHERE LOWER(contract.address) LIKE LOWER($1) AND contract."interfaceCode"=$2 ORDER BY name LIMIT $3 OFFSET $4', ['%' + input + '%', interfaceCode, limit, offset]);
 	if (res.rows.length > 0) return res.rows;
 	else return [];
 }
 
-export async function searchContractMetadataByNameCount(input: string): Promise<number> {
-	const res = await executeQuery("SELECT COUNT(*) FROM contract_metadata WHERE LOWER(name) LIKE LOWER($1)", ['%' + input + '%']);
+export async function searchContractMetadataByNameCount(input: string, interfaceCode: string): Promise<number> {
+	const res = await executeQuery('SELECT COUNT(*) FROM contract_metadata INNER JOIN contract ON contract.address=contract_metadata.address WHERE LOWER(name) LIKE LOWER($1) AND contract."interfaceCode"=$2', ['%' + input + '%', interfaceCode]);
 	if (res.rows[0]) return res.rows[0].count;
 	else throw 'Unable to fetch';
 }
 
-export async function searchContractMetadataByName(input: string, limit: number, offset: number): Promise<{address: string, name: string}[]> {
-	const res = await executeQuery("SELECT address,name FROM contract_metadata WHERE LOWER(name) LIKE LOWER($1) ORDER BY name LIMIT $2 OFFSET $3", ['%' + input + '%', limit, offset]);
+export async function searchContractMetadataByName(input: string, interfaceCode: string, limit: number, offset: number): Promise<{address: string, name: string, interfaceCode: string}[]> {
+	const res = await executeQuery('SELECT contract.address,"interfaceCode",name FROM contract_metadata INNER JOIN contract ON contract.address=contract_metadata.address WHERE LOWER(name) LIKE LOWER($1) AND contract."interfaceCode"=$2 ORDER BY name LIMIT $3 OFFSET $4', ['%' + input + '%', interfaceCode, limit, offset]);
 	if (res.rows.length > 0) return res.rows;
 	else return [];
 }

@@ -33,8 +33,8 @@ async function extractAndIndex(log: Log, lastBlock: number) {
   try {
     await queryTransaction(log.transactionHash);
   } catch (e) {
-    tx = await extractTransaction(log);
-    await indexTransaction(tx.transaction, log, tx.params, tx.decodedParams);
+    tx = await extractTransaction(log.transactionHash);
+    await indexTransaction(tx.transaction, tx.params, tx.decodedParams);
   }
 
   await extractAndIndexLog(log, lastBlock);
