@@ -30,7 +30,7 @@ fastify.register(fastifyCors, {
 		parseOptions: {},
 	} as FastifyCookieOptions)
 	.register(fastifySwagger, {
-		prefix: '/documentation',
+		prefix: '/',
 		swagger: {
 			info: {
 				title: 'Dropps Backend',

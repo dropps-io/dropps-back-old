@@ -11,6 +11,7 @@ if (NODE_ENV === 'staging') config({ path: path.resolve(process.cwd(), '.env.sta
 config();
 
 export const DB_HOST: string = getOrThrow('DB_HOST');
+export const DB_PORT: number = parseInt(getOrThrow('DB_PORT'));
 export const DB_NAME: string = getOrThrow('DB_NAME');
 export const DB_USER: string = getOrThrow('DB_USER');
 export const DB_PASSWORD: string = getOrThrow('DB_PASSWORD');
