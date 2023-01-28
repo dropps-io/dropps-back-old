@@ -5,21 +5,21 @@ import {generateAddressWithSignature} from '../../bin/web3/auth';
 import {FastifyInstance} from 'fastify';
 import {FRONT_URL, IPFS_GATEWAY, JWT_VALIDITY_TIME} from '../../environment/config';
 import {logError} from '../../bin/logger';
-import {UniversalProfileReader} from "../../bin/UniversalProfile/UniversalProfileReader.class";
-import {web3} from "../../bin/web3/web3";
-import {SiweMessage} from "siwe";
+import {UniversalProfileReader} from '../../bin/UniversalProfile/UniversalProfileReader.class';
+import {web3} from '../../bin/web3/web3';
+import {SiweMessage} from 'siwe';
 
 function createSiweMessage(address: string, issuedAt: string, path: string, nonce: string) {
-  return (new SiweMessage({
-    domain: FRONT_URL.split('//')[1],
-    address,
-    statement: 'Welcome to LOOKSO!',
-    uri: FRONT_URL + path,
-    version: '1',
-    chainId: 2828, // For LUKSO L16
-    nonce,
-    issuedAt
-  })).prepareMessage();
+	return (new SiweMessage({
+		domain: FRONT_URL.split('//')[1],
+		address,
+		statement: 'Welcome to LOOKSO!',
+		uri: FRONT_URL + path,
+		version: '1',
+		chainId: 2828, // For LUKSO L16
+		nonce,
+		issuedAt
+	})).prepareMessage();
 }
 
 export async function authRoute (fastify: FastifyInstance) {
@@ -31,12 +31,12 @@ export async function authRoute (fastify: FastifyInstance) {
 			description: 'Get the current nonce of a specific user.',
 			tags: ['auth'],
 			summary: 'Get a user nonce',
-      querystring: {
-        type: 'object',
-        properties: {
-          path: {type: 'string', description: 'Path of the URI'},
-        }
-      }
+			querystring: {
+				type: 'object',
+				properties: {
+					path: {type: 'string', description: 'Path of the URI'},
+				}
+			}
 		},
 		handler: async (request, reply) => {
 			try {
@@ -46,8 +46,8 @@ export async function authRoute (fastify: FastifyInstance) {
 				let nonce: string = await queryNonce(address);
 				if (!nonce) nonce = await insertNonce(address);
 
-        const issuedAt = new Date().toISOString();
-        const message = createSiweMessage(address, issuedAt, path ? path : '/', nonce);
+				const issuedAt = new Date().toISOString();
+				const message = createSiweMessage(address, issuedAt, path ? path : '/', nonce);
 
 				return reply.code(200).send({message, issuedAt});
 				/* eslint-disable */

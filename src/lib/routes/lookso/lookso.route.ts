@@ -2,29 +2,29 @@ import { FastifyInstance } from 'fastify';
 import {verifyJWT} from '../../../bin/json-web-token';
 import {error, ERROR_INTERNAL, ERROR_INVALID_PAGE, ERROR_NOT_FOUND, PUSH_REGISTRY_REQUIRED, RESOURCE_EXISTS} from '../../../bin/utils/error-messages';
 import {logError} from '../../../bin/logger';
-import {Follow} from "../../../models/types/follow";
+import {Follow} from '../../../models/types/follow';
 import {
 	insertFollow,
 	removeFollow
-} from "../../../bin/db/follow.table";
-import {queryContract} from "../../../bin/db/contract.table";
-import {Post} from "../../../models/types/post";
-import {queryPost, queryPosts, queryPostsCount} from "../../../bin/db/post.table";
-import {constructFeed} from "../../../bin/lookso/feed/construct-feed";
-import {insertLike, queryPostLike, removeLike} from "../../../bin/db/like.table";
-import {Like} from "../../../models/types/like";
-import {looksoPostRoutes} from "./lookso-post.route";
-import {looksoProfileRoutes} from "./lookso-profile.route";
-import {insertNotification} from "../../../bin/db/notification.table";
-import {search} from "../../../bin/lookso/search";
-import {insertRegistryChange, queryRegistryChangesCountOfAddress} from "../../../bin/db/registry-change.table";
-import {API_URL, MAX_OFFCHAIN_REGISTRY_CHANGES, POSTS_PER_LOAD, PROFILES_PER_SEARCH} from "../../../environment/config";
-import {applyChangesToRegistry} from "../../../bin/lookso/registry/apply-changes-to-registry";
-import {buildJsonUrl} from "../../../bin/utils/json-url";
-import {upload} from "../../../bin/arweave/utils/upload";
-import {objectToBuffer} from "../../../bin/utils/file-converters";
-import {ADDRESS_SCHEMA_VALIDATION, HASH_SCHEMA_VALIDATION, PAGE_SCHEMA_VALIDATION, POST_TYPE_SCHEMA_VALIDATION} from "../../../models/json/utils.schema";
-import {looksoTxRoutes} from "./lookso-tx.route";
+} from '../../../bin/db/follow.table';
+import {queryContract} from '../../../bin/db/contract.table';
+import {Post} from '../../../models/types/post';
+import {queryPost, queryPosts, queryPostsCount} from '../../../bin/db/post.table';
+import {constructFeed} from '../../../bin/lookso/feed/construct-feed';
+import {insertLike, queryPostLike, removeLike} from '../../../bin/db/like.table';
+import {Like} from '../../../models/types/like';
+import {looksoPostRoutes} from './lookso-post.route';
+import {looksoProfileRoutes} from './lookso-profile.route';
+import {insertNotification} from '../../../bin/db/notification.table';
+import {search} from '../../../bin/lookso/search';
+import {insertRegistryChange, queryRegistryChangesCountOfAddress} from '../../../bin/db/registry-change.table';
+import {API_URL, MAX_OFFCHAIN_REGISTRY_CHANGES, POSTS_PER_LOAD, PROFILES_PER_SEARCH} from '../../../environment/config';
+import {applyChangesToRegistry} from '../../../bin/lookso/registry/apply-changes-to-registry';
+import {buildJsonUrl} from '../../../bin/utils/json-url';
+import {upload} from '../../../bin/arweave/utils/upload';
+import {objectToBuffer} from '../../../bin/utils/file-converters';
+import {ADDRESS_SCHEMA_VALIDATION, HASH_SCHEMA_VALIDATION, PAGE_SCHEMA_VALIDATION, POST_TYPE_SCHEMA_VALIDATION} from '../../../models/json/utils.schema';
+import {looksoTxRoutes} from './lookso-tx.route';
 
 export async function looksoRoute (fastify: FastifyInstance) {
 

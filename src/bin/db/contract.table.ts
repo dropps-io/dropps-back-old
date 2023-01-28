@@ -5,7 +5,7 @@ import {ERROR_NOT_FOUND} from '../utils/error-messages';
 export async function queryContract(address: string): Promise<Contract> {
 	const res = await executeQuery('SELECT * FROM "contract" WHERE "address" = $1', [address]);
 	if (res.rows[0]) return res.rows[0] as Contract;
-	else throw 'No contract found'
+	else throw 'No contract found';
 }
 
 export async function queryContracts(): Promise<Contract[]> {

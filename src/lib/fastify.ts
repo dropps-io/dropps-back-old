@@ -4,11 +4,11 @@ import fastifySwagger from '@fastify/swagger';
 import fastifyCors from '@fastify/cors';
 import {authRoute} from './routes/auth.route';
 import {LOGGER} from '../environment/config';
-import {looksoRoute} from "./routes/lookso/lookso.route";
-import multer from "fastify-multer";
-import cookie from "@fastify/cookie";
-import jwt from "@fastify/jwt";
-import type { FastifyCookieOptions } from "@fastify/cookie";
+import {looksoRoute} from './routes/lookso/lookso.route';
+import multer from 'fastify-multer';
+import cookie from '@fastify/cookie';
+import jwt from '@fastify/jwt';
+import type { FastifyCookieOptions } from '@fastify/cookie';
 import {COOKIE_SECRET, JWT_SECRET} from '../environment/endpoints';
 
 

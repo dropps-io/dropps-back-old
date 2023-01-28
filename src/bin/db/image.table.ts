@@ -4,13 +4,13 @@ import {ERROR_NOT_FOUND} from '../utils/error-messages';
 
 export async function queryImages(address: string): Promise<Image[]> {
 	const res = await executeQuery('SELECT * FROM "image" WHERE "address" = $1', [address]);
-	if (res.rows.length > 0)return res.rows as Image[];
+	if (res.rows.length > 0) return res.rows as Image[];
 	else return [];
 }
 
 export async function queryImagesByType(address: string, type: ImageType): Promise<Image[]> {
 	const res = await executeQuery('SELECT * FROM "image" WHERE "address" = $1 AND "type" = $2', [address, type]);
-	if (res.rows.length > 0)return res.rows as Image[];
+	if (res.rows.length > 0) return res.rows as Image[];
 	else return [];
 }
 

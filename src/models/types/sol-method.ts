@@ -1,4 +1,4 @@
-import {AbiInput} from "web3-utils";
+import {AbiInput} from 'web3-utils';
 
 export interface SolMethod{
     hash: string

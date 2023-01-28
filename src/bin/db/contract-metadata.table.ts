@@ -16,7 +16,7 @@ export async function queryAddressOfUserTag(username: string, addressDigits: str
 
 export async function queryContractName(address: string): Promise<string> {
 	const res = await executeQuery('SELECT "name" FROM "contract_metadata" WHERE "address" = $1', [address]);
-	if (res.rows[0]) return res.rows[0].name
+	if (res.rows[0]) return res.rows[0].name;
 	else return '';
 }
 
@@ -46,7 +46,7 @@ export async function searchContractMetadataByName(input: string, interfaceCode:
 
 export async function queryContractIsNFT(address: string): Promise<boolean> {
 	const res = await executeQuery('SELECT "isNFT" FROM "contract_metadata" WHERE "address" = $1', [address]);
-	if (res.rows[0]) return res.rows[0].isNFT
+	if (res.rows[0]) return res.rows[0].isNFT;
 	else return false;
 }
 

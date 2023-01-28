@@ -1,7 +1,7 @@
 import {MethodInterface} from '../../models/types/method-interface';
 import {executeQuery} from './database';
-import {queryMethodParameters} from "./method-parameter.table";
-import {SolMethod} from "../../models/types/sol-method";
+import {queryMethodParameters} from './method-parameter.table';
+import {SolMethod} from '../../models/types/sol-method';
 
 export async function queryMethodInterface(id: string): Promise<MethodInterface> {
 	const res = await executeQuery('SELECT * FROM "method_interface" WHERE "id" = $1', [id]);

@@ -2,7 +2,7 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "target": "es5",
+    "target": "es2019",
     "moduleResolution": "node",
     "module": "commonjs",
     "strict": true,
