@@ -8,6 +8,7 @@ import {logError} from '../logger';
 import {web3} from '../web3/web3';
 import {selectImage} from '../utils/select-image';
 import {formatUrl} from '../utils/format-url';
+import {Token} from '../../models/types/token';
 
 /**
  * Fetches the information about an LSP8 token.
@@ -20,7 +21,7 @@ import {formatUrl} from '../utils/format-url';
  *
  * @throws {Error} - If an error occurs while fetching the token metadata, the error is logged and the function returns an empty object.
  */
-export const fetchLsp8TokenInfo = async (assetAddress: string, tokenId: string, tokenIdType: TOKEN_ID_TYPE) => {
+export const fetchLsp8TokenInfo = async (assetAddress: string, tokenId: string, tokenIdType: TOKEN_ID_TYPE): Promise<Token> => {
 	let decodedTokenId = tokenId;
 	if (tokenIdType === TOKEN_ID_TYPE.address) {
 		decodedTokenId = tokenId.slice(0, 42);

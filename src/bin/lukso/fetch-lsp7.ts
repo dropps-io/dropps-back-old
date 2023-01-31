@@ -5,6 +5,8 @@ import {queryImages} from '../db/image.table';
 import {formatUrl} from '../utils/format-url';
 import {queryContractMetadata} from '../db/contract-metadata.table';
 import LSP7DigitalAsset from '@lukso/lsp-smart-contracts/artifacts/LSP7DigitalAsset.json';
+import {SOL_STANDARD} from '../../models/enums/sol-standard';
+import {AssetWithBalance} from '../../models/types/asset';
 
 /**
  * Fetches an LSP7 digital asset information with the balance of an address.
@@ -19,16 +21,16 @@ import LSP7DigitalAsset from '@lukso/lsp-smart-contracts/artifacts/LSP7DigitalAs
  * - image: the image of the contract, in URL format
  * - type: the type of contract ("LSP7")
  */
-export const fetchLsp7WithBalance = async (profileAddress: string, assetAddress: string) => {
+export const fetchLsp7WithBalance = async (profileAddress: string, assetAddress: string): Promise<AssetWithBalance> => {
 	const contractMetadata = await queryContractMetadata(assetAddress);
 	const lsp7contract = new web3.eth.Contract(LSP7DigitalAsset.abi as AbiItem[], assetAddress);
 	const balance = await lsp7contract.methods.balanceOf(profileAddress).call();
 	const contractImage = selectImage(await queryImages(assetAddress), {minWidthExpected: 200});
-	return{
-		contractAddress: assetAddress,
-		contractName: contractMetadata.name,
+	return {
+		address: assetAddress,
+		name: contractMetadata.name,
 		balance: contractMetadata.isNFT ? balance : (parseInt(balance) / (10**18)).toString(),
 		image: contractImage ? formatUrl(contractImage.url) : '',
-		type: 'LSP7'
+		type: SOL_STANDARD.LSP7
 	};
 };

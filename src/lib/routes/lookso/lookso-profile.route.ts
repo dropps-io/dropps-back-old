@@ -29,6 +29,7 @@ import {queryContract} from '../../../bin/db/contract.table';
 import {fetchLsp7WithBalance} from '../../../bin/lukso/fetch-lsp7';
 import {fetchLsp8WithOwnedTokens} from '../../../bin/lukso/fetch-lsp8';
 import {NotificationWithSenderDetails} from '../../../models/types/notification';
+import {AssetWithBalance} from '../../../models/types/asset';
 
 
 export function looksoProfileRoutes(fastify: FastifyInstance) {
@@ -378,7 +379,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
         const profile = new UniversalProfileReader(address, IPFS_GATEWAY, web3);
         const res = await profile.fetchData(['LSP5ReceivedAssets[]']);
         const assets: string[] = res[0].value as string[];
-        const promises: Promise<any>[] = [];
+        const promises: Promise<AssetWithBalance>[] = [];
 
         for (const asset of assets) {
           const contract = await queryContract(asset);
