@@ -1,4 +1,4 @@
-import {Tag} from '../../models/types/tag';
+import {TagTable} from '../../models/types/tables/tag-table';
 import {executeQuery} from './database';
 import {ERROR_NOT_FOUND} from '../utils/error-messages';
 
@@ -7,9 +7,9 @@ export async function queryTags(address: string): Promise<string[]> {
 	return res.rows.map((x: { title: string; }) => x.title);
 }
 
-export async function insertTag(address: string, title: string): Promise<Tag> {
+export async function insertTag(address: string, title: string): Promise<TagTable> {
 	const res = await executeQuery('INSERT INTO "tag" VALUES ($1, $2)', [address, title]);
-	return res.rows[0] as Tag;
+	return res.rows[0] as TagTable;
 }
 
 export async function deleteTag(address: string, title: string): Promise<void> {

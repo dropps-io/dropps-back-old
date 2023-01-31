@@ -2,7 +2,7 @@ import {queryDecodedEventParameters} from '../../db/decoded-event-parameter.tabl
 import {queryEvent} from '../../db/event.table';
 import {Post} from '../../../models/types/post';
 import {DecodedParameter} from '../../../models/types/decoded-parameter';
-import {Event} from '../../../models/types/event';
+import {EventTable} from '../../../models/types/tables/event-table';
 import {generateDataChangedDisplay, generateEventDisplay, generateUniversalReceiverEventDisplay} from './generate-event-display';
 import {queryDecodedFunctionParameters} from '../../db/decoded-function-parameter.table';
 import {queryContractName} from '../../db/contract-metadata.table';
@@ -28,7 +28,7 @@ export async function constructFeed(posts: Post[], profile?: string, noRecursive
 		}
 
 		if (post.eventId) {
-			const event: Event = await queryEvent(post.eventId);
+			const event: EventTable = await queryEvent(post.eventId);
 			const parameters: Map<string, DecodedParameter> = new Map((await queryDecodedEventParameters(post.eventId)).map(x => {return [x.name, x];}));
 
 			const feedObject: FeedPost = {
@@ -70,8 +70,8 @@ export async function constructFeed(posts: Post[], profile?: string, noRecursive
 						feedObject.display = await generateEventDisplay(event.topic.slice(0, 10), parameters);
 					}
 					break;
-				case '0xcdf4e344c0d23d4cdd0474039d176c55b19d531070dbe17856bfb993a5b5720b': // DataChanged(bytes32)
-				case '0xece574603820d07bc9b91f2a932baadf4628aabcb8afba49776529c14a6104b2': // DataChanged(bytes32,bytes)
+				case '0xcdf4e344c0d23d4cdd0474039d176c55b19d531070dbe17856bfb993a5b5720b': // DataChangedTable(bytes32)
+				case '0xece574603820d07bc9b91f2a932baadf4628aabcb8afba49776529c14a6104b2': // DataChangedTable(bytes32,bytes)
 					feedObject.display = await generateDataChangedDisplay(event, parameters);
 					break;
 				case '0x9c3ba68eb5742b8e3961aea0afc7371a71bf433c8a67a831803b64c064a178c2': // UniversalReceiver

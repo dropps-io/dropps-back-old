@@ -1,9 +1,9 @@
-import {RegistryChange} from '../../models/types/registry-change';
+import {RegistryChangeTable} from '../../models/types/tables/registry-change-table';
 import {executeQuery} from './database';
 
-export async function queryRegistryChangesOfAddress(address: string): Promise<RegistryChange[]> {
+export async function queryRegistryChangesOfAddress(address: string): Promise<RegistryChangeTable[]> {
 	const res = await executeQuery('SELECT * FROM "registry_change" WHERE "address" = $1 ORDER BY date', [address]);
-	return res.rows as RegistryChange[];
+	return res.rows as RegistryChangeTable[];
 }
 
 export async function queryRegistryChangesCountOfAddress(address: string): Promise<number> {

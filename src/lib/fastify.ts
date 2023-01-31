@@ -39,7 +39,7 @@ fastify.register(fastifyCors, {
 			},
 			externalDocs: {
 				url: 'https://github.com/dropps-nft/dropps-back',
-				description: 'Link to the Github repository'
+				description: 'LinkTable to the Github repository'
 			},
 			host: 'api.dropps.io',
 			schemes: ['http'],

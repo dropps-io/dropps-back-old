@@ -1,14 +1,14 @@
-import {ContractInterface} from '../../../models/types/contract-interface';
+import {ContractInterfaceTable} from '../../../models/types/tables/contract-interface-table';
 import {queryContractInterfaces} from '../../../bin/db/contract-interface.table';
 import {AbiItem} from 'web3-utils';
 import {web3} from '../../../bin/web3/web3';
 import LSP0ERC725Account from '@lukso/lsp-smart-contracts/artifacts/LSP0ERC725Account.json';
 
 
-export async function tryIdentifyingContract(address: string): Promise<ContractInterface | undefined> {
+export async function tryIdentifyingContract(address: string): Promise<ContractInterfaceTable | undefined> {
 	try {
 		const contractCode = await web3.eth.getCode(address);
-		const contractInterfaces: ContractInterface[] = await queryContractInterfaces();
+		const contractInterfaces: ContractInterfaceTable[] = await queryContractInterfaces();
 
 		for (let i = 0 ; i < contractInterfaces.length ; i++) {
 			if (contractCode.includes(contractInterfaces[i].id.slice(2, 10))) return contractInterfaces[i];

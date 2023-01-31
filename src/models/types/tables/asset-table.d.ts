@@ -1,4 +1,4 @@
-export interface Asset {
+export interface AssetTable {
     address: string;
     url: string;
     fileType: string;

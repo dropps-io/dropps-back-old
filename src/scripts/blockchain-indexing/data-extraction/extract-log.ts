@@ -1,7 +1,7 @@
 import {Log} from '../../../models/types/log';
 import {Transaction} from '../../../models/types/transaction';
 import {queryTransaction} from '../../../bin/db/transaction.table';
-import {MethodParameter} from '../../../models/types/method-parameter';
+import {MethodParameterTable} from '../../../models/types/tables/method-parameter-table';
 import {queryMethodParameters} from '../../../bin/db/method-parameter.table';
 import {web3} from '../../../bin/web3/web3';
 import {indexTransaction} from '../data-indexing/index-transaction';
@@ -24,7 +24,7 @@ export async function extractDataFromLog(log: Log) {
 	if (!transaction) {
 		transaction = {...await web3.eth.getTransaction(log.transactionHash), methodId: ''};
 		transaction.input = decodeTransactionFinalInput(transaction.input);
-		const parameters: MethodParameter[] = await queryMethodParameters(transaction.input.slice(0, 10));
+		const parameters: MethodParameterTable[] = await queryMethodParameters(transaction.input.slice(0, 10));
 		let decodedParameters: { [key: string]: any; } = {};
 		try {
 			decodedParameters = web3.eth.abi.decodeParameters(parameters, transaction.input.slice(10));

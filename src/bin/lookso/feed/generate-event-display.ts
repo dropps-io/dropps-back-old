@@ -1,5 +1,5 @@
 import {DecodedParameter} from '../../../models/types/decoded-parameter';
-import {MethodDisplay} from '../../../models/types/method-display';
+import {MethodDisplayTable} from '../../../models/types/tables/method-display-table';
 import {queryMethodDisplay} from '../../db/method-display.table';
 import {getWordsBetweenCurlies} from '../../utils/words-between-curlies';
 import {getDisplayParam} from './display-params';
@@ -9,8 +9,8 @@ import {insertImage, queryImages} from '../../db/image.table';
 import {queryMethodParameterDisplayType} from '../../db/method-parameter.table';
 import {FeedDisplay, FeedDisplayParam} from '../../../models/types/feed-post';
 import {selectImage} from '../../utils/select-image';
-import {Event} from '../../../models/types/event';
-import {KeyDisplay} from '../../../models/types/key-display';
+import {EventTable} from '../../../models/types/tables/event-table';
+import {KeyDisplayTable} from '../../../models/types/tables/key-display-table';
 import {queryKeyDisplay} from '../../db/key-display.table';
 import {ERC725, ERC725JSONSchema} from '@erc725/erc725.js';
 import {queryErc725ySchema} from '../../db/erc725y-schema.table';
@@ -32,7 +32,7 @@ import {decodeKeyHash} from '../../erc725/decodeKeyHash';
 
 
 export async function generateEventDisplay(methodId: string, params: Map<string, DecodedParameter>, context?: {senderProfile?: string, executionContract?: string}): Promise<FeedDisplay> {
-	const methodDisplay: MethodDisplay = await queryMethodDisplay(methodId);
+	const methodDisplay: MethodDisplayTable = await queryMethodDisplay(methodId);
 	const tags: {standard: string | null, copies: string | null, standardType: string | null} = {standard: null, copies: null, standardType: null};
 	let image = '';
 	const displayParams: {[key: string]: FeedDisplayParam} = {};
@@ -94,10 +94,10 @@ export async function generateEventDisplay(methodId: string, params: Map<string,
 	return {text: methodDisplay.text, params: displayParams, image, tags};
 }
 
-export async function generateDataChangedDisplay(event: Event, parameters: Map<string, DecodedParameter>): Promise<FeedDisplay> {
+export async function generateDataChangedDisplay(event: EventTable, parameters: Map<string, DecodedParameter>): Promise<FeedDisplay> {
 	const dataKey = parameters.get('dataKey');
 	const dataValue = parameters.get('dataValue');
-	let schema: Erc725ySchema, display: KeyDisplay;
+	let schema: Erc725ySchema, display: KeyDisplayTable;
 
 	if (!dataKey) return await generateEventDisplay(event.topic.slice(0, 10), parameters);
 

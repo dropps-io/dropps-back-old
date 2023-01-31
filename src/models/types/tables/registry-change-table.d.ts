@@ -1,4 +1,4 @@
-export interface RegistryChange {
+export interface RegistryChangeTable {
   address: string,
   type: string,
   action: string,

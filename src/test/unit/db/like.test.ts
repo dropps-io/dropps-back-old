@@ -8,7 +8,7 @@ import {insertPost} from "../../../bin/db/post.table";
 import {insertLike, queryPostLike, queryPostLikesCount, querySenderLikes, removeLike} from "../../../bin/db/like.table";
 
 export const LikeTests = () => {
-    describe('Table Like', () => {
+    describe('Table LikeTable', () => {
 
         beforeEach(async () => {
             await clearDB();

@@ -1,11 +1,11 @@
 import {insertTransaction} from '../../../bin/db/transaction.table';
 import {insertDecodedFunctionParameter} from '../../../bin/db/decoded-function-parameter.table';
-import {MethodParameter} from '../../../models/types/method-parameter';
+import {MethodParameterTable} from '../../../models/types/tables/method-parameter-table';
 import {Transaction} from '../../../models/types/transaction';
 import {INDEX_DATA} from '../config';
 import {reportIndexingScriptError} from '../index-logger';
 
-export async function indexTransaction(transaction: Transaction , parameters: MethodParameter[], decodedParameters: {[p: string]: any}) {
+export async function indexTransaction(transaction: Transaction , parameters: MethodParameterTable[], decodedParameters: {[p: string]: any}) {
 	if (!INDEX_DATA) return;
 	try {
 		await insertTransaction(transaction.hash, transaction.from, transaction.to as string, transaction.value, transaction.input, transaction.blockNumber as number);

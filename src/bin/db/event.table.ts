@@ -1,15 +1,15 @@
-import {Event} from '../../models/types/event';
+import {EventTable} from '../../models/types/tables/event-table';
 import {executeQuery} from './database';
 import {ERROR_NOT_FOUND} from '../utils/error-messages';
 
-export async function queryEvent(id: number): Promise<Event> {
+export async function queryEvent(id: number): Promise<EventTable> {
 	const res = await executeQuery('SELECT * FROM "event" WHERE "id" = $1', [id]);
-	return res.rows[0] as Event;
+	return res.rows[0] as EventTable;
 }
 
-export async function queryEventByTh(transactionHash: string, logId: string): Promise<Event> {
+export async function queryEventByTh(transactionHash: string, logId: string): Promise<EventTable> {
 	const res = await executeQuery('SELECT * FROM "event" WHERE "transactionHash" = $1 AND "logId" = $2', [transactionHash, logId]);
-	if (res.rows[0]) return res.rows[0] as Event;
+	if (res.rows[0]) return res.rows[0] as EventTable;
 	else throw 'No event found';
 }
 

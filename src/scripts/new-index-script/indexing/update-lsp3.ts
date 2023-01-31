@@ -5,7 +5,7 @@ import {INDEX_DATA} from '../config';
 import {deleteLink, insertLink, queryLinks} from '../../../bin/db/link.table';
 import {LSP3UniversalProfile} from '../../../bin/UniversalProfile/models/lsp3-universal-profile.model';
 import {deleteImage, insertImage, queryImages} from '../../../bin/db/image.table';
-import {Image} from '../../../models/types/image';
+import {ImageTable} from '../../../models/types/tables/image-table';
 import {deleteTag, insertTag, queryTags} from '../../../bin/db/tag.table';
 import {updateContractDescription, updateContractName} from '../../../bin/db/contract-metadata.table';
 import {Link} from '../../../models/types/metadata-objects';
@@ -16,7 +16,7 @@ export async function updateLSP3Profile(address: string, lsp3: LSP3UniversalProf
 	if (!lsp3) return;
 
 	try {
-		const images: Image[] = await queryImages(address);
+		const images: ImageTable[] = await queryImages(address);
 		const links: Link[] = await queryLinks(address);
 		const tags: string[] = await queryTags(address);
 

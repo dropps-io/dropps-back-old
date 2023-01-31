@@ -1,8 +1,8 @@
 import {SocialRegistry} from '../types/social-registry';
-import {RegistryChange} from '../../../../models/types/registry-change';
+import {RegistryChangeTable} from '../../../../models/types/tables/registry-change-table';
 
 
-export function generateNewRegistry(decentralizedRegistry: SocialRegistry, changes: RegistryChange[]): SocialRegistry {
+export function generateNewRegistry(decentralizedRegistry: SocialRegistry, changes: RegistryChangeTable[]): SocialRegistry {
 	const newRegistry = decentralizedRegistry;
 	changes.forEach(change => {
 		if (change.type === 'like'){

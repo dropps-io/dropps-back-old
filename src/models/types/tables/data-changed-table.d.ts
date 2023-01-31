@@ -1,4 +1,4 @@
-export interface DataChanged {
+export interface DataChangedTable {
     address: string;
     key: string;
     value: string;

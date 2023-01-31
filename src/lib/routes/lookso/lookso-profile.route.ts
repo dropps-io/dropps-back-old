@@ -15,7 +15,6 @@ import {FastifyInstance} from 'fastify';
 import {
 	queryNotificationsCountOfAddress, queryNotificationsOfAddress, queryNotViewedNotificationsCountOfAddress, setViewedToAddressNotifications
 } from '../../../bin/db/notification.table';
-import {NotificationWithSenderDetails} from '../../../models/types/notification';
 import {verifyJWT} from '../../../bin/json-web-token';
 import {applyChangesToRegistry} from '../../../bin/lookso/registry/apply-changes-to-registry';
 import {objectToBuffer} from '../../../bin/utils/file-converters';
@@ -29,6 +28,7 @@ import {web3} from '../../../bin/web3/web3';
 import {queryContract} from '../../../bin/db/contract.table';
 import {fetchLsp7WithBalance} from '../../../bin/lukso/fetch-lsp7';
 import {fetchLsp8WithOwnedTokens} from '../../../bin/lukso/fetch-lsp8';
+import {NotificationWithSenderDetails} from '../../../models/types/notification';
 
 
 export function looksoProfileRoutes(fastify: FastifyInstance) {

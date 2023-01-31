@@ -62,7 +62,7 @@ async function indexRegistryPosts(log: Log, posts: Post[]) {
 				await insertNotification(parentPost.author, post.author, new Date(), 'comment', post.hash);
 			}
 
-			// Check if usertags in the post, if yes -> Notification
+			// Check if usertags in the post, if yes -> NotificationTable
 			const userTags = post.text.match(USER_TAG_REGEX);
 			if (userTags) {
 				for (const userTag of userTags) {

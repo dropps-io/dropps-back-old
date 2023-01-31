@@ -1,5 +1,5 @@
 import {queryContract} from '../../db/contract.table';
-import {Contract} from '../../../models/types/contract';
+import {ContractTable} from '../../../models/types/tables/contract-table';
 import {insertContractMetadata, queryContractName, updateContractName} from '../../db/contract-metadata.table';
 import Web3 from 'web3';
 import {FeedDisplayParam} from '../../../models/types/feed-post';
@@ -45,7 +45,7 @@ export async function getDisplayParam(value: string, type: string): Promise<Feed
 }
 
 async function queryAddressDisplayParam(address:string): Promise<FeedDisplayParam> {
-	let contract: Contract, name: string;
+	let contract: ContractTable, name: string;
 	const checkSumAddress = web3.utils.toChecksumAddress(address);
 	try {
 		contract = await queryContract(checkSumAddress);

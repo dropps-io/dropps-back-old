@@ -1,14 +1,14 @@
 import LSP6KeyManager from '@lukso/lsp-smart-contracts/artifacts/LSP6KeyManager.json';
 
 import {web3} from '../../web3/web3';
-import {MethodInterface} from '../../../models/types/method-interface';
+import {MethodInterfaceTable} from '../../../models/types/tables/method-interface-table';
 import {DecodedParameter} from '../../../models/types/decoded-parameter';
-import {MethodParameter} from '../../../models/types/method-parameter';
+import {MethodParameterTable} from '../../../models/types/tables/method-parameter-table';
 import {AbiItem} from 'web3-utils';
 import {queryMethodInterface} from '../../db/method-interface.table';
 import {queryMethodParameters} from '../../db/method-parameter.table';
 
-const methods: {interface: Omit<MethodInterface, 'hash' | 'type'>, parameters: Omit<MethodParameter, 'methodId' | 'indexed'>[]}[] = [
+const methods: {interface: Omit<MethodInterfaceTable, 'hash' | 'type'>, parameters: Omit<MethodParameterTable, 'methodId' | 'indexed'>[]}[] = [
 	{
 		interface: {id: '0x09c5eabe', name: 'execute'},
 		parameters: [{name: 'payload', type: 'bytes'}]
@@ -33,7 +33,7 @@ const methods: {interface: Omit<MethodInterface, 'hash' | 'type'>, parameters: O
 ];
 
 export type Contract = {address: string, standard?: string, name?: string, image?: string};
-export type DecodedFunctionCall = {contract: Contract, methodInterface: Omit<MethodInterface, 'hash' | 'type'>, decodedParameters: DecodedParameter[]};
+export type DecodedFunctionCall = {contract: Contract, methodInterface: Omit<MethodInterfaceTable, 'hash' | 'type'>, decodedParameters: DecodedParameter[]};
 
 /**
  * Function used to extract all inputs from a transaction on Lukso, as Lukso use account abstraction

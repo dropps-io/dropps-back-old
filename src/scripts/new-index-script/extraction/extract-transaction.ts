@@ -1,14 +1,14 @@
 import {web3} from '../../../bin/web3/web3';
 import {decodeTransactionFinalInput} from '../../blockchain-indexing/utils/tx-final-input';
-import {MethodParameter} from '../../../models/types/method-parameter';
+import {MethodParameterTable} from '../../../models/types/tables/method-parameter-table';
 import {queryMethodParameters} from '../../../bin/db/method-parameter.table';
 import {Transaction} from '../../../models/types/transaction';
 import {incrementExtractedToLogOf, reportIndexingScriptError} from '../index-logger';
 
-export async function extractTransaction(hash: string): Promise<{transaction: Transaction, params: MethodParameter[], decodedParams: { [key: string]: any }}> {
+export async function extractTransaction(hash: string): Promise<{transaction: Transaction, params: MethodParameterTable[], decodedParams: { [key: string]: any }}> {
 	let transaction: Transaction;
 	let decodedParameters: { [key: string]: any; } = {};
-	let parameters: MethodParameter[] = [];
+	let parameters: MethodParameterTable[] = [];
 	try {
 		transaction = {...await web3.eth.getTransaction(hash), methodId: ''};
 	} catch (e) {

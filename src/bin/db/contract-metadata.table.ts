@@ -1,10 +1,10 @@
-import {ContractMetadata} from '../../models/types/contract-metadata';
+import {ContractMetadataTable} from '../../models/types/tables/contract-metadata-table';
 import {executeQuery} from './database';
 import {ERROR_NOT_FOUND} from '../utils/error-messages';
 
-export async function queryContractMetadata(address: string): Promise<ContractMetadata> {
+export async function queryContractMetadata(address: string): Promise<ContractMetadataTable> {
 	const res = await executeQuery('SELECT * FROM "contract_metadata" WHERE "address" = $1', [address]);
-	if (res.rows[0]) return res.rows[0] as ContractMetadata;
+	if (res.rows[0]) return res.rows[0] as ContractMetadataTable;
 	else throw 'No metadata found';
 }
 
@@ -50,9 +50,9 @@ export async function queryContractIsNFT(address: string): Promise<boolean> {
 	else return false;
 }
 
-export async function insertContractMetadata(address: string, name: string, symbol: string, description: string, isNFT: boolean, supply: string): Promise<ContractMetadata> {
+export async function insertContractMetadata(address: string, name: string, symbol: string, description: string, isNFT: boolean, supply: string): Promise<ContractMetadataTable> {
 	const res = await executeQuery('INSERT INTO "contract_metadata" VALUES ($1, $2, $3, $4, $5, $6)', [address, name, symbol, description, isNFT, supply]);
-	return res.rows[0] as ContractMetadata;
+	return res.rows[0] as ContractMetadataTable;
 }
 
 export async function updateContractDescription(address: string, description: string): Promise<void> {

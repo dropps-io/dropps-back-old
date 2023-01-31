@@ -6,7 +6,7 @@ import {insertContractInterface, queryContractInterface, queryContractInterfaces
 
 
 export const ContractInterfaceTests = () => {
-  describe('Table Contract Interface', () => {
+  describe('Table ContractTable Interface', () => {
 
       beforeEach(async () => {
           await clearDB();

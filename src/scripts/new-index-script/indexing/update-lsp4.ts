@@ -3,10 +3,10 @@
 import {deleteLink, insertLink, queryLinks} from '../../../bin/db/link.table';
 import {deleteImage, insertImage, queryImages} from '../../../bin/db/image.table';
 import {deleteAsset, insertAsset, queryAssets} from '../../../bin/db/asset.table';
-import {Image} from '../../../models/types/image';
+import {ImageTable} from '../../../models/types/tables/image-table';
 import {updateContractDescription} from '../../../bin/db/contract-metadata.table';
 import {LSP4DigitalAssetMetadata} from '../../../bin/UniversalProfile/models/lsp4-digital-asset.model';
-import {Asset} from '../../../models/types/asset';
+import {AssetTable} from '../../../models/types/tables/asset-table';
 import {INDEX_DATA} from '../config';
 import {Link} from '../../../models/types/metadata-objects';
 import {reportIndexingScriptError} from '../index-logger';
@@ -16,8 +16,8 @@ export async function updateLSP4Metadata(address: string, lsp4: LSP4DigitalAsset
 	if (!lsp4) return;
 
 	try {
-		const images: Image[] = await queryImages(address);
-		const assets: Asset[] = await queryAssets(address);
+		const images: ImageTable[] = await queryImages(address);
+		const assets: AssetTable[] = await queryAssets(address);
 		const links: Link[] = await queryLinks(address);
 
 		try {

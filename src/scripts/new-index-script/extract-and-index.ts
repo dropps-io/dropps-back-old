@@ -13,7 +13,7 @@ import {POST_VALIDATOR_ADDRESS} from '../../environment/config';
 import {KEY_LSPXXSocialRegistry} from '../../bin/utils/constants';
 import {indexEvent} from './indexing/index-event';
 import {indexTransaction} from './indexing/index-transaction';
-import {MethodParameter} from '../../models/types/method-parameter';
+import {MethodParameterTable} from '../../models/types/tables/method-parameter-table';
 import {indexContract} from './indexing/index-contract';
 import {setLogExtractingToLog} from './index-logger';
 import {indexRegistry} from './indexing/index-registry';
@@ -26,7 +26,7 @@ export async function extractAndIndexBatch(logs: Log[], lastBlock: number) {
 }
 
 async function extractAndIndex(log: Log, lastBlock: number) {
-	let tx: {transaction: Transaction, params: MethodParameter[], decodedParams: { [key: string]: any }};
+	let tx: {transaction: Transaction, params: MethodParameterTable[], decodedParams: { [key: string]: any }};
 
 	await extractAndIndexContract(log.address);
 

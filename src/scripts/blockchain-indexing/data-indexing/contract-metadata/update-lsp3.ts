@@ -1,8 +1,8 @@
 //TODO Quick and dirty, to improve, improve comparison (ex: if 2 images are the same (same hash) but one is for bg an other for profile we need to compare hash AND type)
 import {LSP3UniversalProfile} from '../../../../bin/UniversalProfile/models/lsp3-universal-profile.model';
-import {Image} from '../../../../models/types/image';
+import {ImageTable} from '../../../../models/types/tables/image-table';
 import {deleteImage, insertImage, queryImages} from '../../../../bin/db/image.table';
-import {Link} from '../../../../models/types/link';
+import {LinkTable} from '../../../../models/types/tables/link-table';
 import {deleteLink, insertLink, queryLinks} from '../../../../bin/db/link.table';
 import {deleteTag, insertTag, queryTags} from '../../../../bin/db/tag.table';
 import {updateContractDescription, updateContractName} from '../../../../bin/db/contract-metadata.table';
@@ -15,8 +15,8 @@ export async function updateLSP3Profile(address: string, lsp3: LSP3UniversalProf
 	if (!lsp3) return;
 
 	try {
-		const images: Image[] = await queryImages(address);
-		const links: Link[] = await queryLinks(address);
+		const images: ImageTable[] = await queryImages(address);
+		const links: LinkTable[] = await queryLinks(address);
 		const tags: string[] = await queryTags(address);
 
 		await updateContractDescription(address, lsp3.description);

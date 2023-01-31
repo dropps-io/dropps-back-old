@@ -1,6 +1,6 @@
 export type ImageType = 'profile' | 'background' | 'icon' | '';
 
-export interface Image {
+export interface ImageTable {
     address: string;
     url: string;
     width: number;

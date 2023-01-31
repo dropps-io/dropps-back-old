@@ -1,4 +1,4 @@
-export interface ContractMetadata {
+export interface ContractMetadataTable {
     address: string;
     name: string;
     symbol: string;
