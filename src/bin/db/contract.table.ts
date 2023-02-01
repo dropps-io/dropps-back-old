@@ -1,16 +1,16 @@
-import {Contract} from '../../models/types/contract';
+import {ContractTable} from '../../models/types/tables/contract-table';
 import {executeQuery} from './database';
 import {ERROR_NOT_FOUND} from '../utils/error-messages';
 
-export async function queryContract(address: string): Promise<Contract> {
+export async function queryContract(address: string): Promise<ContractTable> {
 	const res = await executeQuery('SELECT * FROM "contract" WHERE "address" = $1', [address]);
-	if (res.rows[0]) return res.rows[0] as Contract;
-	else throw 'No contract found'
+	if (res.rows[0]) return res.rows[0] as ContractTable;
+	else throw 'No contract found';
 }
 
-export async function queryContracts(): Promise<Contract[]> {
+export async function queryContracts(): Promise<ContractTable[]> {
 	const res = await executeQuery('SELECT * FROM "contract"', []);
-	return res.rows as Contract[];
+	return res.rows as ContractTable[];
 }
 
 export async function insertContract(address: string, interfaceCode: string | null): Promise<void> {

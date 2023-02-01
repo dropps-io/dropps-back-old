@@ -4,12 +4,10 @@ import {assert, expect} from "chai";
 import {UNIVERSAL_PROFILE_1, UNIVERSAL_PROFILE_2} from "../../helpers/constants";
 import {insertContract} from "../../../bin/db/contract.table";
 import {shouldThrow} from "../../helpers/should-throw";
-import {insertPost} from "../../../bin/db/post.table";
-import {insertLike, queryPostLike, queryPostLikesCount, querySenderLikes, removeLike} from "../../../bin/db/like.table";
 import {insertFollow, queryFollow, queryFollowers, queryFollowersCount, queryFollowing, queryFollowingCount, removeFollow} from "../../../bin/db/follow.table";
 
 export const FollowTests = () => {
-    describe('Table Follow', () => {
+    describe('Table FollowTable', () => {
 
         beforeEach(async () => {
             await clearDB();

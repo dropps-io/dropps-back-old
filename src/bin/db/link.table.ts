@@ -1,16 +1,16 @@
-import {Link} from '../../models/types/link';
+import {LinkTable} from '../../models/types/tables/link-table';
 import {executeQuery} from './database';
 import {ERROR_NOT_FOUND} from '../utils/error-messages';
 
-export async function queryLinks(address: string): Promise<Link[]> {
+export async function queryLinks(address: string): Promise<LinkTable[]> {
 	const res = await executeQuery('SELECT * FROM "link" WHERE "address" = $1', [address]);
-	if (res.rows.length > 0) return res.rows as Link[];
+	if (res.rows.length > 0) return res.rows as LinkTable[];
 	else return [];
 }
 
-export async function insertLink(address: string, title: string, url: string): Promise<Link> {
+export async function insertLink(address: string, title: string, url: string): Promise<LinkTable> {
 	const res = await executeQuery('INSERT INTO "link" VALUES ($1, $2, $3)', [address, title, url]);
-	return res.rows[0] as Link;
+	return res.rows[0] as LinkTable;
 }
 
 export async function updateLink(address: string, title: string, url: string): Promise<void> {

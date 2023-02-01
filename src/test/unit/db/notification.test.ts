@@ -12,7 +12,7 @@ import {
 import {insertPost} from "../../../bin/db/post.table";
 
 export const NotificationTests = () => {
-  describe('Table Notification', () => {
+  describe('Table NotificationTable', () => {
 
       beforeEach(async () => {
           await clearDB();

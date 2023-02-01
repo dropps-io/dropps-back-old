@@ -20,7 +20,7 @@
     "init-db": "node dist/scripts/init-db.js -- exit",
     "set-displays": "node dist/scripts/set-displays.js -- exit",
     "refresh-metadata": "node dist/scripts/refresh-all-up-metadata.js -- exit",
-    "index-blockchain": "node dist/scripts/blockchain-indexing/run-indexing-script.js -- exit"
+    "index-blockchain": "node dist/scripts/new-index-script/main.js -- exit"
   },
   "repository": {
     "type": "git",

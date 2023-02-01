@@ -8,7 +8,7 @@ import {insertContractMetadata} from "../../../bin/db/contract-metadata.table";
 import {deleteLink, insertLink, queryLinks} from "../../../bin/db/link.table";
 
 export const LinkTests = () => {
-  describe('Table Link', () => {
+  describe('Table LinkTable', () => {
 
       beforeEach(async () => {
           await clearDB();

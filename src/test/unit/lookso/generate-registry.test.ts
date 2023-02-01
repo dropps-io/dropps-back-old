@@ -1,5 +1,5 @@
 import {SocialRegistry} from "../../../bin/lookso/registry/types/social-registry";
-import {RegistryChange} from "../../../models/types/registry-change";
+import {RegistryChangeTable} from "../../../models/types/tables/registry-change-table";
 import {generateNewRegistry} from "../../../bin/lookso/registry/utils/generate-new-registry";
 import {expect} from "chai";
 
@@ -20,7 +20,7 @@ export const GenerateRegistryTest = () => {
   describe('Generate new registry from changes', () => {
 
     it ('should handle correctly duplicates add changes', () => {
-      const changes: RegistryChange[] = [
+      const changes: RegistryChangeTable[] = [
         {address: '', type: 'follow', action: 'add', value: 'bob', date: new Date},
         {address: '', type: 'follow', action: 'add', value: 'bob', date: new Date},
         {address: '', type: 'like', action: 'add', value: 'post', date: new Date},
@@ -35,7 +35,7 @@ export const GenerateRegistryTest = () => {
     });
 
     it ('should handle correctly duplicates remove changes', () => {
-      const changes: RegistryChange[] = [
+      const changes: RegistryChangeTable[] = [
         {address: '', type: 'follow', action: 'remove', value: 'bob', date: new Date},
         {address: '', type: 'follow', action: 'remove', value: 'bob', date: new Date},
         {address: '', type: 'like', action: 'remove', value: 'post', date: new Date},
@@ -48,7 +48,7 @@ export const GenerateRegistryTest = () => {
     });
 
     it ('should handle correctly adding and removing an item', () => {
-      const changes: RegistryChange[] = [
+      const changes: RegistryChangeTable[] = [
         {address: '', type: 'follow', action: 'add', value: 'bob', date: new Date},
         {address: '', type: 'follow', action: 'remove', value: 'bob', date: new Date},
         {address: '', type: 'like', action: 'add', value: 'post', date: new Date},
@@ -61,7 +61,7 @@ export const GenerateRegistryTest = () => {
     });
 
     it ('should handle correctly adding and removing an item with duplicates', () => {
-      const changes: RegistryChange[] = [
+      const changes: RegistryChangeTable[] = [
         {address: '', type: 'follow', action: 'add', value: 'bob', date: new Date},
         {address: '', type: 'follow', action: 'add', value: 'bob', date: new Date},
         {address: '', type: 'follow', action: 'remove', value: 'bob', date: new Date},
@@ -82,7 +82,7 @@ export const GenerateRegistryTest = () => {
     });
 
     it ('should return handle correctly when adding an already existing item', () => {
-      const changes: RegistryChange[] = [
+      const changes: RegistryChangeTable[] = [
         {address: '', type: 'follow', action: 'add', value: 'bob', date: new Date},
         {address: '', type: 'like', action: 'add', value: 'post', date: new Date},
       ]

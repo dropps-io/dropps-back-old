@@ -2,29 +2,29 @@ import { FastifyInstance } from 'fastify';
 import {verifyJWT} from '../../../bin/json-web-token';
 import {error, ERROR_INTERNAL, ERROR_INVALID_PAGE, ERROR_NOT_FOUND, PUSH_REGISTRY_REQUIRED, RESOURCE_EXISTS} from '../../../bin/utils/error-messages';
 import {logError} from '../../../bin/logger';
-import {Follow} from "../../../models/types/follow";
+import {FollowTable} from '../../../models/types/tables/follow-table';
 import {
 	insertFollow,
 	removeFollow
-} from "../../../bin/db/follow.table";
-import {queryContract} from "../../../bin/db/contract.table";
-import {Post} from "../../../models/types/post";
-import {queryPost, queryPosts, queryPostsCount} from "../../../bin/db/post.table";
-import {constructFeed} from "../../../bin/lookso/feed/construct-feed";
-import {insertLike, queryPostLike, removeLike} from "../../../bin/db/like.table";
-import {Like} from "../../../models/types/like";
-import {looksoPostRoutes} from "./lookso-post.route";
-import {looksoProfileRoutes} from "./lookso-profile.route";
-import {insertNotification} from "../../../bin/db/notification.table";
-import {search} from "../../../bin/lookso/search";
-import {insertRegistryChange, queryRegistryChangesCountOfAddress} from "../../../bin/db/registry-change.table";
-import {API_URL, MAX_OFFCHAIN_REGISTRY_CHANGES, POSTS_PER_LOAD, PROFILES_PER_SEARCH} from "../../../environment/config";
-import {applyChangesToRegistry} from "../../../bin/lookso/registry/apply-changes-to-registry";
-import {buildJsonUrl} from "../../../bin/utils/json-url";
-import {upload} from "../../../bin/arweave/utils/upload";
-import {objectToBuffer} from "../../../bin/utils/file-converters";
-import {ADDRESS_SCHEMA_VALIDATION, HASH_SCHEMA_VALIDATION, PAGE_SCHEMA_VALIDATION, POST_TYPE_SCHEMA_VALIDATION} from "../../../models/json/utils.schema";
-import {looksoTxRoutes} from "./lookso-tx.route";
+} from '../../../bin/db/follow.table';
+import {queryContract} from '../../../bin/db/contract.table';
+import {Post} from '../../../models/types/post';
+import {queryPost, queryPosts, queryPostsCount} from '../../../bin/db/post.table';
+import {constructFeed} from '../../../bin/lookso/feed/construct-feed';
+import {insertLike, queryPostLike, removeLike} from '../../../bin/db/like.table';
+import {LikeTable} from '../../../models/types/tables/like-table';
+import {looksoPostRoutes} from './lookso-post.route';
+import {looksoProfileRoutes} from './lookso-profile.route';
+import {insertNotification} from '../../../bin/db/notification.table';
+import {search} from '../../../bin/lookso/search';
+import {insertRegistryChange, queryRegistryChangesCountOfAddress} from '../../../bin/db/registry-change.table';
+import {API_URL, MAX_OFFCHAIN_REGISTRY_CHANGES, POSTS_PER_LOAD, PROFILES_PER_SEARCH} from '../../../environment/config';
+import {applyChangesToRegistry} from '../../../bin/lookso/registry/apply-changes-to-registry';
+import {buildJsonUrl} from '../../../bin/utils/json-url';
+import {upload} from '../../../bin/arweave/utils/upload';
+import {objectToBuffer} from '../../../bin/utils/file-converters';
+import {ADDRESS_SCHEMA_VALIDATION, HASH_SCHEMA_VALIDATION, PAGE_SCHEMA_VALIDATION, POST_TYPE_SCHEMA_VALIDATION} from '../../../models/json/utils.schema';
+import {looksoTxRoutes} from './lookso-tx.route';
 
 export async function looksoRoute (fastify: FastifyInstance) {
 
@@ -32,9 +32,9 @@ export async function looksoRoute (fastify: FastifyInstance) {
 		method: 'POST',
 		url: '/follow',
 		schema: {
-			description: 'Follow a new profile.',
+			description: 'FollowTable a new profile.',
 			tags: ['lookso'],
-			summary: 'Follow a new profile',
+			summary: 'FollowTable a new profile',
 			body: {
 				type: 'object',
 				required: ['follower', 'following'],
@@ -46,7 +46,7 @@ export async function looksoRoute (fastify: FastifyInstance) {
 			}
 		},
 		handler: async (request, reply) => {
-			const body = request.body as Follow;
+			const body = request.body as FollowTable;
 			const jwtError = await verifyJWT(request, reply, body.follower);
 			if (jwtError) return jwtError;
 
@@ -82,9 +82,9 @@ export async function looksoRoute (fastify: FastifyInstance) {
 		method: 'DELETE',
 		url: '/unfollow',
 		schema: {
-			description: 'Follow a new profile.',
+			description: 'FollowTable a new profile.',
 			tags: ['lookso'],
-			summary: 'Follow a new profile',
+			summary: 'FollowTable a new profile',
 			body: {
 				type: 'object',
 				required: ['follower', 'following'],
@@ -96,7 +96,7 @@ export async function looksoRoute (fastify: FastifyInstance) {
 			}
 		},
 		handler: async (request, reply) => {
-			const body = request.body as Follow;
+			const body = request.body as FollowTable;
 			const jwtError = await verifyJWT(request, reply, body.follower);
 			if (jwtError) return jwtError;
 
@@ -131,9 +131,9 @@ export async function looksoRoute (fastify: FastifyInstance) {
 		method: 'POST',
 		url: '/like',
 		schema: {
-			description: 'Like or unlike a post.',
+			description: 'LikeTable or unlike a post.',
 			tags: ['lookso'],
-			summary: 'Like or unlike a post',
+			summary: 'LikeTable or unlike a post',
 			body: {
 				type: 'object',
 				required: ['sender', 'postHash'],
@@ -145,7 +145,7 @@ export async function looksoRoute (fastify: FastifyInstance) {
 			}
 		},
 		handler: async (request, reply) => {
-			const body = request.body as Like;
+			const body = request.body as LikeTable;
 			const jwtError = await verifyJWT(request, reply, body.sender);
 			if (jwtError) return jwtError;
 

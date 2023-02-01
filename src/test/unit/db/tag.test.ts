@@ -8,7 +8,7 @@ import {insertContractMetadata} from "../../../bin/db/contract-metadata.table";
 import {deleteTag, insertTag, queryTags} from "../../../bin/db/tag.table";
 
 export const TagTests = () => {
-  describe('Table Tag', () => {
+  describe('Table TagTable', () => {
 
       beforeEach(async () => {
           await clearDB();

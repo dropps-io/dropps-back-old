@@ -8,7 +8,7 @@ import {insertContractMetadata} from "../../../bin/db/contract-metadata.table";
 import {deleteImage, insertImage, queryImages, queryImagesByType} from "../../../bin/db/image.table";
 
 export const ImageTests = () => {
-  describe('Table Image', () => {
+  describe('Table ImageTable', () => {
 
       beforeEach(async () => {
           await clearDB();

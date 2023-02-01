@@ -1,4 +1,4 @@
-export interface MethodInterface {
+export interface MethodInterfaceTable {
     id: string;
     hash: string;
     name: string;

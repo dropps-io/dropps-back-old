@@ -4,11 +4,11 @@ import {assert, expect} from "chai";
 import {shouldThrow} from "../../helpers/should-throw";
 import {insertDataChanged, queryDataKeyHistory, queryDataKeyValue} from "../../../bin/db/data-changed.table";
 import {UNIVERSAL_PROFILE_1} from "../../helpers/constants";
-import {DataChanged} from "../../../models/types/data-changed";
+import {DataChangedTable} from "../../../models/types/tables/data-changed-table";
 import {insertContract} from "../../../bin/db/contract.table";
 
 export const DataChangedTests = () => {
-  describe('Table DataChanged', () => {
+  describe('Table DataChangedTable', () => {
 
       beforeEach(async () => {
           await clearDB();
@@ -76,7 +76,7 @@ export const DataChangedTests = () => {
               0
           );
 
-          const dataChanged: DataChanged[] = await queryDataKeyHistory(UNIVERSAL_PROFILE_1, '0x6cf76a6ded55d828270d696eee6054e618dc3fc546434d3d4c68101dc25e9821');
+          const dataChanged: DataChangedTable[] = await queryDataKeyHistory(UNIVERSAL_PROFILE_1, '0x6cf76a6ded55d828270d696eee6054e618dc3fc546434d3d4c68101dc25e9821');
 
           expect(dataChanged[0].value).to.equal('0x001');
           expect(dataChanged[1].value).to.equal('0x002');

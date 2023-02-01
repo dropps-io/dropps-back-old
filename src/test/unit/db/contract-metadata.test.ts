@@ -10,7 +10,7 @@ import {
 
 
 export const ContractMetadataTests = () => {
-  describe('Table Contract Metadata', () => {
+  describe('Table ContractTable Metadata', () => {
 
       beforeEach(async () => {
           await clearDB();

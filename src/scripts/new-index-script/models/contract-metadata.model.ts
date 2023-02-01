@@ -1,4 +1,4 @@
-import {Link, MetadataAsset, MetadataImage} from "../../../models/types/metadata-objects";
+import {Link, MetadataAsset, MetadataImage} from '../../../models/types/metadata-objects';
 
 export interface ContractFullMetadata {
   name: string;

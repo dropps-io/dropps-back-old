@@ -7,7 +7,7 @@ import {shouldThrow} from "../../helpers/should-throw";
 import {deleteAsset, insertAsset, queryAssets, queryAssetsByType} from "../../../bin/db/asset.table";
 
 export const AssetTests = () => {
-  describe('Table Asset', () => {
+  describe('Table AssetTable', () => {
 
       beforeEach(async () => {
           await clearDB();

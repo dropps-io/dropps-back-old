@@ -1,9 +1,10 @@
-import {DB_HOST, DB_NAME, DB_PASSWORD, DB_USER} from '../../environment/endpoints';
+import {DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER} from '../../environment/endpoints';
 import {logMessage} from '../logger';
 import {Client} from 'pg';
 
 export const DB = new Client({
 	host: DB_HOST,
+	port: DB_PORT,
 	user: DB_USER,
 	password: DB_PASSWORD,
 	database: DB_NAME

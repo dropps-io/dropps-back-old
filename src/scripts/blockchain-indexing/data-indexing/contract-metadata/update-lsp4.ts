@@ -1,47 +1,47 @@
 //TODO Quick and dirty, to improve
-import {LSP4DigitalAssetMetadata} from "../../../../bin/UniversalProfile/models/lsp4-digital-asset.model";
-import {Image} from "../../../../models/types/image";
-import {deleteImage, insertImage, queryImages} from "../../../../bin/db/image.table";
-import {Asset} from "../../../../models/types/asset";
-import {deleteAsset, insertAsset, queryAssets} from "../../../../bin/db/asset.table";
-import {Link} from "../../../../models/types/link";
-import {deleteLink, insertLink, queryLinks} from "../../../../bin/db/link.table";
-import {updateContractDescription} from "../../../../bin/db/contract-metadata.table";
-import {INDEX_DATA} from "../../config";
-import {tryExecuting} from "../../../../bin/utils/try-executing";
-import {logError} from "../../../../bin/logger";
+import {LSP4DigitalAssetMetadata} from '../../../../bin/UniversalProfile/models/lsp4-digital-asset.model';
+import {ImageTable} from '../../../../models/types/tables/image-table';
+import {deleteImage, insertImage, queryImages} from '../../../../bin/db/image.table';
+import {AssetTable} from '../../../../models/types/tables/asset-table';
+import {deleteAsset, insertAsset, queryAssets} from '../../../../bin/db/asset.table';
+import {LinkTable} from '../../../../models/types/tables/link-table';
+import {deleteLink, insertLink, queryLinks} from '../../../../bin/db/link.table';
+import {updateContractDescription} from '../../../../bin/db/contract-metadata.table';
+import {INDEX_DATA} from '../../config';
+import {tryExecuting} from '../../../../bin/utils/try-executing';
+import {logError} from '../../../../bin/logger';
 
 export async function updateLSP4Metadata(address: string, lsp4: LSP4DigitalAssetMetadata) {
-  if (!INDEX_DATA) return;
-  if (!lsp4) return;
+	if (!INDEX_DATA) return;
+	if (!lsp4) return;
 
-  try {
-    const images: Image[] = await queryImages(address);
-    const assets: Asset[] = await queryAssets(address);
-    const links: Link[] = await queryLinks(address);
+	try {
+		const images: ImageTable[] = await queryImages(address);
+		const assets: AssetTable[] = await queryAssets(address);
+		const links: LinkTable[] = await queryLinks(address);
 
-    await updateContractDescription(address, lsp4.description);
+		await updateContractDescription(address, lsp4.description);
 
-    const imagesToDelete = images.filter(i => !lsp4.images.map(x => x.hash).includes(i.hash) && !lsp4.icon.map(x => x.hash).includes(i.hash));
-    const imagesToAdd = lsp4.images ? lsp4.images.filter(i => !images.map(x => x.hash).includes(i.hash)) : [];
-    const iconsToAdd = lsp4.icon ? lsp4.icon.filter(i => !images.map(x => x.hash).includes(i.hash)) : [];
+		const imagesToDelete = images.filter(i => !lsp4.images.flat().map(x => x.hash).includes(i.hash) && !lsp4.icon.map(x => x.hash).includes(i.hash));
+		const imagesToAdd = lsp4.images ? lsp4.images.flat().filter(i => !images.map(x => x.hash).includes(i.hash)) : [];
+		const iconsToAdd = lsp4.icon ? lsp4.icon.filter(i => !images.map(x => x.hash).includes(i.hash)) : [];
 
-    for (let image of imagesToDelete) await tryExecuting(deleteImage(address, image.url));
-    for (let image of imagesToAdd) await tryExecuting(insertImage(address, image.url, image.width, image.height, '', image.hash));
-    for (let image of iconsToAdd) await tryExecuting(insertImage(address, image.url, image.width, image.height, 'icon', image.hash));
+		for (const image of imagesToDelete) await tryExecuting(deleteImage(address, image.url));
+		for (const image of imagesToAdd) await tryExecuting(insertImage(address, image.url, image.width, image.height, '', image.hash));
+		for (const image of iconsToAdd) await tryExecuting(insertImage(address, image.url, image.width, image.height, 'icon', image.hash));
 
-    const assetsToDelete = assets.filter(i => !lsp4.assets.map(x => x.hash).includes(i.hash));
-    const assetsToAdd = lsp4.assets ? lsp4.assets.filter(i => !assets.map(x => x.hash).includes(i.hash)) : [];
+		const assetsToDelete = assets.filter(i => !lsp4.assets.map(x => x.hash).includes(i.hash));
+		const assetsToAdd = lsp4.assets ? lsp4.assets.filter(i => !assets.map(x => x.hash).includes(i.hash)) : [];
 
-    for (let asset of assetsToDelete) await tryExecuting(deleteAsset(address, asset.url));
-    for (let asset of assetsToAdd) await tryExecuting(insertAsset(address, asset.url, asset.fileType, asset.hash));
+		for (const asset of assetsToDelete) await tryExecuting(deleteAsset(address, asset.url));
+		for (const asset of assetsToAdd) await tryExecuting(insertAsset(address, asset.url, asset.fileType, asset.hash));
 
-    const linksToDelete = links.filter(i => !lsp4.links.map(x => x.url).includes(i.url));
-    const linksToAdd = lsp4.links ? lsp4.links.filter(i => !links.map(x => x.url).includes(i.url)) : [];
+		const linksToDelete = links.filter(i => !lsp4.links.map(x => x.url).includes(i.url));
+		const linksToAdd = lsp4.links ? lsp4.links.filter(i => !links.map(x => x.url).includes(i.url)) : [];
 
-    for (let link of linksToDelete) await tryExecuting(deleteLink(address, link.title, link.url));
-    for (let link of linksToAdd) await tryExecuting(insertLink(address, link.title, link.url));
-  } catch (e) {
-    logError(e);
-  }
+		for (const link of linksToDelete) await tryExecuting(deleteLink(address, link.title, link.url));
+		for (const link of linksToAdd) await tryExecuting(insertLink(address, link.title, link.url));
+	} catch (e) {
+		logError(e);
+	}
 }
