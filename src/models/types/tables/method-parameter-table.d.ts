@@ -1,4 +1,4 @@
-export interface MethodParameter {
+export interface MethodParameterTable {
     methodId: string;
     name: string;
     type: string;

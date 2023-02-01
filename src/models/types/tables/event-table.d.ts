@@ -1,4 +1,4 @@
-export interface Event {
+export interface EventTable {
     id: number;
     address: string;
     transactionHash: string;

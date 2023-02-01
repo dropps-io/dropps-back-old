@@ -1,28 +1,27 @@
-import {insertContractMetadata} from "../../../../bin/db/contract-metadata.table";
-import {tryExecuting} from "../../../../bin/utils/try-executing";
-import {insertImage} from "../../../../bin/db/image.table";
-import {insertLink} from "../../../../bin/db/link.table";
-import {insertTag} from "../../../../bin/db/tag.table";
-import {insertAsset} from "../../../../bin/db/asset.table";
-import {LSP3UniversalProfile} from "../../../../bin/UniversalProfile/models/lsp3-universal-profile.model";
-import {INDEX_DATA} from "../../config";
-import {updateLSP3Profile} from "./update-lsp3";
-import {logError} from "../../../../bin/logger";
+import {insertContractMetadata} from '../../../../bin/db/contract-metadata.table';
+import {tryExecuting} from '../../../../bin/utils/try-executing';
+import {insertImage} from '../../../../bin/db/image.table';
+import {insertLink} from '../../../../bin/db/link.table';
+import {insertTag} from '../../../../bin/db/tag.table';
+import {insertAsset} from '../../../../bin/db/asset.table';
+import {LSP3UniversalProfile} from '../../../../bin/UniversalProfile/models/lsp3-universal-profile.model';
+import {INDEX_DATA} from '../../config';
+import {updateLSP3Profile} from './update-lsp3';
 
 export async function indexLsp3Data(address: string, lsp3: LSP3UniversalProfile) {
-  try {
-    if (!INDEX_DATA) return;
-    await insertContractMetadata(address, lsp3.name, '', lsp3.description, false, '0');
-    for (let image of lsp3.backgroundImage) await tryExecuting(insertImage(address, image.url, image.width, image.height, 'background', image.hash));
-    for (let image of lsp3.profileImage) await tryExecuting(insertImage(address, image.url, image.width, image.height, 'profile', image.hash));
-    for (let link of lsp3.links) await tryExecuting(insertLink(address, link.title, link.url));
-    for (let tag of lsp3.tags) await tryExecuting(insertTag(address, tag));
-    if (lsp3.avatar) await tryExecuting(insertAsset(address, lsp3.avatar.url, lsp3.avatar.fileType, lsp3.avatar.hash));
-  } catch (e) {
-    try {
-      await updateLSP3Profile(address, lsp3);
-    }
-    catch (e) {
-    }
-  }
+	try {
+		if (!INDEX_DATA) return;
+		await insertContractMetadata(address, lsp3.name, '', lsp3.description, false, '0');
+		for (const image of lsp3.backgroundImage) await tryExecuting(insertImage(address, image.url, image.width, image.height, 'background', image.hash));
+		for (const image of lsp3.profileImage) await tryExecuting(insertImage(address, image.url, image.width, image.height, 'profile', image.hash));
+		for (const link of lsp3.links) await tryExecuting(insertLink(address, link.title, link.url));
+		for (const tag of lsp3.tags) await tryExecuting(insertTag(address, tag));
+		if (lsp3.avatar) await tryExecuting(insertAsset(address, lsp3.avatar.url, lsp3.avatar.fileType, lsp3.avatar.hash));
+	} catch (e) {
+		try {
+			await updateLSP3Profile(address, lsp3);
+		}
+		catch (e) {
+		}
+	}
 }

@@ -9,7 +9,7 @@ import {
 } from "../../../bin/db/registry-change.table";
 
 export const RegistryChangeTests = () => {
-  describe('Table RegistryChange', () => {
+  describe('Table RegistryChangeTable', () => {
 
       beforeEach(async () => {
           await clearDB();

@@ -1,4 +1,4 @@
-export interface Tag {
+export interface TagTable {
     address: string;
     title: string;
 }

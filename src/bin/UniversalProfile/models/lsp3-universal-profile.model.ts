@@ -11,12 +11,12 @@ export interface LSP3UniversalProfile {
 }
 
 export function initialUniversalProfile(): LSP3UniversalProfile {
-    return {
-        name: '',
-        description: '',
-        links: [],
-        tags: [],
-        profileImage: [],
-        backgroundImage: []
-    };
+	return {
+		name: '',
+		description: '',
+		links: [],
+		tags: [],
+		profileImage: [],
+		backgroundImage: []
+	};
 }

@@ -1,21 +1,9 @@
-export interface Notification {
-  address: string,
-  sender: string,
-  date: Date,
-  type: 'like' | 'follow' | 'comment' | 'repost',
-  viewed: boolean,
-  postHash?: string
-}
+import {NotificationTable} from './tables/notification-table';
 
-export interface NotificationWithSenderDetails {
-  address: string,
+export interface NotificationWithSenderDetails extends Omit<NotificationTable, 'sender'> {
   sender: {
     address: string,
     name: string,
     image: string,
   },
-  date: Date,
-  type: 'like' | 'follow' | 'comment' | 'repost',
-  viewed: boolean,
-  postHash?: string
 }

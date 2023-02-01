@@ -1,13 +1,13 @@
-import {tryExecuting} from "../../../bin/utils/try-executing";
-import {insertDataChanged} from "../../../bin/db/data-changed.table";
-import {INDEX_DATA} from "../config";
-import {logError} from "../../../bin/logger";
+import {tryExecuting} from '../../../bin/utils/try-executing';
+import {insertDataChanged} from '../../../bin/db/data-changed.table';
+import {INDEX_DATA} from '../config';
+import {logError} from '../../../bin/logger';
 
 export async function indexDataChanged(address: string, key: string, value: string, blockNumber: number) {
-  if (!INDEX_DATA) return;
-  try {
-    await tryExecuting(insertDataChanged(address, key, value, blockNumber));
-  } catch (e) {
-    logError(e);
-  }
+	if (!INDEX_DATA) return;
+	try {
+		await tryExecuting(insertDataChanged(address, key, value, blockNumber));
+	} catch (e) {
+		logError(e);
+	}
 }

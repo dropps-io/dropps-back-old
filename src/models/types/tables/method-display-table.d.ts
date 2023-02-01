@@ -1,4 +1,4 @@
-export interface MethodDisplay {
+export interface MethodDisplayTable {
     methodId: string;
     text: string;
     imageFrom: string;

@@ -7,19 +7,20 @@ export interface LSP4DigitalAsset {
 }
 
 export interface LSP4DigitalAssetMetadata {
+    name?: string;
     description: string;
     links: Link[];
     icon: MetadataImage[];
-    images: MetadataImage[];
+    images: MetadataImage[] | MetadataImage[][];
     assets: MetadataAsset[];
 }
 
 export function initialDigitalAssetMetadata(): LSP4DigitalAssetMetadata {
-    return {
-        description: '',
-        links: [],
-        icon: [],
-        images: [],
-        assets: []
-    };
+	return {
+		description: '',
+		links: [],
+		icon: [],
+		images: [],
+		assets: []
+	};
 }

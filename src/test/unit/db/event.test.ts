@@ -2,14 +2,13 @@ import {beforeEach, describe} from "mocha";
 import {clearDB} from "../../helpers/database-helper";
 import {assert, expect} from "chai";
 import {shouldThrow} from "../../helpers/should-throw";
-import {insertPost, queryPost} from "../../../bin/db/post.table";
 import {UNIVERSAL_PROFILE_1} from "../../helpers/constants";
 import {insertContract} from "../../../bin/db/contract.table";
 import {insertEvent, queryEvent, queryEventByTh, updateEvent} from "../../../bin/db/event.table";
 import {insertTransaction} from "../../../bin/db/transaction.table";
 
 export const EventTests = () => {
-  describe('Table Event', () => {
+  describe('Table EventTable', () => {
 
       beforeEach(async () => {
           await clearDB();
@@ -57,15 +56,6 @@ export const EventTests = () => {
       });
 
       it ('should be able to query event by logId', async () => {
-          const id = await insertEvent(
-              UNIVERSAL_PROFILE_1,
-              '0x6cf76a6ded55d828270d696eee6054e618dc3fc546434d3d4c68101dc25e9821',
-              '01234567',
-              0,
-              '0x5f6c557fc82516a035640cdf1be081cd918dca7b19367571f9da46b6e82ccfa2',
-              'ty'
-          );
-
           const event = await queryEventByTh('0x6cf76a6ded55d828270d696eee6054e618dc3fc546434d3d4c68101dc25e9821', '01234567');
           expect(event.address).to.equal(UNIVERSAL_PROFILE_1);
           expect(event.type).to.equal('ty');

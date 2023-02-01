@@ -1,4 +1,4 @@
-import {Link} from "../../../../models/types/metadata-objects";
+import {Link} from '../../../../models/types/metadata-objects';
 
 export type LSPXXProfilePost = {
   version: string,

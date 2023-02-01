@@ -4,11 +4,11 @@ import fastifySwagger from '@fastify/swagger';
 import fastifyCors from '@fastify/cors';
 import {authRoute} from './routes/auth.route';
 import {LOGGER} from '../environment/config';
-import {looksoRoute} from "./routes/lookso/lookso.route";
-import multer from "fastify-multer";
-import cookie from "@fastify/cookie";
-import jwt from "@fastify/jwt";
-import type { FastifyCookieOptions } from "@fastify/cookie";
+import {looksoRoute} from './routes/lookso/lookso.route';
+import multer from 'fastify-multer';
+import cookie from '@fastify/cookie';
+import jwt from '@fastify/jwt';
+import type { FastifyCookieOptions } from '@fastify/cookie';
 import {COOKIE_SECRET, JWT_SECRET} from '../environment/endpoints';
 
 
@@ -39,7 +39,7 @@ fastify.register(fastifyCors, {
 			},
 			externalDocs: {
 				url: 'https://github.com/dropps-nft/dropps-back',
-				description: 'Link to the Github repository'
+				description: 'LinkTable to the Github repository'
 			},
 			host: 'api.dropps.io',
 			schemes: ['http'],

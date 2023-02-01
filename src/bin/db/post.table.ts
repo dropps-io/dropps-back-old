@@ -34,7 +34,7 @@ export async function queryPostsCount(type?: 'event' | 'post'): Promise<number> 
 }
 
 export async function queryPostComments(hash: string, limit: number, offset: number): Promise<Post[]> {
-	let query = 'SELECT * FROM "post" WHERE "parentHash" = $1  AND ("trusted" IS NULL OR "trusted"=true) ORDER BY "date", "author", "hash" LIMIT $2 OFFSET $3';
+	const query = 'SELECT * FROM "post" WHERE "parentHash" = $1  AND ("trusted" IS NULL OR "trusted"=true) ORDER BY "date", "author", "hash" LIMIT $2 OFFSET $3';
 	const res = await executeQuery(query, [hash, limit, offset]);
 	return res.rows as Post[];
 }

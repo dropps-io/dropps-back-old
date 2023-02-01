@@ -1,4 +1,4 @@
-export interface Follow {
+export interface FollowTable {
     follower: string;
     following: string;
 }

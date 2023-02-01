@@ -1,5 +1,5 @@
 import {executeQuery} from './database';
-import {DecodedParameter} from "../../models/types/decoded-parameter";
+import {DecodedParameter} from '../../models/types/decoded-parameter';
 
 export async function queryDecodedFunctionParameters(transactionHash: string): Promise<DecodedParameter[]> {
 	const res = await executeQuery('SELECT * FROM "decoded_function_parameter" WHERE "transactionHash" = $1', [transactionHash]);
