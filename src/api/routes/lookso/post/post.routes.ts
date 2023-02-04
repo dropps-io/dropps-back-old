@@ -1,4 +1,3 @@
-import sharp from 'sharp';
 import { FastifyInstance } from 'fastify';
 import multer from 'fastify-multer';
 
@@ -9,31 +8,18 @@ import {
   ERROR_INVALID_PAGE,
   FILE_TYPE_NOT_SUPPORTED,
 } from '../../../../lib/utils/error-messages';
-import { LSPXXProfilePost, ProfilePost } from '../../../../lib/lookso/registry/types/profile-post';
+import { LSPXXProfilePost } from '../../../../lib/lookso/registry/types/profile-post';
 import { verifyJWT } from '../../../../lib/json-web-token';
-import {
-  arrayBufferKeccak256Hash,
-  objectToBuffer,
-  objectToKeccak256Hash,
-} from '../../../../lib/utils/file-converters';
-import { buildJsonUrl } from '../../../../lib/utils/json-url';
-import {
-  queryPost,
-  queryPostComments,
-  queryPostCommentsCount,
-} from '../../../../lib/db/queries/post.table';
+import { queryPost } from '../../../../lib/db/queries/post.table';
 import { FeedPost } from '../../../../models/types/feed-post';
 import { constructFeed } from '../../../../lib/lookso/feed/construct-feed';
-import { Post } from '../../../../models/types/post';
-import { applyChangesToRegistry } from '../../../../lib/lookso/registry/apply-changes-to-registry';
-import { upload } from '../../../../lib/arweave/utils/upload';
 import {
   ADDRESS_SCHEMA_VALIDATION,
   HASH_SCHEMA_VALIDATION,
   PAGE_SCHEMA_VALIDATION,
 } from '../../../../models/json/utils.schema';
-import { API_URL, COMMENTS_PER_LOAD } from '../../../../environment/config';
-import { getPostLikes } from './post.service';
+import { API_URL } from '../../../../environment/config';
+import { looksoPostService } from './post.service';
 
 interface MulterRequest extends Request {
   file: any;
@@ -95,7 +81,7 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
       page = page || 0;
 
       try {
-        const response = await getPostLikes(hash, page, sender, viewOf);
+        const response = await looksoPostService.getPostLikes(hash, page, sender, viewOf);
         reply.code(200).send(response);
       } catch (e: any) {
         logError(e);
@@ -125,40 +111,24 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
     },
     handler: async (request, reply) => {
       const { hash } = request.params as { hash: string };
-      const query = request.query as { page?: number; viewOf?: string };
+      const { page, viewOf } = request.query as { page?: number; viewOf?: string };
+
+      const queryUrl = `${API_URL}/lookso/post/${hash}/comments?${
+        viewOf ? 'viewOf=' + viewOf + '&' : ''
+      }page=`;
 
       try {
-        const count = await queryPostCommentsCount(hash);
-        if (count === 0)
-          return reply
-            .code(200)
-            .send({ count: 0, page: null, next: null, previous: null, results: [] });
-        const page =
-          query.page !== undefined ? query.page : Math.ceil(count / COMMENTS_PER_LOAD) - 1;
-        if (page >= count / COMMENTS_PER_LOAD)
-          return reply.code(400).send(error(400, ERROR_INVALID_PAGE));
-        const posts: Post[] = await queryPostComments(
+        const postCommentsResponse = await looksoPostService.getPostComments(
           hash,
-          COMMENTS_PER_LOAD,
-          page * COMMENTS_PER_LOAD,
-        );
-        const feed = await constructFeed(posts, query.viewOf, true);
-
-        const queryUrl = `${API_URL}/lookso/post/${hash}/comments?${
-          query.viewOf ? 'viewOf=' + query.viewOf + '&' : ''
-        }page=`;
-
-        return reply.code(200).send({
-          count,
+          queryUrl,
           page,
-          next:
-            page < Math.ceil(count / COMMENTS_PER_LOAD) - 1
-              ? queryUrl + (page + 1).toString()
-              : null,
-          previous: page > 0 ? queryUrl + (page - 1).toString() : null,
-          results: feed,
-        });
+          viewOf,
+        );
+
+        return reply.code(200).send(postCommentsResponse);
       } catch (e: any) {
+        if (JSON.stringify(e).includes(ERROR_INVALID_PAGE))
+          return reply.code(400).send(error(400, ERROR_INVALID_PAGE));
         logError(e);
         reply.code(500).send(error(500, ERROR_INTERNAL));
       }
@@ -181,31 +151,17 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
       const jwtError = await verifyJWT(request, reply, post.author);
       if (jwtError) return jwtError;
 
-      let buffer = documentFile.buffer;
-      let fileType = documentFile.mimetype;
-
-      if (fileType.includes('image')) {
-        buffer = await sharp(buffer)
-          .rotate()
-          .resize(800, null, { withoutEnlargement: true, fit: 'contain' })
-          .webp({ quality: 50 })
-          .toBuffer();
-        fileType = 'image/webp';
-      } else {
-        return reply.code(415).send(error(501, FILE_TYPE_NOT_SUPPORTED));
-      }
-
-      const fileUrl = await upload(buffer, fileType);
-      post.asset = {
-        fileType: fileType,
-        hash: '0x' + arrayBufferKeccak256Hash(buffer),
-        hashFunction: 'keccak256(bytes)',
-        url: fileUrl,
-      };
+      const buffer = documentFile.buffer;
+      const fileType: string = documentFile.mimetype;
 
       try {
+        post.asset = await looksoPostService.processFileUpload(buffer, fileType);
+
         return reply.code(200).send({ LSPXXProfilePost: post });
       } catch (e: any) {
+        if (JSON.stringify(e).includes(FILE_TYPE_NOT_SUPPORTED))
+          return reply.code(415).send(error(501, FILE_TYPE_NOT_SUPPORTED));
+
         logError(e);
         reply.code(500).send(error(500, ERROR_INTERNAL));
       }
@@ -226,22 +182,9 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
       if (jwtError) return jwtError;
 
       try {
-        const post: ProfilePost = {
-          LSPXXProfilePost: body.lspXXProfilePost,
-          LSPXXProfilePostHash: '0x' + objectToKeccak256Hash(body.lspXXProfilePost),
-        };
+        const response = await looksoPostService.uploadProfilePost(body.lspXXProfilePost);
 
-        const postUrl = await upload(objectToBuffer(post), 'application/json');
-
-        const registry = await applyChangesToRegistry(body.lspXXProfilePost.author);
-        registry.posts.push({ url: postUrl, hash: post.LSPXXProfilePostHash });
-
-        const newRegistryUrl = await upload(objectToBuffer(registry), 'application/json');
-
-        return reply.code(200).send({
-          jsonUrl: buildJsonUrl(registry, newRegistryUrl),
-          postHash: post.LSPXXProfilePostHash,
-        });
+        return reply.code(200).send(response);
       } catch (e: any) {
         logError(e);
         reply.code(500).send(error(500, ERROR_INTERNAL));

@@ -6,16 +6,16 @@ import { logError } from '../../logger';
 const arweave = new ArweaveClient();
 const bundlr = new BundlrClient();
 
-export async function upload(buffer: Buffer, contentType: string) {
+export async function uploadToArweave(buffer: Buffer, contentType: string) {
   let postUrl;
   try {
     postUrl = await bundlr.upload(buffer, contentType);
   } catch (error: any) {
-    logError(error.message ? error.message : 'Bundlr upload failed');
+    logError(error.message ? error.message : 'Bundlr uploadToArweave failed');
     try {
       postUrl = await arweave.upload(buffer, contentType);
     } catch (e) {
-      throw 'Failed to upload';
+      throw 'Failed to uploadToArweave';
     }
   }
 

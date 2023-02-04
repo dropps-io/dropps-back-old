@@ -41,7 +41,7 @@ import {
 import { verifyJWT } from '../../../lib/json-web-token';
 import { applyChangesToRegistry } from '../../../lib/lookso/registry/apply-changes-to-registry';
 import { objectToBuffer } from '../../../lib/utils/file-converters';
-import { upload } from '../../../lib/arweave/utils/upload';
+import { uploadToArweave } from '../../../lib/arweave/utils/uploadToArweave';
 import { buildJsonUrl } from '../../../lib/utils/json-url';
 import { deleteAddressRegistryChanges } from '../../../lib/db/queries/registry-change.table';
 import {
@@ -647,7 +647,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
 
       try {
         const registry = await applyChangesToRegistry(address);
-        const newRegistryUrl = await upload(objectToBuffer(registry), 'application/json');
+        const newRegistryUrl = await uploadToArweave(objectToBuffer(registry), 'application/json');
 
         return reply.code(200).send({ jsonUrl: buildJsonUrl(registry, newRegistryUrl) });
       } catch (e: any) {

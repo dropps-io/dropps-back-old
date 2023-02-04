@@ -34,7 +34,7 @@ import {
 } from '../../../environment/config';
 import { applyChangesToRegistry } from '../../../lib/lookso/registry/apply-changes-to-registry';
 import { buildJsonUrl } from '../../../lib/utils/json-url';
-import { upload } from '../../../lib/arweave/utils/upload';
+import { uploadToArweave } from '../../../lib/arweave/utils/uploadToArweave';
 import { objectToBuffer } from '../../../lib/utils/file-converters';
 import {
   ADDRESS_SCHEMA_VALIDATION,
@@ -81,7 +81,7 @@ export async function looksoRoutes(fastify: FastifyInstance) {
 
         if (registryChangesCount + 1 >= MAX_OFFCHAIN_REGISTRY_CHANGES) {
           const newRegistry = await applyChangesToRegistry(body.follower);
-          const url = await upload(objectToBuffer(newRegistry), 'application/json');
+          const url = await uploadToArweave(objectToBuffer(newRegistry), 'application/json');
           const jsonUrl = buildJsonUrl(newRegistry, url);
           return reply.code(200).send({ jsonUrl });
         } else {
@@ -133,7 +133,7 @@ export async function looksoRoutes(fastify: FastifyInstance) {
 
         if (registryChangesCount + 1 >= MAX_OFFCHAIN_REGISTRY_CHANGES) {
           const newRegistry = await applyChangesToRegistry(body.follower);
-          const url = await upload(objectToBuffer(newRegistry), 'application/json');
+          const url = await uploadToArweave(objectToBuffer(newRegistry), 'application/json');
           const jsonUrl = buildJsonUrl(newRegistry, url);
           return reply.code(200).send({ jsonUrl });
         } else {
@@ -190,7 +190,7 @@ export async function looksoRoutes(fastify: FastifyInstance) {
 
         if (registryChangesCount + 1 >= MAX_OFFCHAIN_REGISTRY_CHANGES) {
           const newRegistry = await applyChangesToRegistry(body.sender);
-          const url = await upload(objectToBuffer(newRegistry), 'application/json');
+          const url = await uploadToArweave(objectToBuffer(newRegistry), 'application/json');
           const jsonUrl = buildJsonUrl(newRegistry, url);
           return reply.code(200).send({ jsonUrl });
         } else {
