@@ -14,13 +14,9 @@
     "test": "npm run build&&set NODE_ENV=test&&mocha ./dist/test/**/* --exit",
     "test:watch": "set NODE_ENV=test&&mocha ./dist/test/**/* --watch",
     "coverage": "nyc npm run test",
-    "pre-release": "standard-version --prerelease",
-    "release": "standard-version",
     "script": "node dist/scripts/index.js -- exit",
     "init-db": "node dist/scripts/init-db.js -- exit",
-    "set-displays": "node dist/scripts/set-displays.js -- exit",
-    "refresh-metadata": "node dist/scripts/refresh-all-up-metadata.js -- exit",
-    "index-blockchain": "node dist/scripts/new-index-script/main.js -- exit"
+    "index-blockchain": "node dist/scripts/blockchain-indexing/main.js -- exit"
   },
   "repository": {
     "type": "git",

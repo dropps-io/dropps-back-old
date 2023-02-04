@@ -1,5 +1,5 @@
 import { web3 } from '../../../bin/web3/web3';
-import { decodeTransactionFinalInput } from '../../blockchain-indexing/utils/tx-final-input';
+import { decodeTransactionFinalInput } from '../utils/tx-final-input';
 import { MethodParameterTable } from '../../../models/types/tables/method-parameter-table';
 import { queryMethodParameters } from '../../../bin/db/method-parameter.table';
 import { Transaction } from '../../../models/types/transaction';

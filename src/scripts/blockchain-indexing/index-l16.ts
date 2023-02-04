@@ -1,7 +1,7 @@
 import Web3 from 'web3';
 
 import { logError, logMessage } from '../../bin/logger';
-import { sleep } from '../blockchain-indexing/utils/sleep';
+import { sleep } from './utils/sleep';
 import { Log } from '../../models/types/log';
 import { DB } from '../../bin/db/database';
 import { changeIndexingChunkOnLog } from './index-logger';

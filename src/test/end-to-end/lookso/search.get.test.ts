@@ -9,8 +9,8 @@ import {insertContractMetadata} from "../../../bin/db/contract-metadata.table";
 import {insertImage} from "../../../bin/db/image.table";
 import {API_URL, PROFILES_PER_SEARCH} from "../../../environment/config";
 import {generateRandomAddress} from "../../helpers/generate-mocks";
-import {extractTransaction} from "../../../scripts/new-index-script/extraction/extract-transaction";
-import {indexTransaction} from "../../../scripts/new-index-script/indexing/index-transaction";
+import {extractTransaction} from "../../../scripts/blockchain-indexing/extraction/extract-transaction";
+import {indexTransaction} from "../../../scripts/blockchain-indexing/indexing/index-transaction";
 import {web3} from "../../../bin/web3/web3";
 
 export const SearchGETTests = () => {

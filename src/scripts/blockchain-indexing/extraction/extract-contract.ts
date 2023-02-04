@@ -1,4 +1,4 @@
-import { tryIdentifyingContract } from '../../blockchain-indexing/utils/contract-identification';
+import { tryIdentifyingContract } from '../utils/contract-identification';
 import { ContractFullMetadata } from '../models/contract-metadata.model';
 import { extractLSP3Data } from './contract-metatata/extract-lsp3';
 import { extractLSP8Data } from './contract-metatata/extract-lsp8';

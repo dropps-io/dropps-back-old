@@ -1,0 +1,30 @@
+import { AbiItem } from 'web3-utils';
+import LSP0ERC725Account from '@lukso/lsp-smart-contracts/artifacts/LSP0ERC725Account.json';
+
+import { ContractInterfaceTable } from '../../../models/types/tables/contract-interface-table';
+import { queryContractInterfaces } from '../../../bin/db/contract-interface.table';
+import { web3 } from '../../../bin/web3/web3';
+
+export async function tryIdentifyingContract(
+  address: string,
+): Promise<ContractInterfaceTable | undefined> {
+  try {
+    const contractCode = await web3.eth.getCode(address);
+    const contractInterfaces: ContractInterfaceTable[] = await queryContractInterfaces();
+
+    for (let i = 0; i < contractInterfaces.length; i++) {
+      if (contractCode.includes(contractInterfaces[i].id.slice(2, 10)))
+        return contractInterfaces[i];
+    }
+    const contract = new web3.eth.Contract(LSP0ERC725Account.abi as AbiItem[], address);
+
+    for (let i = 0; i < contractInterfaces.length; i++) {
+      if (await contract.methods.supportsInterface(contractInterfaces[i].id).call())
+        return contractInterfaces[i];
+    }
+  } catch (e) {
+    return undefined;
+  }
+
+  return undefined;
+}

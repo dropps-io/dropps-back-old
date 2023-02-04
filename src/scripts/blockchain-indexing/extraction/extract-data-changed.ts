@@ -1,6 +1,6 @@
 import { Log } from '../../../models/types/log';
 import { web3 } from '../../../bin/web3/web3';
-import { decodeSetDataValueFromInput } from '../../blockchain-indexing/utils/set-data-from-input';
+import { decodeSetDataValueFromInput } from '../utils/set-data-from-input';
 import { reportIndexingScriptError } from '../index-logger';
 import { extractDataFromKey } from './extract-key-data';
 import { IPFS_GATEWAY } from '../../../environment/config';
