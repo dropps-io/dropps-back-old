@@ -1,54 +1,71 @@
-import {queryPostLike, queryPostLikesCount, queryPostLikesWithNames} from '../../../bin/db/like.table';
-import {queryImagesByType} from '../../../bin/db/image.table';
-import {selectImage} from '../../../bin/utils/select-image';
-import {logError} from '../../../bin/logger';
-import {error, ERROR_INTERNAL, ERROR_INVALID_PAGE, FILE_TYPE_NOT_SUPPORTED} from '../../../bin/utils/error-messages';
-import {LSPXXProfilePost, ProfilePost} from '../../../bin/lookso/registry/types/profile-post';
-import {verifyJWT} from '../../../bin/json-web-token';
 import sharp from 'sharp';
-import {arrayBufferKeccak256Hash, objectToBuffer, objectToKeccak256Hash} from '../../../bin/utils/file-converters';
-import {buildJsonUrl} from '../../../bin/utils/json-url';
-import {FastifyInstance} from 'fastify';
-import {queryPost, queryPostComments, queryPostCommentsCount} from '../../../bin/db/post.table';
-import {FeedPost} from '../../../models/types/feed-post';
-import {constructFeed} from '../../../bin/lookso/feed/construct-feed';
-import {Post} from '../../../models/types/post';
-import {applyChangesToRegistry} from '../../../bin/lookso/registry/apply-changes-to-registry';
-import {upload} from '../../../bin/arweave/utils/upload';
+import { FastifyInstance } from 'fastify';
 import multer from 'fastify-multer';
-import {queryFollow} from '../../../bin/db/follow.table';
-import {ADDRESS_SCHEMA_VALIDATION, HASH_SCHEMA_VALIDATION, PAGE_SCHEMA_VALIDATION} from '../../../models/json/utils.schema';
-import {API_URL, COMMENTS_PER_LOAD, PROFILES_PER_LOAD} from '../../../environment/config';
+
+import {
+  queryPostLike,
+  queryPostLikesCount,
+  queryPostLikesWithNames,
+} from '../../../bin/db/like.table';
+import { queryImagesByType } from '../../../bin/db/image.table';
+import { selectImage } from '../../../bin/utils/select-image';
+import { logError } from '../../../bin/logger';
+import {
+  error,
+  ERROR_INTERNAL,
+  ERROR_INVALID_PAGE,
+  FILE_TYPE_NOT_SUPPORTED,
+} from '../../../bin/utils/error-messages';
+import { LSPXXProfilePost, ProfilePost } from '../../../bin/lookso/registry/types/profile-post';
+import { verifyJWT } from '../../../bin/json-web-token';
+import {
+  arrayBufferKeccak256Hash,
+  objectToBuffer,
+  objectToKeccak256Hash,
+} from '../../../bin/utils/file-converters';
+import { buildJsonUrl } from '../../../bin/utils/json-url';
+import { queryPost, queryPostComments, queryPostCommentsCount } from '../../../bin/db/post.table';
+import { FeedPost } from '../../../models/types/feed-post';
+import { constructFeed } from '../../../bin/lookso/feed/construct-feed';
+import { Post } from '../../../models/types/post';
+import { applyChangesToRegistry } from '../../../bin/lookso/registry/apply-changes-to-registry';
+import { upload } from '../../../bin/arweave/utils/upload';
+import { queryFollow } from '../../../bin/db/follow.table';
+import {
+  ADDRESS_SCHEMA_VALIDATION,
+  HASH_SCHEMA_VALIDATION,
+  PAGE_SCHEMA_VALIDATION,
+} from '../../../models/json/utils.schema';
+import { API_URL, COMMENTS_PER_LOAD, PROFILES_PER_LOAD } from '../../../environment/config';
 
 interface MulterRequest extends Request {
   file: any;
 }
 
 export function looksoPostRoutes(fastify: FastifyInstance) {
+  fastify.route({
+    method: 'GET',
+    url: '/post/:hash',
+    schema: {
+      description: 'Get a post information.',
+      tags: ['lookso'],
+      summary: 'Get a post information.',
+      querystring: {
+        viewOf: ADDRESS_SCHEMA_VALIDATION,
+      },
+      params: {
+        hash: HASH_SCHEMA_VALIDATION,
+      },
+    },
+    handler: async (request, reply) => {
+      const { hash } = request.params as { hash: string };
+      const { viewOf } = request.query as { viewOf?: string };
 
-	fastify.route({
-		method: 'GET',
-		url: '/post/:hash',
-		schema: {
-			description: 'Get a post information.',
-			tags: ['lookso'],
-			summary: 'Get a post information.',
-			querystring: {
-				viewOf: ADDRESS_SCHEMA_VALIDATION,
-			},
-			params: {
-				hash: HASH_SCHEMA_VALIDATION
-			},
-		},
-		handler: async (request, reply) => {
-			const {hash} = request.params as { hash: string};
-			const {viewOf} = request.query as { viewOf?: string };
-
-			try {
-				const post = await queryPost(hash);
-				const feedPost: FeedPost = (await constructFeed([post], viewOf))[0];
-				return reply.code(200).send(feedPost);
-				/* eslint-disable */
+      try {
+        const post = await queryPost(hash);
+        const feedPost: FeedPost = (await constructFeed([post], viewOf))[0];
+        return reply.code(200).send(feedPost);
+        /* eslint-disable */
       } catch (e: any) {
         logError(e);
         reply.code(500).send(error(500, ERROR_INTERNAL));

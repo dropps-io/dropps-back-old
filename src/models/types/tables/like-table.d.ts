@@ -1,4 +1,4 @@
 export interface LikeTable {
-    sender: string;
-    postHash: string;
+  sender: string;
+  postHash: string;
 }

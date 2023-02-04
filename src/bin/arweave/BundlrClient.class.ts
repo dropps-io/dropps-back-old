@@ -1,62 +1,62 @@
 import NodeBundlr from '@bundlr-network/client';
 import { FundData } from '@bundlr-network/client/build/common/types';
-import {ARWEAVE_WALLET} from '../../environment/endpoints';
-import {ENV} from '../../environment/config';
+
+import { ARWEAVE_WALLET } from '../../environment/endpoints';
+import { ENV } from '../../environment/config';
 
 export class BundlrClient {
-	protected readonly _provider;
-	protected readonly _urlPrefix = 'ar://';
-    
-	constructor () {
-		this._provider = new NodeBundlr('http://node1.bundlr.network', 'arweave', ARWEAVE_WALLET);
-	}
+  protected readonly _provider;
+  protected readonly _urlPrefix = 'ar://';
 
-	get urlPrefix(): string {
-		return this._urlPrefix;
-	}
+  constructor() {
+    this._provider = new NodeBundlr('http://node1.bundlr.network', 'arweave', ARWEAVE_WALLET);
+  }
 
-	get address():string {
-		return this._provider.address;
-	}
+  get urlPrefix(): string {
+    return this._urlPrefix;
+  }
 
-	public async upload(data: Buffer, contentType: string): Promise<string> {
-		if (ENV === 'test') return 'transactionid';
+  get address(): string {
+    return this._provider.address;
+  }
 
-		// Add Tags if there are any
-		const tags = [
-			{name: 'App-Name', value:'Lookso'},
-			{name: 'Content-Type', value: contentType},
-		]; 
-		const transaction = this._provider.createTransaction(data, {tags: tags});
-		// Sign
-		await transaction.sign();
-		const response = await transaction.upload();
-		return response.data.id;
-	}
+  public async upload(data: Buffer, contentType: string): Promise<string> {
+    if (ENV === 'test') return 'transactionid';
 
-	public async balanceInWinston(): Promise<string> {
-		return (await this._provider.getLoadedBalance()).toFixed();
-	}
+    // Add Tags if there are any
+    const tags = [
+      { name: 'App-Name', value: 'Lookso' },
+      { name: 'Content-Type', value: contentType },
+    ];
+    const transaction = this._provider.createTransaction(data, { tags: tags });
+    // Sign
+    await transaction.sign();
+    const response = await transaction.upload();
+    return response.data.id;
+  }
 
-	public async estimateCostInWinston(byteSize:number): Promise<string> {
-		return (await this._provider.getPrice(byteSize)).toFixed();
-	}
+  public async balanceInWinston(): Promise<string> {
+    return (await this._provider.getLoadedBalance()).toFixed();
+  }
 
-	// Transfers AR between our Arweave account and the Node's
-	// response:FundData = {
-	//     id, // the txID of the fund transfer
-	//     quantity, // how much is being transferred
-	//     reward, // the amount taken by the network as a fee
-	//     target // the address the funds were sent to
-	// }
-	public async fund(amountInWinston:string):Promise<FundData> { 
-		return await this._provider.fund(amountInWinston);
-	}
+  public async estimateCostInWinston(byteSize: number): Promise<string> {
+    return (await this._provider.getPrice(byteSize)).toFixed();
+  }
 
-	// Transfers AR between the Node's account and our own
-	public async withdraw(amountInWinston:string):Promise<any> { // Promise<AxiosResponse> would be the correct type, but I'm getting an error
-		return await this._provider.withdrawBalance(amountInWinston);
-	}
+  // Transfers AR between our Arweave account and the Node's
+  // response:FundData = {
+  //     id, // the txID of the fund transfer
+  //     quantity, // how much is being transferred
+  //     reward, // the amount taken by the network as a fee
+  //     target // the address the funds were sent to
+  // }
+  public async fund(amountInWinston: string): Promise<FundData> {
+    return await this._provider.fund(amountInWinston);
+  }
 
-
+  // Transfers AR between the Node's account and our own
+  public async withdraw(amountInWinston: string): Promise<any> {
+    // Promise<AxiosResponse> would be the correct type, but I'm getting an error
+    return await this._provider.withdrawBalance(amountInWinston);
+  }
 }

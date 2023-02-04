@@ -1,56 +1,62 @@
-import {isAddress} from '../../bin/utils/validators';
-import {error, ERROR_ADR_INVALID, ERROR_INCORRECT_SIGNED_NONCE, ERROR_INTERNAL, ERROR_INVALID_SIGNATURE} from '../../bin/utils/error-messages';
-import {insertNonce, queryNonce, updateNonce} from '../../bin/db/nonces.table';
-import {generateAddressWithSignature} from '../../bin/web3/auth';
-import {FastifyInstance} from 'fastify';
-import {FRONT_URL, IPFS_GATEWAY, JWT_VALIDITY_TIME} from '../../environment/config';
-import {logError} from '../../bin/logger';
-import {UniversalProfileReader} from '../../bin/UniversalProfile/UniversalProfileReader.class';
-import {web3} from '../../bin/web3/web3';
-import {SiweMessage} from 'siwe';
+import { FastifyInstance } from 'fastify';
+import { SiweMessage } from 'siwe';
+
+import { isAddress } from '../../bin/utils/validators';
+import {
+  error,
+  ERROR_ADR_INVALID,
+  ERROR_INCORRECT_SIGNED_NONCE,
+  ERROR_INTERNAL,
+  ERROR_INVALID_SIGNATURE,
+} from '../../bin/utils/error-messages';
+import { insertNonce, queryNonce, updateNonce } from '../../bin/db/nonces.table';
+import { generateAddressWithSignature } from '../../bin/web3/auth';
+import { FRONT_URL, IPFS_GATEWAY, JWT_VALIDITY_TIME } from '../../environment/config';
+import { logError } from '../../bin/logger';
+import { UniversalProfileReader } from '../../bin/UniversalProfile/UniversalProfileReader.class';
+import { web3 } from '../../bin/web3/web3';
 
 function createSiweMessage(address: string, issuedAt: string, path: string, nonce: string) {
-	return (new SiweMessage({
-		domain: FRONT_URL.split('//')[1],
-		address,
-		statement: 'Welcome to LOOKSO!',
-		uri: FRONT_URL + path,
-		version: '1',
-		chainId: 2828, // For LUKSO L16
-		nonce,
-		issuedAt
-	})).prepareMessage();
+  return new SiweMessage({
+    domain: FRONT_URL.split('//')[1],
+    address,
+    statement: 'Welcome to LOOKSO!',
+    uri: FRONT_URL + path,
+    version: '1',
+    chainId: 2828, // For LUKSO L16
+    nonce,
+    issuedAt,
+  }).prepareMessage();
 }
 
-export async function authRoute (fastify: FastifyInstance) {
+export async function authRoute(fastify: FastifyInstance) {
+  fastify.route({
+    method: 'GET',
+    url: '/:address/siwe',
+    schema: {
+      description: 'Get the current nonce of a specific user.',
+      tags: ['auth'],
+      summary: 'Get a user nonce',
+      querystring: {
+        type: 'object',
+        properties: {
+          path: { type: 'string', description: 'Path of the URI' },
+        },
+      },
+    },
+    handler: async (request, reply) => {
+      try {
+        const { address } = request.params as { address: string };
+        const { path } = request.query as { path?: string };
+        if (!isAddress(address)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
+        let nonce: string = await queryNonce(address);
+        if (!nonce) nonce = await insertNonce(address);
 
-	fastify.route({
-		method: 'GET',
-		url: '/:address/siwe',
-		schema: {
-			description: 'Get the current nonce of a specific user.',
-			tags: ['auth'],
-			summary: 'Get a user nonce',
-			querystring: {
-				type: 'object',
-				properties: {
-					path: {type: 'string', description: 'Path of the URI'},
-				}
-			}
-		},
-		handler: async (request, reply) => {
-			try {
-				const {address} = request.params as { address: string };
-				const {path} = request.query as { path?: string };
-				if (!isAddress(address)) return reply.code(400).send(error(400, ERROR_ADR_INVALID));
-				let nonce: string = await queryNonce(address);
-				if (!nonce) nonce = await insertNonce(address);
+        const issuedAt = new Date().toISOString();
+        const message = createSiweMessage(address, issuedAt, path ? path : '/', nonce);
 
-				const issuedAt = new Date().toISOString();
-				const message = createSiweMessage(address, issuedAt, path ? path : '/', nonce);
-
-				return reply.code(200).send({message, issuedAt});
-				/* eslint-disable */
+        return reply.code(200).send({ message, issuedAt });
+        /* eslint-disable */
       } catch (e: any) {
         logError(e);
         return reply.code(500).send(error(500, ERROR_INTERNAL));

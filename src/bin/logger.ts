@@ -1,4 +1,4 @@
-import {LOGGER} from '../environment/config';
+import { LOGGER } from '../environment/config';
 
 /* eslint-disable */
 export function logMessage(message: any) {

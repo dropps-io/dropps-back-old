@@ -1,5 +1,5 @@
 export interface LinkTable {
-    address: string;
-    title: string;
-    url: string;
+  address: string;
+  title: string;
+  url: string;
 }

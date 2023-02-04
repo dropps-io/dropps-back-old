@@ -1,76 +1,124 @@
-import {Post} from '../../../models/types/post';
-import {queryPostsOfUser, queryPostsOfUserCount, queryPostsOfUsers, queryPostsOfUsersCount} from '../../../bin/db/post.table';
-import {constructFeed} from '../../../bin/lookso/feed/construct-feed';
-import {logError} from '../../../bin/logger';
-import {error, ERROR_INTERNAL, ERROR_INVALID_PAGE, ERROR_NOT_FOUND} from '../../../bin/utils/error-messages';
-import {
-	queryFollow, queryFollowersCount, queryFollowersWithNames, queryFollowing, queryFollowingCount, queryFollowingWithNames
-} from '../../../bin/db/follow.table';
-import {queryAddressOfUserTag, queryContractMetadata, queryContractName} from '../../../bin/db/contract-metadata.table';
-import {queryTags} from '../../../bin/db/tag.table';
-import {queryLinks} from '../../../bin/db/link.table';
-import {queryImages, queryImagesByType} from '../../../bin/db/image.table';
-import {selectImage} from '../../../bin/utils/select-image';
-import {FastifyInstance} from 'fastify';
-import {
-	queryNotificationsCountOfAddress, queryNotificationsOfAddress, queryNotViewedNotificationsCountOfAddress, setViewedToAddressNotifications
-} from '../../../bin/db/notification.table';
-import {verifyJWT} from '../../../bin/json-web-token';
-import {applyChangesToRegistry} from '../../../bin/lookso/registry/apply-changes-to-registry';
-import {objectToBuffer} from '../../../bin/utils/file-converters';
-import {upload} from '../../../bin/arweave/utils/upload';
-import {buildJsonUrl} from '../../../bin/utils/json-url';
-import {deleteAddressRegistryChanges} from '../../../bin/db/registry-change.table';
-import {ADDRESS_SCHEMA_VALIDATION, PAGE_SCHEMA_VALIDATION, POST_TYPE_SCHEMA_VALIDATION} from '../../../models/json/utils.schema';
-import {API_URL, IPFS_GATEWAY, NOTIFICATIONS_PER_LOAD, POSTS_PER_LOAD, PROFILES_PER_LOAD} from '../../../environment/config';
-import {UniversalProfileReader} from '../../../bin/UniversalProfile/UniversalProfileReader.class';
-import {web3} from '../../../bin/web3/web3';
-import {queryContract} from '../../../bin/db/contract.table';
-import {fetchLsp7WithBalance} from '../../../bin/lukso/fetch-lsp7';
-import {fetchLsp8WithOwnedTokens} from '../../../bin/lukso/fetch-lsp8';
-import {NotificationWithSenderDetails} from '../../../models/types/notification';
-import {AssetWithBalance} from '../../../models/types/asset';
+import { FastifyInstance } from 'fastify';
 
+import { Post } from '../../../models/types/post';
+import {
+  queryPostsOfUser,
+  queryPostsOfUserCount,
+  queryPostsOfUsers,
+  queryPostsOfUsersCount,
+} from '../../../bin/db/post.table';
+import { constructFeed } from '../../../bin/lookso/feed/construct-feed';
+import { logError } from '../../../bin/logger';
+import {
+  error,
+  ERROR_INTERNAL,
+  ERROR_INVALID_PAGE,
+  ERROR_NOT_FOUND,
+} from '../../../bin/utils/error-messages';
+import {
+  queryFollow,
+  queryFollowersCount,
+  queryFollowersWithNames,
+  queryFollowing,
+  queryFollowingCount,
+  queryFollowingWithNames,
+} from '../../../bin/db/follow.table';
+import {
+  queryAddressOfUserTag,
+  queryContractMetadata,
+  queryContractName,
+} from '../../../bin/db/contract-metadata.table';
+import { queryTags } from '../../../bin/db/tag.table';
+import { queryLinks } from '../../../bin/db/link.table';
+import { queryImages, queryImagesByType } from '../../../bin/db/image.table';
+import { selectImage } from '../../../bin/utils/select-image';
+import {
+  queryNotificationsCountOfAddress,
+  queryNotificationsOfAddress,
+  queryNotViewedNotificationsCountOfAddress,
+  setViewedToAddressNotifications,
+} from '../../../bin/db/notification.table';
+import { verifyJWT } from '../../../bin/json-web-token';
+import { applyChangesToRegistry } from '../../../bin/lookso/registry/apply-changes-to-registry';
+import { objectToBuffer } from '../../../bin/utils/file-converters';
+import { upload } from '../../../bin/arweave/utils/upload';
+import { buildJsonUrl } from '../../../bin/utils/json-url';
+import { deleteAddressRegistryChanges } from '../../../bin/db/registry-change.table';
+import {
+  ADDRESS_SCHEMA_VALIDATION,
+  PAGE_SCHEMA_VALIDATION,
+  POST_TYPE_SCHEMA_VALIDATION,
+} from '../../../models/json/utils.schema';
+import {
+  API_URL,
+  IPFS_GATEWAY,
+  NOTIFICATIONS_PER_LOAD,
+  POSTS_PER_LOAD,
+  PROFILES_PER_LOAD,
+} from '../../../environment/config';
+import { UniversalProfileReader } from '../../../bin/UniversalProfile/UniversalProfileReader.class';
+import { web3 } from '../../../bin/web3/web3';
+import { queryContract } from '../../../bin/db/contract.table';
+import { fetchLsp7WithBalance } from '../../../bin/lukso/fetch-lsp7';
+import { fetchLsp8WithOwnedTokens } from '../../../bin/lukso/fetch-lsp8';
+import { NotificationWithSenderDetails } from '../../../models/types/notification';
+import { AssetWithBalance } from '../../../models/types/asset';
 
 export function looksoProfileRoutes(fastify: FastifyInstance) {
-	fastify.route({
-		method: 'GET',
-		url: '/profile/:address/activity',
-		schema: {
-			description: 'Get posts linked to a profile.',
-			tags: ['lookso'],
-			querystring: {
-				page: PAGE_SCHEMA_VALIDATION,
-				postType: POST_TYPE_SCHEMA_VALIDATION,
-				viewOf: ADDRESS_SCHEMA_VALIDATION,
-			},
-			params: {
-				address: ADDRESS_SCHEMA_VALIDATION
-			},
-			summary: 'Get profile feed.',
-		},
-		handler: async (request, reply) => {
-			const {address} = request.params as { address: string };
-			const query = request.query as { page?: number, postType?: 'event' | 'post', viewOf?: string };
+  fastify.route({
+    method: 'GET',
+    url: '/profile/:address/activity',
+    schema: {
+      description: 'Get posts linked to a profile.',
+      tags: ['lookso'],
+      querystring: {
+        page: PAGE_SCHEMA_VALIDATION,
+        postType: POST_TYPE_SCHEMA_VALIDATION,
+        viewOf: ADDRESS_SCHEMA_VALIDATION,
+      },
+      params: {
+        address: ADDRESS_SCHEMA_VALIDATION,
+      },
+      summary: 'Get profile feed.',
+    },
+    handler: async (request, reply) => {
+      const { address } = request.params as { address: string };
+      const query = request.query as {
+        page?: number;
+        postType?: 'event' | 'post';
+        viewOf?: string;
+      };
 
-			try {
-				const count = await queryPostsOfUserCount(address, query.postType);
-				if (count == 0) return reply.code(200).send({count: 0, page: null, next: null, previous: null, results: []});
-				const page = query.page !== undefined ? query.page : Math.ceil(count / POSTS_PER_LOAD) - 1;
-				if (page >= count / POSTS_PER_LOAD) return reply.code(400).send(error(400, ERROR_INVALID_PAGE));
-				const posts: Post[] = await queryPostsOfUser(address, POSTS_PER_LOAD, page * POSTS_PER_LOAD, query.postType);
-				const feed = await constructFeed(posts, query.viewOf);
+      try {
+        const count = await queryPostsOfUserCount(address, query.postType);
+        if (count == 0)
+          return reply
+            .code(200)
+            .send({ count: 0, page: null, next: null, previous: null, results: [] });
+        const page = query.page !== undefined ? query.page : Math.ceil(count / POSTS_PER_LOAD) - 1;
+        if (page >= count / POSTS_PER_LOAD)
+          return reply.code(400).send(error(400, ERROR_INVALID_PAGE));
+        const posts: Post[] = await queryPostsOfUser(
+          address,
+          POSTS_PER_LOAD,
+          page * POSTS_PER_LOAD,
+          query.postType,
+        );
+        const feed = await constructFeed(posts, query.viewOf);
 
-				const queryUrl = `${API_URL}/lookso/profile/${address}/activity?${query.postType ? 'postType=' + query.postType + '&' : ''}${query.viewOf ? 'viewOf=' + query.viewOf + '&' : ''}page=`;
+        const queryUrl = `${API_URL}/lookso/profile/${address}/activity?${
+          query.postType ? 'postType=' + query.postType + '&' : ''
+        }${query.viewOf ? 'viewOf=' + query.viewOf + '&' : ''}page=`;
 
-				return reply.code(200).send({
-					count,
-					page,
-					next: page < Math.ceil(count / POSTS_PER_LOAD) - 1 ? queryUrl + (page + 1).toString() : null,
-					previous: page > 0 ? queryUrl + (page - 1).toString() : null,
-					results: feed
-				});
-				/* eslint-disable */
+        return reply.code(200).send({
+          count,
+          page,
+          next:
+            page < Math.ceil(count / POSTS_PER_LOAD) - 1 ? queryUrl + (page + 1).toString() : null,
+          previous: page > 0 ? queryUrl + (page - 1).toString() : null,
+          results: feed,
+        });
+        /* eslint-disable */
       } catch (e: any) {
         logError(e);
         reply.code(500).send(error(500, ERROR_INTERNAL));

@@ -19,8 +19,8 @@
  */
 
 import { isHex } from 'web3-utils';
-import {ERC725JSONSchema} from '@erc725/erc725.js';
-import {decodeValueType} from '@erc725/erc725.js/build/main/src/lib/encoder';
+import { ERC725JSONSchema } from '@erc725/erc725.js';
+import { decodeValueType } from '@erc725/erc725.js/build/main/src/lib/encoder';
 
 export interface DynamicKeyPart {
   type: string;
@@ -28,14 +28,11 @@ export interface DynamicKeyPart {
 }
 
 function make32BytesLong(s: string): string {
-	return new Array(65 - s.length).join('0').concat(s);
+  return new Array(65 - s.length).join('0').concat(s);
 }
 
 function isDynamicKeyPart(keyPartName: string): boolean {
-	return (
-		keyPartName.slice(0, 1) === '<' &&
-    keyPartName.slice(keyPartName.length - 1) === '>'
-	);
+  return keyPartName.slice(0, 1) === '<' && keyPartName.slice(keyPartName.length - 1) === '>';
 }
 
 /**
@@ -44,28 +41,22 @@ function isDynamicKeyPart(keyPartName: string): boolean {
  *
  * @return: the decoded value of the dynamic key part and its type (ie. 'address'; 'uint256', 'bytes32', etc)
  */
-function decodeKeyPart(
-	encodedKeyPart: string,
-	keyPartName: string,
-): DynamicKeyPart | false {
-	if (!isDynamicKeyPart(keyPartName)) return false;
+function decodeKeyPart(encodedKeyPart: string, keyPartName: string): DynamicKeyPart | false {
+  if (!isDynamicKeyPart(keyPartName)) return false;
 
-	let decodedKey;
-	const type = keyPartName.slice(1, keyPartName.length - 1);
+  let decodedKey;
+  const type = keyPartName.slice(1, keyPartName.length - 1);
 
-	if (type === 'bool')
-		decodedKey = encodedKeyPart.slice(encodedKeyPart.length - 1) === '1';
-	else if (type.includes('uint')) decodedKey = parseInt(encodedKeyPart, 16);
-	else if (type.includes('bytes')) {
-		const bytesLength = parseInt(type.replace('bytes', ''), 10) * 2;
-		const sliceFrom =
-      encodedKeyPart.length - bytesLength < 0
-      	? 0
-      	: encodedKeyPart.length - bytesLength;
-		decodedKey = encodedKeyPart.slice(sliceFrom);
-	} else decodedKey = decodeValueType(type, make32BytesLong(encodedKeyPart));
+  if (type === 'bool') decodedKey = encodedKeyPart.slice(encodedKeyPart.length - 1) === '1';
+  else if (type.includes('uint')) decodedKey = parseInt(encodedKeyPart, 16);
+  else if (type.includes('bytes')) {
+    const bytesLength = parseInt(type.replace('bytes', ''), 10) * 2;
+    const sliceFrom =
+      encodedKeyPart.length - bytesLength < 0 ? 0 : encodedKeyPart.length - bytesLength;
+    decodedKey = encodedKeyPart.slice(sliceFrom);
+  } else decodedKey = decodeValueType(type, make32BytesLong(encodedKeyPart));
 
-	return { type, value: decodedKey };
+  return { type, value: decodedKey };
 }
 
 /**
@@ -75,39 +66,35 @@ function decodeKeyPart(
  * @return: all decoded dynamic key parts, with their type and value
  */
 export function decodeKeyHash(
-	keyHash: string,
-	keyNameOrSchema: string | ERC725JSONSchema,
+  keyHash: string,
+  keyNameOrSchema: string | ERC725JSONSchema,
 ): DynamicKeyPart[] {
-	let hashedKey = keyHash;
-	if (hashedKey.length === 64 && hashedKey.slice(0, 2) !== '0x')
-		hashedKey = '0x' + hashedKey;
+  let hashedKey = keyHash;
+  if (hashedKey.length === 64 && hashedKey.slice(0, 2) !== '0x') hashedKey = '0x' + hashedKey;
 
-	if (hashedKey.length !== 66)
-		throw new Error(
-			'Invalid encodedKey length, key must be 32 bytes long hexadecimal value',
-		);
-	if (!isHex(hashedKey.slice(2)))
-		throw new Error('Invalid encodedKey, must be a hexadecimal value');
+  if (hashedKey.length !== 66)
+    throw new Error('Invalid encodedKey length, key must be 32 bytes long hexadecimal value');
+  if (!isHex(hashedKey.slice(2)))
+    throw new Error('Invalid encodedKey, must be a hexadecimal value');
 
-	let keyParts: string[];
+  let keyParts: string[];
 
-	if (typeof keyNameOrSchema === 'string')
-		keyParts = keyNameOrSchema.split(':');
-	else keyParts = keyNameOrSchema.name.split(':');
+  if (typeof keyNameOrSchema === 'string') keyParts = keyNameOrSchema.split(':');
+  else keyParts = keyNameOrSchema.name.split(':');
 
-	const dynamicParts: (DynamicKeyPart | false)[] = [];
-	switch (keyParts.length) {
-	case 2: // Mapping
-		dynamicParts.push(decodeKeyPart(hashedKey.slice(26), keyParts[1]));
-		break;
+  const dynamicParts: (DynamicKeyPart | false)[] = [];
+  switch (keyParts.length) {
+    case 2: // Mapping
+      dynamicParts.push(decodeKeyPart(hashedKey.slice(26), keyParts[1]));
+      break;
 
-	case 3: // MappingWithGrouping
-		dynamicParts.push(decodeKeyPart(hashedKey.slice(14, 22), keyParts[1]));
-		dynamicParts.push(decodeKeyPart(hashedKey.slice(26), keyParts[2]));
-		break;
-	default:
-		break;
-	}
+    case 3: // MappingWithGrouping
+      dynamicParts.push(decodeKeyPart(hashedKey.slice(14, 22), keyParts[1]));
+      dynamicParts.push(decodeKeyPart(hashedKey.slice(26), keyParts[2]));
+      break;
+    default:
+      break;
+  }
 
-	return dynamicParts.filter((p) => p !== false) as DynamicKeyPart[];
+  return dynamicParts.filter((p) => p !== false) as DynamicKeyPart[];
 }
