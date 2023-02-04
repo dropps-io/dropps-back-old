@@ -19,7 +19,7 @@ import { constructFeed } from '../../../lib/lookso/feed/construct-feed';
 import { insertLike, queryPostLike, removeLike } from '../../../lib/db/queries/like.table';
 import { LikeTable } from '../../../models/types/tables/like-table';
 import { looksoPostRoutes } from './post/post.routes';
-import { looksoProfileRoutes } from './lookso-profile.route';
+import { looksoProfileRoutes } from './profile/profile.routes';
 import { insertNotification } from '../../../lib/db/queries/notification.table';
 import { search } from '../../../lib/lookso/search';
 import {
