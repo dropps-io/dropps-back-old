@@ -1,4 +1,4 @@
-import { generateJWT } from '../../bin/json-web-token';
+import { generateJWT } from '../../lib/json-web-token';
 
 export const UNIVERSAL_PROFILE_1 = '0xA5284665954a54d12737Da405824160cCE05B0B0';
 export const UNIVERSAL_PROFILE_2 = '0xB1a2B3518c30Eb82bb18Fe75456e83B692A75FFa';

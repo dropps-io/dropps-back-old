@@ -2,7 +2,7 @@ import {beforeEach, describe} from "mocha";
 import {clearDB} from "../../helpers/database-helper";
 import {shouldThrow} from "../../helpers/should-throw";
 import {assert, expect} from "chai";
-import {insertErc725ySchema, queryErc725ySchema} from "../../../bin/db/erc725y-schema.table";
+import {insertErc725ySchema, queryErc725ySchema} from "../../../lib/db/queries/erc725y-schema.table";
 
 
 export const Erc725ySchemaTests = () => {

@@ -2,21 +2,21 @@ import axios from 'axios';
 import { Contract } from 'web3-eth-contract';
 import { AbiItem } from 'web3-utils';
 
-import { decodeJsonUrl } from '../../../bin/utils/json-url';
-import { formatUrl } from '../../../bin/utils/format-url';
-import { UniversalProfileReader } from '../../../bin/UniversalProfile/UniversalProfileReader.class';
+import { decodeJsonUrl } from '../../../lib/utils/json-url';
+import { formatUrl } from '../../../lib/utils/format-url';
+import { UniversalProfileReader } from '../../../lib/UniversalProfile/UniversalProfileReader.class';
 import { IPFS_GATEWAY, POST_VALIDATOR_ADDRESS } from '../../../environment/config';
 import { Log } from '../../../models/types/log';
-import { web3 } from '../../../bin/web3/web3';
-import { queryPostHashesOfUser } from '../../../bin/db/post.table';
-import { KEY_LSPXXSocialRegistry } from '../../../bin/utils/constants';
-import { SocialRegistry } from '../../../bin/lookso/registry/types/social-registry';
-import { ProfilePost } from '../../../bin/lookso/registry/types/profile-post';
+import { web3 } from '../../../lib/web3';
+import { queryPostHashesOfUser } from '../../../lib/db/queries/post.table';
+import { KEY_LSPXXSocialRegistry } from '../../../lib/utils/constants';
+import { SocialRegistry } from '../../../lib/lookso/registry/types/social-registry';
+import { ProfilePost } from '../../../lib/lookso/registry/types/profile-post';
 import PostValidatorContract from '../../../assets/artifacts/ValidatorContractArtifact.json';
 import { Post } from '../../../models/types/post';
 import { incrementExtractedToLogOf, reportIndexingScriptError } from '../index-logger';
-import { querySenderLikes } from '../../../bin/db/like.table';
-import { queryFollowing } from '../../../bin/db/follow.table';
+import { querySenderLikes } from '../../../lib/db/queries/like.table';
+import { queryFollowing } from '../../../lib/db/queries/follow.table';
 
 export type RegistryChangesToIndex = {
   posts: { toAdd: Post[] };

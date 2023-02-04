@@ -1,5 +1,5 @@
-import { insertTransaction } from '../../../bin/db/transaction.table';
-import { insertDecodedFunctionParameter } from '../../../bin/db/decoded-function-parameter.table';
+import { insertTransaction } from '../../../lib/db/queries/transaction.table';
+import { insertDecodedFunctionParameter } from '../../../lib/db/queries/decoded-function-parameter.table';
 import { MethodParameterTable } from '../../../models/types/tables/method-parameter-table';
 import { Transaction } from '../../../models/types/transaction';
 import { INDEX_DATA } from '../config';

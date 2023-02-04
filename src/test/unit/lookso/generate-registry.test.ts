@@ -1,6 +1,6 @@
-import {SocialRegistry} from "../../../bin/lookso/registry/types/social-registry";
+import {SocialRegistry} from "../../../lib/lookso/registry/types/social-registry";
 import {RegistryChangeTable} from "../../../models/types/tables/registry-change-table";
-import {generateNewRegistry} from "../../../bin/lookso/registry/utils/generate-new-registry";
+import {generateNewRegistry} from "../../../lib/lookso/registry/utils/generate-new-registry";
 import {expect} from "chai";
 
 export const GenerateRegistryTest = () => {

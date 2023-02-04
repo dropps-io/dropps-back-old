@@ -1,16 +1,16 @@
 import {describe} from "mocha";
 import {clearDB} from "../../helpers/database-helper";
-import {insertContractInterface} from "../../../bin/db/contract-interface.table";
-import {insertContract} from "../../../bin/db/contract.table";
+import {insertContractInterface} from "../../../lib/db/queries/contract-interface.table";
+import {insertContract} from "../../../lib/db/queries/contract.table";
 import {
   HACKER_MAN_JWT, HACKER_MAN_UP, POST_HASH, POST_HASH2, SERIOUS_MAN_UP, UNIT_TEST_UP, UNIT_TEST_UP_JWT, UNIVERSAL_PROFILE_1
 } from "../../helpers/constants";
-import {fastify} from "../../../lib/fastify";
+import {fastify} from "../../../api/fastify";
 import {expect} from "chai";
-import {insertLike, querySenderLikes} from "../../../bin/db/like.table";
-import {insertPost} from "../../../bin/db/post.table";
-import {insertFollow, queryFollowing} from "../../../bin/db/follow.table";
-import {insertRegistryChange, queryRegistryChangesOfAddress} from "../../../bin/db/registry-change.table";
+import {insertLike, querySenderLikes} from "../../../lib/db/queries/like.table";
+import {insertPost} from "../../../lib/db/queries/post.table";
+import {insertFollow, queryFollowing} from "../../../lib/db/queries/follow.table";
+import {insertRegistryChange, queryRegistryChangesOfAddress} from "../../../lib/db/queries/registry-change.table";
 
 export const ProfileRegistryPOSTTests = () => {
 

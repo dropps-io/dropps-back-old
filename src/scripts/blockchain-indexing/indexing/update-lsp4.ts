@@ -1,11 +1,11 @@
 //TODO Quick and dirty, to improve
 
-import { deleteLink, insertLink, queryLinks } from '../../../bin/db/link.table';
-import { deleteImage, insertImage, queryImages } from '../../../bin/db/image.table';
-import { deleteAsset, insertAsset, queryAssets } from '../../../bin/db/asset.table';
+import { deleteLink, insertLink, queryLinks } from '../../../lib/db/queries/link.table';
+import { deleteImage, insertImage, queryImages } from '../../../lib/db/queries/image.table';
+import { deleteAsset, insertAsset, queryAssets } from '../../../lib/db/queries/asset.table';
 import { ImageTable } from '../../../models/types/tables/image-table';
-import { updateContractDescription } from '../../../bin/db/contract-metadata.table';
-import { LSP4DigitalAssetMetadata } from '../../../bin/UniversalProfile/models/lsp4-digital-asset.model';
+import { updateContractDescription } from '../../../lib/db/queries/contract-metadata.table';
+import { LSP4DigitalAssetMetadata } from '../../../lib/UniversalProfile/models/lsp4-digital-asset.model';
 import { AssetTable } from '../../../models/types/tables/asset-table';
 import { INDEX_DATA } from '../config';
 import { Link } from '../../../models/types/metadata-objects';

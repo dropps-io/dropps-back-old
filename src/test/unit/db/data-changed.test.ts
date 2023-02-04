@@ -2,10 +2,10 @@ import {beforeEach, describe} from "mocha";
 import {clearDB} from "../../helpers/database-helper";
 import {assert, expect} from "chai";
 import {shouldThrow} from "../../helpers/should-throw";
-import {insertDataChanged, queryDataKeyHistory, queryDataKeyValue} from "../../../bin/db/data-changed.table";
+import {insertDataChanged, queryDataKeyHistory, queryDataKeyValue} from "../../../lib/db/queries/data-changed.table";
 import {UNIVERSAL_PROFILE_1} from "../../helpers/constants";
 import {DataChangedTable} from "../../../models/types/tables/data-changed-table";
-import {insertContract} from "../../../bin/db/contract.table";
+import {insertContract} from "../../../lib/db/queries/contract.table";
 
 export const DataChangedTests = () => {
   describe('Table DataChangedTable', () => {

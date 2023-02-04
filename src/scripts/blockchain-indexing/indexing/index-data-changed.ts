@@ -1,4 +1,4 @@
-import { insertDataChanged } from '../../../bin/db/data-changed.table';
+import { insertDataChanged } from '../../../lib/db/queries/data-changed.table';
 import { INDEX_DATA } from '../config';
 import { reportIndexingScriptError } from '../index-logger';
 

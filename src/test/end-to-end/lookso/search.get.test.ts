@@ -1,17 +1,17 @@
 import {describe} from "mocha";
 import {clearDB} from "../../helpers/database-helper";
-import {insertContractInterface} from "../../../bin/db/contract-interface.table";
-import {insertContract} from "../../../bin/db/contract.table";
-import {fastify} from "../../../lib/fastify";
+import {insertContractInterface} from "../../../lib/db/queries/contract-interface.table";
+import {insertContract} from "../../../lib/db/queries/contract.table";
+import {fastify} from "../../../api/fastify";
 import {assert, expect} from "chai";
 import {HACKER_MAN_UP, HACKER_MAN_UP_CLOSE_ADDRESS, SERIOUS_MAN_UP} from "../../helpers/constants";
-import {insertContractMetadata} from "../../../bin/db/contract-metadata.table";
-import {insertImage} from "../../../bin/db/image.table";
+import {insertContractMetadata} from "../../../lib/db/queries/contract-metadata.table";
+import {insertImage} from "../../../lib/db/queries/image.table";
 import {API_URL, PROFILES_PER_SEARCH} from "../../../environment/config";
 import {generateRandomAddress} from "../../helpers/generate-mocks";
 import {extractTransaction} from "../../../scripts/blockchain-indexing/extraction/extract-transaction";
 import {indexTransaction} from "../../../scripts/blockchain-indexing/indexing/index-transaction";
-import {web3} from "../../../bin/web3/web3";
+import {web3} from "../../../lib/web3";
 
 export const SearchGETTests = () => {
   describe('GET lookso/search/:input', () => {

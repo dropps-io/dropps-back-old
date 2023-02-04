@@ -1,7 +1,7 @@
 import { Log } from '../../../models/types/log';
 import { SolMethod } from '../../../models/types/sol-method';
-import { queryMethodInterfaceWithParameters } from '../../../bin/db/method-interface.table';
-import { web3 } from '../../../bin/web3/web3';
+import { queryMethodInterfaceWithParameters } from '../../../lib/db/queries/method-interface.table';
+import { web3 } from '../../../lib/web3';
 import { incrementExtractedToLogOf, reportIndexingScriptError } from '../index-logger';
 
 export async function extractLog(

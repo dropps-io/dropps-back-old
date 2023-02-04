@@ -1,14 +1,14 @@
 import {describe} from "mocha";
 import {clearDB} from "../../helpers/database-helper";
-import {insertContractInterface} from "../../../bin/db/contract-interface.table";
-import {insertContract} from "../../../bin/db/contract.table";
-import {fastify} from "../../../lib/fastify";
+import {insertContractInterface} from "../../../lib/db/queries/contract-interface.table";
+import {insertContract} from "../../../lib/db/queries/contract.table";
+import {fastify} from "../../../api/fastify";
 import {expect} from "chai";
 import {MAX_OFFCHAIN_REGISTRY_CHANGES} from "../../../environment/config";
-import {executeQuery} from "../../../bin/db/database";
-import {queryFollow} from "../../../bin/db/follow.table";
-import {queryNotificationsOfAddress} from "../../../bin/db/notification.table";
-import {queryRegistryChangesOfAddress} from "../../../bin/db/registry-change.table";
+import {executeQuery} from "../../../lib/db/queries/database";
+import {queryFollow} from "../../../lib/db/queries/follow.table";
+import {queryNotificationsOfAddress} from "../../../lib/db/queries/notification.table";
+import {queryRegistryChangesOfAddress} from "../../../lib/db/queries/registry-change.table";
 import {HACKER_MAN_JWT, HACKER_MAN_UP, SERIOUS_MAN_JWT, SERIOUS_MAN_UP} from "../../helpers/constants";
 
 export const FollowPOSTRouteTests = () => {

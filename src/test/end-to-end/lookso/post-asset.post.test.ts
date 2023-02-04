@@ -3,10 +3,10 @@
 // import {
 //   HACKER_MAN_JWT, HACKER_MAN_UP
 // } from "../../helpers/constants";
-// import {fastify} from "../../../lib/fastify";
+// import {fastify} from "../../../api/fastify";
 // import {expect} from "chai";
 //
-// import {LSPXXProfilePost} from "../../../bin/lookso/registry/types/profile-post";
+// import {LSPXXProfilePost} from "../../../lib/lookso/registry/types/profile-post";
 // import {POST_VALIDATOR_ADDRESS} from "../../../environment/config";
 // import {Blob} from "buffer";
 // const FormData = require('form-data');

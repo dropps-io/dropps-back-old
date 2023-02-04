@@ -1,14 +1,14 @@
 import {describe} from "mocha";
 import {clearDB} from "../../helpers/database-helper";
-import {insertContractInterface} from "../../../bin/db/contract-interface.table";
-import {insertContract} from "../../../bin/db/contract.table";
-import {fastify} from "../../../lib/fastify";
+import {insertContractInterface} from "../../../lib/db/queries/contract-interface.table";
+import {insertContract} from "../../../lib/db/queries/contract.table";
+import {fastify} from "../../../api/fastify";
 import {expect} from "chai";
 import {HACKER_MAN_JWT, HACKER_MAN_UP, POST_HASH, SERIOUS_MAN_JWT, SERIOUS_MAN_UP, UNIVERSAL_PROFILE_1, UNIVERSAL_PROFILE_2} from "../../helpers/constants";
-import {insertImage} from "../../../bin/db/image.table";
-import {insertContractMetadata} from "../../../bin/db/contract-metadata.table";
-import {insertNotification, queryNotificationsOfAddress} from "../../../bin/db/notification.table";
-import {insertPost} from "../../../bin/db/post.table";
+import {insertImage} from "../../../lib/db/queries/image.table";
+import {insertContractMetadata} from "../../../lib/db/queries/contract-metadata.table";
+import {insertNotification, queryNotificationsOfAddress} from "../../../lib/db/queries/notification.table";
+import {insertPost} from "../../../lib/db/queries/post.table";
 
 
 export const ProfileNotificationsPUTTests = () => {

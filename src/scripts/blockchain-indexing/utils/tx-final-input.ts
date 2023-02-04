@@ -1,4 +1,4 @@
-import { web3 } from '../../../bin/web3/web3';
+import { web3 } from '../../../lib/web3';
 
 export function decodeTransactionFinalInput(input: string): string {
   if (!input) return '';

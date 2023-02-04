@@ -14,8 +14,7 @@
     "test": "npm run build&&set NODE_ENV=test&&mocha ./dist/test/**/* --exit",
     "test:watch": "set NODE_ENV=test&&mocha ./dist/test/**/* --watch",
     "coverage": "nyc npm run test",
-    "script": "node dist/scripts/index.js -- exit",
-    "init-db": "node dist/scripts/init-db.js -- exit",
+    "init-db": "node dist/scripts/db/init.js -- exit",
     "index-blockchain": "node dist/scripts/blockchain-indexing/main.js -- exit"
   },
   "repository": {

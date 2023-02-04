@@ -2,9 +2,9 @@ import {beforeEach, describe} from "mocha";
 import {clearDB} from "../../helpers/database-helper";
 import {assert, expect} from "chai";
 import {UNIVERSAL_PROFILE_1, UNIVERSAL_PROFILE_2} from "../../helpers/constants";
-import {insertContract} from "../../../bin/db/contract.table";
+import {insertContract} from "../../../lib/db/queries/contract.table";
 import {shouldThrow} from "../../helpers/should-throw";
-import {deleteAsset, insertAsset, queryAssets, queryAssetsByType} from "../../../bin/db/asset.table";
+import {deleteAsset, insertAsset, queryAssets, queryAssetsByType} from "../../../lib/db/queries/asset.table";
 
 export const AssetTests = () => {
   describe('Table AssetTable', () => {

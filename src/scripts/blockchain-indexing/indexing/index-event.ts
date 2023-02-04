@@ -1,12 +1,12 @@
 import keccak256 from 'keccak256';
 
-import { insertEvent } from '../../../bin/db/event.table';
-import { insertPost } from '../../../bin/db/post.table';
-import { web3 } from '../../../bin/web3/web3';
-import { insertDecodedEventParameter } from '../../../bin/db/decoded-event-parameter.table';
+import { insertEvent } from '../../../lib/db/queries/event.table';
+import { insertPost } from '../../../lib/db/queries/post.table';
+import { web3 } from '../../../lib/web3';
+import { insertDecodedEventParameter } from '../../../lib/db/queries/decoded-event-parameter.table';
 import { Log } from '../../../models/types/log';
 import { SolMethod } from '../../../models/types/sol-method';
-import { tryExecuting } from '../../../bin/utils/try-executing';
+import { tryExecuting } from '../../../lib/utils/try-executing';
 import { reportIndexingScriptError } from '../index-logger';
 import { INDEX_DATA } from '../config';
 

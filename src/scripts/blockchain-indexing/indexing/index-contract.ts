@@ -1,12 +1,12 @@
-import { insertContract, updateContract } from '../../../bin/db/contract.table';
+import { insertContract, updateContract } from '../../../lib/db/queries/contract.table';
 import { INDEX_DATA } from '../config';
 import { reportIndexingScriptError } from '../index-logger';
 import { ContractFullMetadata } from '../models/contract-metadata.model';
-import { insertContractMetadata } from '../../../bin/db/contract-metadata.table';
-import { insertAsset } from '../../../bin/db/asset.table';
-import { insertImage } from '../../../bin/db/image.table';
-import { insertLink } from '../../../bin/db/link.table';
-import { insertTag } from '../../../bin/db/tag.table';
+import { insertContractMetadata } from '../../../lib/db/queries/contract-metadata.table';
+import { insertAsset } from '../../../lib/db/queries/asset.table';
+import { insertImage } from '../../../lib/db/queries/image.table';
+import { insertLink } from '../../../lib/db/queries/link.table';
+import { insertTag } from '../../../lib/db/queries/tag.table';
 
 export async function indexContract(
   address: string,

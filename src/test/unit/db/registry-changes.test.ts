@@ -2,11 +2,11 @@ import {beforeEach, describe} from "mocha";
 import {clearDB} from "../../helpers/database-helper";
 import {assert, expect} from "chai";
 import {UNIVERSAL_PROFILE_1} from "../../helpers/constants";
-import {insertContract} from "../../../bin/db/contract.table";
+import {insertContract} from "../../../lib/db/queries/contract.table";
 import {shouldThrow} from "../../helpers/should-throw";
 import {
     deleteAddressRegistryChanges, insertRegistryChange, queryRegistryChangesCountOfAddress, queryRegistryChangesOfAddress,
-} from "../../../bin/db/registry-change.table";
+} from "../../../lib/db/queries/registry-change.table";
 
 export const RegistryChangeTests = () => {
   describe('Table RegistryChangeTable', () => {

@@ -2,7 +2,7 @@ import {beforeEach, describe} from "mocha";
 import {clearDB} from "../../helpers/database-helper";
 import {shouldThrow} from "../../helpers/should-throw";
 import {assert, expect} from "chai";
-import {insertContractInterface, queryContractInterface, queryContractInterfaces, updateContractInterface} from "../../../bin/db/contract-interface.table";
+import {insertContractInterface, queryContractInterface, queryContractInterfaces, updateContractInterface} from "../../../lib/db/queries/contract-interface.table";
 
 
 export const ContractInterfaceTests = () => {

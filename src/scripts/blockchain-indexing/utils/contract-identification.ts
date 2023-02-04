@@ -2,8 +2,8 @@ import { AbiItem } from 'web3-utils';
 import LSP0ERC725Account from '@lukso/lsp-smart-contracts/artifacts/LSP0ERC725Account.json';
 
 import { ContractInterfaceTable } from '../../../models/types/tables/contract-interface-table';
-import { queryContractInterfaces } from '../../../bin/db/contract-interface.table';
-import { web3 } from '../../../bin/web3/web3';
+import { queryContractInterfaces } from '../../../lib/db/queries/contract-interface.table';
+import { web3 } from '../../../lib/web3';
 
 export async function tryIdentifyingContract(
   address: string,

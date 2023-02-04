@@ -3,9 +3,9 @@ import {clearDB} from "../../helpers/database-helper";
 import {assert, expect} from "chai";
 import {shouldThrow} from "../../helpers/should-throw";
 import {UNIVERSAL_PROFILE_1} from "../../helpers/constants";
-import {insertContract} from "../../../bin/db/contract.table";
-import {insertEvent, queryEvent, queryEventByTh, updateEvent} from "../../../bin/db/event.table";
-import {insertTransaction} from "../../../bin/db/transaction.table";
+import {insertContract} from "../../../lib/db/queries/contract.table";
+import {insertEvent, queryEvent, queryEventByTh, updateEvent} from "../../../lib/db/queries/event.table";
+import {insertTransaction} from "../../../lib/db/queries/transaction.table";
 
 export const EventTests = () => {
   describe('Table EventTable', () => {

@@ -1,10 +1,10 @@
 import { Log } from '../../../models/types/log';
-import { web3 } from '../../../bin/web3/web3';
+import { web3 } from '../../../lib/web3';
 import { decodeSetDataValueFromInput } from '../utils/set-data-from-input';
 import { reportIndexingScriptError } from '../index-logger';
 import { extractDataFromKey } from './extract-key-data';
 import { IPFS_GATEWAY } from '../../../environment/config';
-import { UniversalProfileReader } from '../../../bin/UniversalProfile/UniversalProfileReader.class';
+import { UniversalProfileReader } from '../../../lib/UniversalProfile/UniversalProfileReader.class';
 import { indexDataChanged } from '../indexing/index-data-changed';
 
 export async function extractAndIndexDataChangedEvent(

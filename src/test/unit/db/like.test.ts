@@ -2,10 +2,10 @@ import {beforeEach, describe} from "mocha";
 import {clearDB} from "../../helpers/database-helper";
 import {assert, expect} from "chai";
 import {UNIVERSAL_PROFILE_1} from "../../helpers/constants";
-import {insertContract} from "../../../bin/db/contract.table";
+import {insertContract} from "../../../lib/db/queries/contract.table";
 import {shouldThrow} from "../../helpers/should-throw";
-import {insertPost} from "../../../bin/db/post.table";
-import {insertLike, queryPostLike, queryPostLikesCount, querySenderLikes, removeLike} from "../../../bin/db/like.table";
+import {insertPost} from "../../../lib/db/queries/post.table";
+import {insertLike, queryPostLike, queryPostLikesCount, querySenderLikes, removeLike} from "../../../lib/db/queries/like.table";
 
 export const LikeTests = () => {
     describe('Table LikeTable', () => {

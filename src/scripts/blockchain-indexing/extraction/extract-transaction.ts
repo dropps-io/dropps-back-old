@@ -1,7 +1,7 @@
-import { web3 } from '../../../bin/web3/web3';
+import { web3 } from '../../../lib/web3';
 import { decodeTransactionFinalInput } from '../utils/tx-final-input';
 import { MethodParameterTable } from '../../../models/types/tables/method-parameter-table';
-import { queryMethodParameters } from '../../../bin/db/method-parameter.table';
+import { queryMethodParameters } from '../../../lib/db/queries/method-parameter.table';
 import { Transaction } from '../../../models/types/transaction';
 import { incrementExtractedToLogOf, reportIndexingScriptError } from '../index-logger';
 

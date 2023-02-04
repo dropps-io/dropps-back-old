@@ -4,15 +4,15 @@ import LSP4DigitalAssetJSON from '@erc725/erc725.js/schemas/LSP4DigitalAsset.jso
 import LSP3UniversalProfileMetadataJSON from '@erc725/erc725.js/schemas/LSP3UniversalProfileMetadata.json';
 import { URLDataWithHash } from '@erc725/erc725.js/build/main/src/types/encodeData/JSONURL';
 
-import { formatUrl } from '../../../bin/utils/format-url';
-import { KEY_LSPXXSocialRegistry } from '../../../bin/utils/constants';
+import { formatUrl } from '../../../lib/utils/format-url';
+import { KEY_LSPXXSocialRegistry } from '../../../lib/utils/constants';
 import { Log } from '../../../models/types/log';
-import { web3 } from '../../../bin/web3/web3';
+import { web3 } from '../../../lib/web3';
 import { IPFS_GATEWAY } from '../../../environment/config';
 import { incrementExtractedToLogOf, reportIndexingScriptError } from '../index-logger';
 import { extractAndIndexRegistry } from '../extract-and-index';
 import { indexUpdateName, indexUpdateSymbol } from '../indexing/index-update';
-import { LSP3UniversalProfile } from '../../../bin/UniversalProfile/models/lsp3-universal-profile.model';
+import { LSP3UniversalProfile } from '../../../lib/UniversalProfile/models/lsp3-universal-profile.model';
 import { updateLSP4Metadata } from '../indexing/update-lsp4';
 import { updateLSP3Profile } from '../indexing/update-lsp3';
 

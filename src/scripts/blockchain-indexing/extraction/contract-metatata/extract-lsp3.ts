@@ -6,9 +6,9 @@ import LSP3UniversalProfileMetadataJSON from '@erc725/erc725.js/schemas/LSP3Univ
 import {
   initialUniversalProfile,
   LSP3UniversalProfile,
-} from '../../../../bin/UniversalProfile/models/lsp3-universal-profile.model';
-import { formatUrl } from '../../../../bin/utils/format-url';
-import { web3 } from '../../../../bin/web3/web3';
+} from '../../../../lib/UniversalProfile/models/lsp3-universal-profile.model';
+import { formatUrl } from '../../../../lib/utils/format-url';
+import { web3 } from '../../../../lib/web3';
 import { IPFS_GATEWAY } from '../../../../environment/config';
 import { ContractFullMetadata } from '../../models/contract-metadata.model';
 import { reportIndexingScriptError } from '../../index-logger';

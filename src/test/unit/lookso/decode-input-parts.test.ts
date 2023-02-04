@@ -1,10 +1,10 @@
-import {DecodedFunctionCall, decodeInputParts} from "../../../bin/lookso/utils/decode-input-parts";
+import {DecodedFunctionCall, decodeInputParts} from "../../../lib/lookso/utils/decode-input-parts";
 import {clearDB} from "../../helpers/database-helper";
-import {insertMethodInterface} from "../../../bin/db/method-interface.table";
-import {insertMethodParameter} from "../../../bin/db/method-parameter.table";
-import {insertContract} from "../../../bin/db/contract.table";
+import {insertMethodInterface} from "../../../lib/db/queries/method-interface.table";
+import {insertMethodParameter} from "../../../lib/db/queries/method-parameter.table";
+import {insertContract} from "../../../lib/db/queries/contract.table";
 import {assert, expect} from "chai";
-import {web3} from "../../../bin/web3/web3";
+import {web3} from "../../../lib/web3";
 
 export const DecodeInputPartsTests = () => {
 

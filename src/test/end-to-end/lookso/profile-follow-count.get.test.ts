@@ -1,11 +1,11 @@
 import {describe} from "mocha";
 import {clearDB} from "../../helpers/database-helper";
-import {insertContractInterface} from "../../../bin/db/contract-interface.table";
-import {insertContract} from "../../../bin/db/contract.table";
-import {insertFollow} from "../../../bin/db/follow.table";
+import {insertContractInterface} from "../../../lib/db/queries/contract-interface.table";
+import {insertContract} from "../../../lib/db/queries/contract.table";
+import {insertFollow} from "../../../lib/db/queries/follow.table";
 import {expect} from "chai";
 import {HACKER_MAN_UP, SERIOUS_MAN_UP, UNIVERSAL_PROFILE_1, UNIVERSAL_PROFILE_2} from "../../helpers/constants";
-import {fastify} from "../../../lib/fastify";
+import {fastify} from "../../../api/fastify";
 
 
 export const ProfileFollowCountGETTests = () => {

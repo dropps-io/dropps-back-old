@@ -2,15 +2,15 @@
 // Split in different functions, same for the other updates
 
 import { INDEX_DATA } from '../config';
-import { deleteLink, insertLink, queryLinks } from '../../../bin/db/link.table';
-import { LSP3UniversalProfile } from '../../../bin/UniversalProfile/models/lsp3-universal-profile.model';
-import { deleteImage, insertImage, queryImages } from '../../../bin/db/image.table';
+import { deleteLink, insertLink, queryLinks } from '../../../lib/db/queries/link.table';
+import { LSP3UniversalProfile } from '../../../lib/UniversalProfile/models/lsp3-universal-profile.model';
+import { deleteImage, insertImage, queryImages } from '../../../lib/db/queries/image.table';
 import { ImageTable } from '../../../models/types/tables/image-table';
-import { deleteTag, insertTag, queryTags } from '../../../bin/db/tag.table';
+import { deleteTag, insertTag, queryTags } from '../../../lib/db/queries/tag.table';
 import {
   updateContractDescription,
   updateContractName,
-} from '../../../bin/db/contract-metadata.table';
+} from '../../../lib/db/queries/contract-metadata.table';
 import { Link } from '../../../models/types/metadata-objects';
 import { reportIndexingScriptError } from '../index-logger';
 

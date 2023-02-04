@@ -2,14 +2,14 @@ import {beforeEach, describe} from "mocha";
 import {clearDB} from "../../helpers/database-helper";
 import {assert, expect} from "chai";
 import {UNIVERSAL_PROFILE_1, UNIVERSAL_PROFILE_2} from "../../helpers/constants";
-import {insertContract} from "../../../bin/db/contract.table";
+import {insertContract} from "../../../lib/db/queries/contract.table";
 import {shouldThrow} from "../../helpers/should-throw";
 import {
     insertNotification, queryNotificationsCountOfAddress,
     queryNotificationsOfAddress,
     setViewedToAddressNotifications
-} from "../../../bin/db/notification.table";
-import {insertPost} from "../../../bin/db/post.table";
+} from "../../../lib/db/queries/notification.table";
+import {insertPost} from "../../../lib/db/queries/post.table";
 
 export const NotificationTests = () => {
   describe('Table NotificationTable', () => {

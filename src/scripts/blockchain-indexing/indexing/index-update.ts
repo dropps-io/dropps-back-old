@@ -1,4 +1,7 @@
-import { updateContractName, updateContractSymbol } from '../../../bin/db/contract-metadata.table';
+import {
+  updateContractName,
+  updateContractSymbol,
+} from '../../../lib/db/queries/contract-metadata.table';
 import { INDEX_DATA } from '../config';
 import { reportIndexingScriptError } from '../index-logger';
 

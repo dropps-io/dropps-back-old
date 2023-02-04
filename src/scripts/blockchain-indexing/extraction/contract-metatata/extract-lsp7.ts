@@ -1,9 +1,9 @@
 import { AbiItem } from 'web3-utils';
 import LSP7DigitalAsset from '@lukso/lsp-smart-contracts/artifacts/LSP7DigitalAsset.json';
 
-import { LSP4DigitalAsset } from '../../../../bin/UniversalProfile/models/lsp4-digital-asset.model';
+import { LSP4DigitalAsset } from '../../../../lib/UniversalProfile/models/lsp4-digital-asset.model';
 import { extractLSP4Data } from './extract-lsp4';
-import { web3 } from '../../../../bin/web3/web3';
+import { web3 } from '../../../../lib/web3';
 import { reportIndexingScriptError } from '../../index-logger';
 import { ContractFullMetadata } from '../../models/contract-metadata.model';
 

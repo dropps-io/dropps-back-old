@@ -2,10 +2,10 @@ import {beforeEach, describe} from "mocha";
 import {clearDB} from "../../helpers/database-helper";
 import {assert, expect} from "chai";
 import {UNIVERSAL_PROFILE_1} from "../../helpers/constants";
-import {insertContract} from "../../../bin/db/contract.table";
+import {insertContract} from "../../../lib/db/queries/contract.table";
 import {shouldThrow} from "../../helpers/should-throw";
-import {insertContractMetadata} from "../../../bin/db/contract-metadata.table";
-import {deleteImage, insertImage, queryImages, queryImagesByType} from "../../../bin/db/image.table";
+import {insertContractMetadata} from "../../../lib/db/queries/contract-metadata.table";
+import {deleteImage, insertImage, queryImages, queryImagesByType} from "../../../lib/db/queries/image.table";
 
 export const ImageTests = () => {
   describe('Table ImageTable', () => {

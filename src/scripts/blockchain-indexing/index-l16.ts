@@ -1,14 +1,14 @@
 import Web3 from 'web3';
 
-import { logError, logMessage } from '../../bin/logger';
+import { logError, logMessage } from '../../lib/logger';
 import { sleep } from './utils/sleep';
 import { Log } from '../../models/types/log';
-import { DB } from '../../bin/db/database';
+import { DB } from '../../lib/db/queries/database';
 import { changeIndexingChunkOnLog } from './index-logger';
 import { splitToChunks } from './utils/split-in-chunks';
 import { extractAndIndexBatch } from './extract-and-index';
 import { asyncPromiseAll } from './utils/async-promise-all';
-import { getValueFromConfig, setValueOnConfig } from '../../bin/db/config.table';
+import { getValueFromConfig, setValueOnConfig } from '../../lib/db/queries/config.table';
 import { DEBUG_INDEX_SCRIPT } from './config';
 
 const web3 = new Web3('https://rpc.l16.lukso.network');

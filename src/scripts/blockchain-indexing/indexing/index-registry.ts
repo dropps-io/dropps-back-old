@@ -1,15 +1,15 @@
 //TODO Add in post DB Table a visibility value (so if a post is deleted from the registry, we still keep it)
 import { Post } from '../../../models/types/post';
-import { USER_TAG_REGEX } from '../../../bin/utils/constants';
-import { insertPost, queryPost } from '../../../bin/db/post.table';
-import { queryAddressOfUserTag } from '../../../bin/db/contract-metadata.table';
+import { USER_TAG_REGEX } from '../../../lib/utils/constants';
+import { insertPost, queryPost } from '../../../lib/db/queries/post.table';
+import { queryAddressOfUserTag } from '../../../lib/db/queries/contract-metadata.table';
 import { Log } from '../../../models/types/log';
-import { insertNotification } from '../../../bin/db/notification.table';
+import { insertNotification } from '../../../lib/db/queries/notification.table';
 import { INDEX_DATA } from '../config';
 import { reportIndexingScriptError } from '../index-logger';
 import { RegistryChangesToIndex } from '../extraction/extract-registry';
-import { insertLike } from '../../../bin/db/like.table';
-import { insertFollow } from '../../../bin/db/follow.table';
+import { insertLike } from '../../../lib/db/queries/like.table';
+import { insertFollow } from '../../../lib/db/queries/follow.table';
 
 export async function indexRegistry(log: Log, toIndex: RegistryChangesToIndex) {
   if (!INDEX_DATA) return;

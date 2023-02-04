@@ -3,12 +3,12 @@ import { URLDataWithHash } from '@erc725/erc725.js/build/main/src/types/encodeDa
 import axios from 'axios';
 import LSP4DigitalAssetJSON from '@erc725/erc725.js/schemas/LSP4DigitalAsset.json';
 
-import { web3 } from '../../../../bin/web3/web3';
-import { formatUrl } from '../../../../bin/utils/format-url';
+import { web3 } from '../../../../lib/web3';
+import { formatUrl } from '../../../../lib/utils/format-url';
 import {
   initialDigitalAssetMetadata,
   LSP4DigitalAsset,
-} from '../../../../bin/UniversalProfile/models/lsp4-digital-asset.model';
+} from '../../../../lib/UniversalProfile/models/lsp4-digital-asset.model';
 import { IPFS_GATEWAY } from '../../../../environment/config';
 import { reportIndexingScriptError } from '../../index-logger';
 

@@ -1,15 +1,15 @@
 import {describe} from "mocha";
 import {clearDB} from "../../helpers/database-helper";
-import {insertContractInterface} from "../../../bin/db/contract-interface.table";
-import {insertContract} from "../../../bin/db/contract.table";
-import {fastify} from "../../../lib/fastify";
+import {insertContractInterface} from "../../../lib/db/queries/contract-interface.table";
+import {insertContract} from "../../../lib/db/queries/contract.table";
+import {fastify} from "../../../api/fastify";
 import {LightMyRequestResponse} from "fastify";
-import {insertLink} from "../../../bin/db/link.table";
+import {insertLink} from "../../../lib/db/queries/link.table";
 import {assert, expect} from "chai";
-import {insertImage} from "../../../bin/db/image.table";
+import {insertImage} from "../../../lib/db/queries/image.table";
 import {HACKER_MAN_UP, SERIOUS_MAN_UP, UNIVERSAL_PROFILE_3} from "../../helpers/constants";
-import {insertContractMetadata} from "../../../bin/db/contract-metadata.table";
-import {insertTag} from "../../../bin/db/tag.table";
+import {insertContractMetadata} from "../../../lib/db/queries/contract-metadata.table";
+import {insertTag} from "../../../lib/db/queries/tag.table";
 
 
 export const ProfileGETTests = () => {
