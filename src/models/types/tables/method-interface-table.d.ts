@@ -1,6 +1,6 @@
 export interface MethodInterfaceTable {
-    id: string;
-    hash: string;
-    name: string;
-    type: 'function' | 'event';
+  id: string;
+  hash: string;
+  name: string;
+  type: 'function' | 'event';
 }

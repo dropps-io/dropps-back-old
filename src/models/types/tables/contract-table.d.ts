@@ -1,4 +1,4 @@
 export interface ContractTable {
-    address: string;
-    interfaceCode: string | null;
+  address: string;
+  interfaceCode: string | null;
 }

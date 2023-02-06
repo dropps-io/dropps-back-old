@@ -1,19 +1,19 @@
 import {describe} from "mocha";
 import {clearDB} from "../../helpers/database-helper";
-import {insertContractInterface} from "../../../bin/db/contract-interface.table";
-import {insertContract} from "../../../bin/db/contract.table";
-import {insertPost} from "../../../bin/db/post.table";
-import {fastify} from "../../../lib/fastify";
+import {insertContractInterface} from "../../../lib/db/queries/contract-interface.table";
+import {insertContract} from "../../../lib/db/queries/contract.table";
+import {insertPost} from "../../../lib/db/queries/post.table";
+import {fastify} from "../../../api/fastify";
 import {assert, expect} from "chai";
-import {insertLike} from "../../../bin/db/like.table";
+import {insertLike} from "../../../lib/db/queries/like.table";
 import {LightMyRequestResponse} from "fastify";
 import {FeedPost} from "../../../models/types/feed-post";
-import {insertEvent} from "../../../bin/db/event.table";
-import {insertTransaction} from "../../../bin/db/transaction.table";
+import {insertEvent} from "../../../lib/db/queries/event.table";
+import {insertTransaction} from "../../../lib/db/queries/transaction.table";
 import {
   HACKER_MAN_UP, POST_HASH, POST_HASH2, POST_HASH3, POST_HASH4, POST_HASH5, POST_HASH6, SERIOUS_MAN_UP, UNIVERSAL_PROFILE_1, UNIVERSAL_PROFILE_2
 } from "../../helpers/constants";
-import {insertFollow} from "../../../bin/db/follow.table";
+import {insertFollow} from "../../../lib/db/queries/follow.table";
 import {API_URL, POSTS_PER_LOAD} from "../../../environment/config";
 import {generateRandomKeccakHash} from "../../helpers/generate-mocks";
 

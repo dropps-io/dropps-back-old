@@ -2,9 +2,9 @@ import {beforeEach, describe} from "mocha";
 import {clearDB} from "../../helpers/database-helper";
 import {assert, expect} from "chai";
 import {UNIVERSAL_PROFILE_1, UNIVERSAL_PROFILE_2} from "../../helpers/constants";
-import {insertContract} from "../../../bin/db/contract.table";
+import {insertContract} from "../../../lib/db/queries/contract.table";
 import {shouldThrow} from "../../helpers/should-throw";
-import {insertFollow, queryFollow, queryFollowers, queryFollowersCount, queryFollowing, queryFollowingCount, removeFollow} from "../../../bin/db/follow.table";
+import {insertFollow, queryFollow, queryFollowers, queryFollowersCount, queryFollowing, queryFollowingCount, removeFollow} from "../../../lib/db/queries/follow.table";
 
 export const FollowTests = () => {
     describe('Table FollowTable', () => {

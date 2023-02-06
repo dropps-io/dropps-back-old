@@ -2,11 +2,11 @@ import {beforeEach, describe} from "mocha";
 import {clearDB} from "../../helpers/database-helper";
 import {shouldThrow} from "../../helpers/should-throw";
 import {assert, expect} from "chai";
-import {insertEvent} from "../../../bin/db/event.table";
+import {insertEvent} from "../../../lib/db/queries/event.table";
 import {UNIVERSAL_PROFILE_1} from "../../helpers/constants";
-import {insertDecodedEventParameter, queryDecodedEventParameters} from "../../../bin/db/decoded-event-parameter.table";
-import {insertContract} from "../../../bin/db/contract.table";
-import {insertTransaction} from "../../../bin/db/transaction.table";
+import {insertDecodedEventParameter, queryDecodedEventParameters} from "../../../lib/db/queries/decoded-event-parameter.table";
+import {insertContract} from "../../../lib/db/queries/contract.table";
+import {insertTransaction} from "../../../lib/db/queries/transaction.table";
 
 
 export const DecodedParametersTests = () => {

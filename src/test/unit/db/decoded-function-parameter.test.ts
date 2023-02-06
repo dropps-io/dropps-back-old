@@ -3,9 +3,9 @@ import {clearDB} from "../../helpers/database-helper";
 import {shouldThrow} from "../../helpers/should-throw";
 import {assert, expect} from "chai";
 import {UNIVERSAL_PROFILE_1} from "../../helpers/constants";
-import {insertDecodedFunctionParameter, queryDecodedFunctionParameters} from "../../../bin/db/decoded-function-parameter.table";
-import {insertContract} from "../../../bin/db/contract.table";
-import {insertTransaction} from "../../../bin/db/transaction.table";
+import {insertDecodedFunctionParameter, queryDecodedFunctionParameters} from "../../../lib/db/queries/decoded-function-parameter.table";
+import {insertContract} from "../../../lib/db/queries/contract.table";
+import {insertTransaction} from "../../../lib/db/queries/transaction.table";
 
 
 export const DecodedFunctionParametersTests = () => {

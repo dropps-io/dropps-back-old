@@ -2,11 +2,11 @@ import {beforeEach, describe} from "mocha";
 import {clearDB} from "../../helpers/database-helper";
 import {shouldThrow} from "../../helpers/should-throw";
 import {assert, expect} from "chai";
-import {insertContract} from "../../../bin/db/contract.table";
+import {insertContract} from "../../../lib/db/queries/contract.table";
 import {UNIVERSAL_PROFILE_1} from "../../helpers/constants";
 import {
     insertContractMetadata, queryContractMetadata, updateContractDescription, updateContractName, updateContractSupply, updateContractSymbol
-} from "../../../bin/db/contract-metadata.table";
+} from "../../../lib/db/queries/contract-metadata.table";
 
 
 export const ContractMetadataTests = () => {

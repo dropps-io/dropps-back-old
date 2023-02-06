@@ -2,8 +2,8 @@ import {beforeEach, describe} from "mocha";
 import {clearDB} from "../../helpers/database-helper";
 import {shouldThrow} from "../../helpers/should-throw";
 import {assert, expect} from "chai";
-import {insertMethodInterface} from "../../../bin/db/method-interface.table";
-import {insertMethodParameter, queryMethodParameters} from "../../../bin/db/method-parameter.table";
+import {insertMethodInterface} from "../../../lib/db/queries/method-interface.table";
+import {insertMethodParameter, queryMethodParameters} from "../../../lib/db/queries/method-parameter.table";
 
 
 export const MethodParameterTest = () => {

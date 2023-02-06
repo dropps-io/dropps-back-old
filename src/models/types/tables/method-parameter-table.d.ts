@@ -1,7 +1,7 @@
 export interface MethodParameterTable {
-    methodId: string;
-    name: string;
-    type: string;
-    indexed: boolean;
-    displayType?: string;
+  methodId: string;
+  name: string;
+  type: string;
+  indexed: boolean;
+  displayType?: string;
 }

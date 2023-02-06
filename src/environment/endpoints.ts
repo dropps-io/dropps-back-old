@@ -1,8 +1,13 @@
 import path from 'path';
 import { config } from 'dotenv';
-import {JWK} from '../bin/arweave/types/JWK';
 
-export const NODE_ENV = (process.env.NODE_ENV || 'development') as 'test' | 'development' | 'production' | 'staging';
+import { JWK } from '../lib/arweave/types/JWK';
+
+export const NODE_ENV = (process.env.NODE_ENV || 'development') as
+  | 'test'
+  | 'development'
+  | 'production'
+  | 'staging';
 
 if (NODE_ENV === 'test') config({ path: path.resolve(process.cwd(), '.env.test') });
 if (NODE_ENV === 'production') config({ path: path.resolve(process.cwd(), '.env.prod') });
@@ -21,7 +26,7 @@ export const COOKIE_SECRET: string = getOrThrow('COOKIE_SECRET');
 export const ARWEAVE_WALLET: JWK = JSON.parse(getOrThrow('ARWEAVE_WALLET'));
 
 function getOrThrow(name: string) {
-	const val = process.env[name];
-	if (typeof val === 'undefined') throw new Error(`Missing mandatory environment variable ${name}`);
-	return val;
+  const val = process.env[name];
+  if (typeof val === 'undefined') throw new Error(`Missing mandatory environment variable ${name}`);
+  return val;
 }

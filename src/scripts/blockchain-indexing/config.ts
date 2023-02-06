@@ -1,4 +1,2 @@
-export const INDEX_FROM_BLOCK = 980000;
-export const BLOCK_ITERATION = 5000;
-export const SLEEP_BETWEEN_ITERATION = 7000;
-export const INDEX_DATA = false;
+export const DEBUG_INDEX_SCRIPT = false;
+export const INDEX_DATA = true;

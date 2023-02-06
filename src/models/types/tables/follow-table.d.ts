@@ -1,4 +1,4 @@
 export interface FollowTable {
-    follower: string;
-    following: string;
+  follower: string;
+  following: string;
 }

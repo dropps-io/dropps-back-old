@@ -1,15 +1,15 @@
 import {LightMyRequestResponse} from "fastify";
 import {clearDB} from "../../helpers/database-helper";
 import {assert, expect} from "chai";
-import {insertContract} from "../../../bin/db/contract.table";
-import {extractTransaction} from "../../../scripts/new-index-script/extraction/extract-transaction";
-import {indexTransaction} from "../../../scripts/new-index-script/indexing/index-transaction";
-import {insertContractMetadata} from "../../../bin/db/contract-metadata.table";
-import {insertImage} from "../../../bin/db/image.table";
-import {fastify} from "../../../lib/fastify";
-import {insertMethodInterface} from "../../../bin/db/method-interface.table";
-import {insertMethodParameter} from "../../../bin/db/method-parameter.table";
-import {GetTransactionResponse} from "../../../lib/routes/lookso/lookso-tx.route";
+import {insertContract} from "../../../lib/db/queries/contract.table";
+import {extractTransaction} from "../../../scripts/blockchain-indexing/extraction/extract-transaction";
+import {indexTransaction} from "../../../scripts/blockchain-indexing/indexing/index-transaction";
+import {insertContractMetadata} from "../../../lib/db/queries/contract-metadata.table";
+import {insertImage} from "../../../lib/db/queries/image.table";
+import {fastify} from "../../../api/fastify";
+import {insertMethodInterface} from "../../../lib/db/queries/method-interface.table";
+import {insertMethodParameter} from "../../../lib/db/queries/method-parameter.table";
+import {GetTransactionResponse} from "../../../api/routes/lookso/transaction/tx.model";
 
 export const TxGetTests = () => {
 

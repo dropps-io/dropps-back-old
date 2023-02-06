@@ -1,0 +1,37 @@
+import { EventTable } from '../../../models/types/tables/event-table';
+import { executeQuery } from './database';
+import { ERROR_NOT_FOUND } from '../../utils/error-messages';
+
+export async function queryEvent(id: number): Promise<EventTable> {
+  const res = await executeQuery('SELECT * FROM "event" WHERE "id" = $1', [id]);
+  return res.rows[0] as EventTable;
+}
+
+export async function queryEventByTh(transactionHash: string, logId: string): Promise<EventTable> {
+  const res = await executeQuery(
+    'SELECT * FROM "event" WHERE "transactionHash" = $1 AND "logId" = $2',
+    [transactionHash, logId],
+  );
+  if (res.rows[0]) return res.rows[0] as EventTable;
+  else throw 'No event found';
+}
+
+export async function insertEvent(
+  address: string,
+  transactionHash: string,
+  logId: string,
+  blockNumber: number,
+  topic: string,
+  type: string,
+): Promise<number> {
+  const res = await executeQuery(
+    'INSERT INTO "event" ("address", "transactionHash", "logId", "blockNumber", "topic", "type") VALUES ($1, $2, $3, $4, $5, $6) RETURNING "id"',
+    [address, transactionHash, logId, blockNumber, topic, type],
+  );
+  return res.rows[0].id;
+}
+
+export async function updateEvent(id: number, type: string): Promise<void> {
+  const res = await executeQuery('UPDATE "event" SET "type" = $1 WHERE "id" = $2', [type, id]);
+  if (res.rowCount === 0) throw ERROR_NOT_FOUND;
+}

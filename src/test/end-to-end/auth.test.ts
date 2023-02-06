@@ -1,9 +1,9 @@
 import {describe} from "mocha";
-import {fastify} from "../../lib/fastify";
+import {fastify} from "../../api/fastify";
 import {expect} from "chai";
 import {clearDB} from "../helpers/database-helper";
-import {executeQuery} from "../../bin/db/database";
-import {insertContract} from "../../bin/db/contract.table";
+import {executeQuery} from "../../lib/db/queries/database";
+import {insertContract} from "../../lib/db/queries/contract.table";
 
 export const AuthTests = () => {
   describe('auth routes', () => {

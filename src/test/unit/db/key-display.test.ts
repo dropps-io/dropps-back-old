@@ -2,8 +2,8 @@ import {beforeEach, describe} from "mocha";
 import {clearDB} from "../../helpers/database-helper";
 import {shouldThrow} from "../../helpers/should-throw";
 import {assert, expect} from "chai";
-import {insertKeyDisplay, queryKeyDisplay} from "../../../bin/db/key-display.table";
-import {insertErc725ySchema} from "../../../bin/db/erc725y-schema.table";
+import {insertKeyDisplay, queryKeyDisplay} from "../../../lib/db/queries/key-display.table";
+import {insertErc725ySchema} from "../../../lib/db/queries/erc725y-schema.table";
 
 
 export const KeyDisplayTests = () => {

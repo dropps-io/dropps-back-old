@@ -1,11 +1,11 @@
 import {describe} from "mocha";
 import {clearDB} from "../../helpers/database-helper";
-import {insertContractInterface} from "../../../bin/db/contract-interface.table";
-import {insertContract} from "../../../bin/db/contract.table";
-import {insertPost} from "../../../bin/db/post.table";
-import {fastify} from "../../../lib/fastify";
+import {insertContractInterface} from "../../../lib/db/queries/contract-interface.table";
+import {insertContract} from "../../../lib/db/queries/contract.table";
+import {insertPost} from "../../../lib/db/queries/post.table";
+import {fastify} from "../../../api/fastify";
 import {expect} from "chai";
-import {insertLike} from "../../../bin/db/like.table";
+import {insertLike} from "../../../lib/db/queries/like.table";
 import {LightMyRequestResponse} from "fastify";
 import {FeedPost} from "../../../models/types/feed-post";
 import {

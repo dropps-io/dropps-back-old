@@ -1,5 +1,8 @@
 dist
 node_modules
+.nyc_output
+
+.idea
 
 /src/environment/sewing-notebook-service-account.json
 /src/environment/sewing-notebook-service-account-test.json

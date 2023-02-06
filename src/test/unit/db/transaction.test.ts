@@ -2,7 +2,7 @@ import {beforeEach, describe} from "mocha";
 import {clearDB} from "../../helpers/database-helper";
 import {assert, expect} from "chai";
 import {shouldThrow} from "../../helpers/should-throw";
-import {insertTransaction, queryTransaction} from "../../../bin/db/transaction.table";
+import {insertTransaction, queryTransaction} from "../../../lib/db/queries/transaction.table";
 
 export const TransactionTests = () => {
   describe('Table Transaction', () => {

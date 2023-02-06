@@ -2,10 +2,10 @@ import {beforeEach, describe} from "mocha";
 import {clearDB} from "../../helpers/database-helper";
 import {assert, expect} from "chai";
 import {UNIVERSAL_PROFILE_1} from "../../helpers/constants";
-import {insertContract} from "../../../bin/db/contract.table";
+import {insertContract} from "../../../lib/db/queries/contract.table";
 import {shouldThrow} from "../../helpers/should-throw";
-import {insertContractMetadata} from "../../../bin/db/contract-metadata.table";
-import {deleteLink, insertLink, queryLinks} from "../../../bin/db/link.table";
+import {insertContractMetadata} from "../../../lib/db/queries/contract-metadata.table";
+import {deleteLink, insertLink, queryLinks} from "../../../lib/db/queries/link.table";
 
 export const LinkTests = () => {
   describe('Table LinkTable', () => {
