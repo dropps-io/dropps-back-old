@@ -217,7 +217,9 @@ export async function setDisplays() {
     '',
     'contractAddress',
   );
-  await insertMethodDisplay('0xcdf4e344', 'Value of {dataKey} changed', '', '', '');
+
+  // TODO: old smart contracts, add compatibility or drop it ?
+  // await insertMethodDisplay('0xcdf4e344', 'Value of {dataKey} changed', '', '', '');
   await insertMethodDisplay('0xece57460', 'Value of {dataKey} changed to {dataValue}', '', '', '');
   await insertMethodDisplay('0x48108744', 'Executed {selector} on {to}', 'to', '', 'to');
   await insertMethodDisplay(

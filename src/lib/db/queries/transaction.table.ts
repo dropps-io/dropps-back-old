@@ -23,6 +23,6 @@ export async function insertTransaction(
     value,
     input,
     blockNumber,
-    input.slice(0, 10),
+    input && input.length > 10 ? input.slice(0, 10) : '',
   ]);
 }

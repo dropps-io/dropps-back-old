@@ -14,7 +14,7 @@ export async function extractTransaction(hash: string): Promise<{
   let decodedParameters: { [key: string]: any } = {};
   let parameters: MethodParameterTable[] = [];
   try {
-    transaction = { ...(await web3.eth.getTransaction(hash)), methodId: '' };
+    transaction = { ...(await web3.eth.getTransaction(hash)), methodId: '', hash };
   } catch (e) {
     await reportIndexingScriptError('extractTransaction', e);
     throw 'Failed to get transaction';
