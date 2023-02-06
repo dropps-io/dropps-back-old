@@ -1,25 +1,19 @@
+import { ERROR_INVALID_PAGE } from '../../../../lib/utils/error-messages';
 import {
   queryContractName,
   searchContractMetadataByAddress,
   searchContractMetadataByAddressCount,
   searchContractMetadataByName,
   searchContractMetadataByNameCount,
-} from '../db/queries/contract-metadata.table';
-import { queryImagesByType } from '../db/queries/image.table';
-import { selectImage } from '../utils/select-image';
-import { PROFILES_PER_SEARCH } from '../../environment/config';
-import { ERROR_INVALID_PAGE } from '../utils/error-messages';
-import { queryTransaction } from '../db/queries/transaction.table';
-import { logError } from '../logger';
-import { Transaction } from '../../models/types/transaction';
+} from '../../../../lib/db/queries/contract-metadata.table';
+import { PROFILES_PER_SEARCH } from '../../../../environment/config';
+import { queryImagesByType } from '../../../../lib/db/queries/image.table';
+import { selectImage } from '../../../../lib/utils/select-image';
+import { queryTransaction } from '../../../../lib/db/queries/transaction.table';
+import { logError } from '../../../../lib/logger';
+import { SearchResults } from './search.model';
 
-type SearchResults = {
-  profiles: {
-    count: number;
-    results: { address: string; name: string; image: string }[];
-  };
-  transactions: { count: number; results: Transaction[] };
-};
+// TODO improve this service: remove the pagination from the generic search route, add routes or filters for specific search with pagination (TX, profiles, assets, etc)
 
 /**
  * Search for entries in the database with a limit set to 5 per page per category
@@ -30,7 +24,7 @@ type SearchResults = {
  *
  * @return: search results containing profiles and transactions fetched at the provided page
  */
-export async function search(input: string, page: number): Promise<SearchResults> {
+const search = async (input: string, page: number): Promise<SearchResults> => {
   if (page < 0) throw ERROR_INVALID_PAGE;
   // If input is an address
   if (input.length > 2 && input.length <= 42 && input.slice(0, 2) === '0x') {
@@ -120,4 +114,8 @@ export async function search(input: string, page: number): Promise<SearchResults
       transactions: { count: 0, results: [] },
     };
   }
-}
+};
+
+export const looksoSearchService = {
+  search,
+};

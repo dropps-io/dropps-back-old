@@ -1,37 +1,11 @@
 import { FastifyInstance } from 'fastify';
 
 import { verifyJWT } from '../../../lib/json-web-token';
-import {
-  error,
-  ERROR_INVALID_PAGE,
-  PUSH_REGISTRY_REQUIRED,
-} from '../../../lib/utils/error-messages';
 import { FollowTable } from '../../../models/types/tables/follow-table';
-import { removeFollow } from '../../../lib/db/queries/follow.table';
-import { queryContract } from '../../../lib/db/queries/contract.table';
-import { Post } from '../../../models/types/post';
-import { queryPost, queryPosts, queryPostsCount } from '../../../lib/db/queries/post.table';
-import { constructFeed } from '../../../lib/lookso/feed/construct-feed';
-import { insertLike, queryPostLike, removeLike } from '../../../lib/db/queries/like.table';
 import { LikeTable } from '../../../models/types/tables/like-table';
 import { looksoPostRoutes } from './post/post.routes';
 import { looksoProfileRoutes } from './profile/profile.routes';
-import { insertNotification } from '../../../lib/db/queries/notification.table';
-import { search } from '../../../lib/lookso/search';
-import {
-  insertRegistryChange,
-  queryRegistryChangesCountOfAddress,
-} from '../../../lib/db/queries/registry-change.table';
-import {
-  API_URL,
-  MAX_OFFCHAIN_REGISTRY_CHANGES,
-  POSTS_PER_LOAD,
-  PROFILES_PER_SEARCH,
-} from '../../../environment/config';
-import { applyChangesToRegistry } from '../../../lib/lookso/registry/apply-changes-to-registry';
-import { buildJsonUrl } from '../../../lib/utils/json-url';
-import { uploadToArweave } from '../../../lib/arweave/utils/uploadToArweave';
-import { objectToBuffer } from '../../../lib/utils/file-converters';
+import { API_URL } from '../../../environment/config';
 import {
   ADDRESS_SCHEMA_VALIDATION,
   HASH_SCHEMA_VALIDATION,
@@ -41,6 +15,7 @@ import {
 import { looksoTxRoutes } from './transaction/tx.routes';
 import { looksoService } from './lookso.service';
 import { handleError } from '../../utils/handle-error';
+import { looksoSearchRoutes } from './search/search.routes';
 
 export async function looksoRoutes(fastify: FastifyInstance) {
   fastify.route({
@@ -92,29 +67,13 @@ export async function looksoRoutes(fastify: FastifyInstance) {
       },
     },
     handler: async (request, reply) => {
-      const body = request.body as FollowTable;
-      const jwtError = await verifyJWT(request, reply, body.follower);
+      const { follower, following } = request.body as FollowTable;
+      const jwtError = await verifyJWT(request, reply, follower);
       if (jwtError) return jwtError;
 
-      const registryChangesCount = await queryRegistryChangesCountOfAddress(body.follower);
-      if (registryChangesCount >= MAX_OFFCHAIN_REGISTRY_CHANGES)
-        return reply.code(409).send(error(409, PUSH_REGISTRY_REQUIRED));
-
       try {
-        const contract = await queryContract(body.following);
-        if (contract && contract.interfaceCode !== 'LSP0')
-          return reply.code(400).send(error(400, 'The following address is not an LSP0'));
-        await removeFollow(body.follower, body.following);
-        await insertRegistryChange(body.follower, 'follow', 'remove', body.following, new Date());
-
-        if (registryChangesCount + 1 >= MAX_OFFCHAIN_REGISTRY_CHANGES) {
-          const newRegistry = await applyChangesToRegistry(body.follower);
-          const url = await uploadToArweave(objectToBuffer(newRegistry), 'application/json');
-          const jsonUrl = buildJsonUrl(newRegistry, url);
-          return reply.code(200).send({ jsonUrl });
-        } else {
-          return reply.code(200).send({});
-        }
+        const unfollowResponse = await looksoService.unfollow(follower, following);
+        return reply.code(200).send(unfollowResponse);
       } catch (e: any) {
         return handleError(e, reply);
       }
@@ -139,34 +98,13 @@ export async function looksoRoutes(fastify: FastifyInstance) {
       },
     },
     handler: async (request, reply) => {
-      const body = request.body as LikeTable;
-      const jwtError = await verifyJWT(request, reply, body.sender);
+      const { sender, postHash } = request.body as LikeTable;
+      const jwtError = await verifyJWT(request, reply, sender);
       if (jwtError) return jwtError;
 
-      const registryChangesCount = await queryRegistryChangesCountOfAddress(body.sender);
-      if (registryChangesCount >= MAX_OFFCHAIN_REGISTRY_CHANGES)
-        return reply.code(409).send(error(409, PUSH_REGISTRY_REQUIRED));
-
       try {
-        const liked: boolean = await queryPostLike(body.sender, body.postHash);
-        if (liked) {
-          await removeLike(body.sender, body.postHash);
-          await insertRegistryChange(body.sender, 'like', 'remove', body.postHash, new Date());
-        } else {
-          await insertLike(body.sender, body.postHash);
-          await insertRegistryChange(body.sender, 'like', 'add', body.postHash, new Date());
-          const post = await queryPost(body.postHash);
-          await insertNotification(post.author, body.sender, new Date(), 'like', post.hash);
-        }
-
-        if (registryChangesCount + 1 >= MAX_OFFCHAIN_REGISTRY_CHANGES) {
-          const newRegistry = await applyChangesToRegistry(body.sender);
-          const url = await uploadToArweave(objectToBuffer(newRegistry), 'application/json');
-          const jsonUrl = buildJsonUrl(newRegistry, url);
-          return reply.code(200).send({ jsonUrl });
-        } else {
-          return reply.code(200).send({});
-        }
+        const likeResponse = await looksoService.like(sender, postHash);
+        return reply.code(200).send(likeResponse);
       } catch (e: any) {
         return handleError(e, reply);
       }
@@ -191,75 +129,19 @@ export async function looksoRoutes(fastify: FastifyInstance) {
       summary: 'Get profile feed.',
     },
     handler: async (request, reply) => {
-      const query = request.query as {
+      const { page, postType, viewOf } = request.query as {
         page?: number;
         postType?: 'event' | 'post';
         viewOf?: string;
       };
 
-      try {
-        const count = await queryPostsCount(query.postType);
-        if (count == 0)
-          return reply
-            .code(200)
-            .send({ count: 0, page: null, next: null, previous: null, results: [] });
-        const page = query.page !== undefined ? query.page : Math.ceil(count / POSTS_PER_LOAD) - 1;
-        if (page >= count / POSTS_PER_LOAD)
-          return reply.code(400).send(error(400, ERROR_INVALID_PAGE));
-        const posts: Post[] = await queryPosts(
-          POSTS_PER_LOAD,
-          page * POSTS_PER_LOAD,
-          query.postType,
-        );
-        const feed = await constructFeed(posts, query.viewOf);
-
-        const queryUrl = `${API_URL}/lookso/feed?${
-          query.postType ? 'postType=' + query.postType + '&' : ''
-        }${query.viewOf ? 'viewOf=' + query.viewOf + '&' : ''}page=`;
-
-        return reply.code(200).send({
-          count,
-          page,
-          next:
-            page < Math.ceil(count / POSTS_PER_LOAD) - 1 ? queryUrl + (page + 1).toString() : null,
-          previous: page > 0 ? queryUrl + (page - 1).toString() : null,
-          results: feed,
-        });
-      } catch (e: any) {
-        return handleError(e, reply);
-      }
-    },
-  });
-
-  fastify.route({
-    method: 'GET',
-    url: '/search/:input',
-    schema: {
-      description: 'Search in our database with an input.',
-      tags: ['lookso'],
-      querystring: {
-        page: PAGE_SCHEMA_VALIDATION,
-      },
-      summary: 'Search in our database with an input.',
-    },
-    handler: async (request, reply) => {
-      const { input } = request.params as { input: string };
-      const query = request.query as { page?: number };
-      const page = query.page ? query.page : 0;
+      const queryUrl = `${API_URL}/lookso/feed?${postType ? 'postType=' + postType + '&' : ''}${
+        viewOf ? 'viewOf=' + viewOf + '&' : ''
+      }page=`;
 
       try {
-        const searchResults = await search(input, page);
-
-        const queryUrl = `${API_URL}/lookso/search/${input}?page=`;
-
-        return reply.code(200).send({
-          search: searchResults,
-          next:
-            page < Math.ceil(searchResults.profiles.count / PROFILES_PER_SEARCH) - 1
-              ? queryUrl + (page + 1).toString()
-              : null,
-          previous: page > 0 ? queryUrl + (page - 1).toString() : null,
-        });
+        const feedResponse = await looksoService.getFeed(queryUrl, postType, page, viewOf);
+        return reply.code(200).send(feedResponse);
       } catch (e: any) {
         return handleError(e, reply);
       }
@@ -271,4 +153,6 @@ export async function looksoRoutes(fastify: FastifyInstance) {
   looksoPostRoutes(fastify);
 
   looksoTxRoutes(fastify);
+
+  looksoSearchRoutes(fastify);
 }
