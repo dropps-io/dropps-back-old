@@ -1,12 +1,7 @@
 import { FastifyInstance } from 'fastify';
 
 import { logError } from '../../../../lib/logger';
-import {
-  error,
-  ERROR_INTERNAL,
-  ERROR_INVALID_PAGE,
-  ERROR_NOT_FOUND,
-} from '../../../../lib/utils/error-messages';
+import { error, ERROR_NOT_FOUND } from '../../../../lib/utils/error-messages';
 import { queryFollowersCount, queryFollowingCount } from '../../../../lib/db/queries/follow.table';
 import { queryAddressOfUserTag } from '../../../../lib/db/queries/contract-metadata.table';
 import {
@@ -26,6 +21,7 @@ import {
 } from '../../../../models/json/utils.schema';
 import { API_URL } from '../../../../environment/config';
 import { looksoProfileService } from './profile.service';
+import { handleError } from '../../../utils/handle-error';
 
 export function looksoProfileRoutes(fastify: FastifyInstance) {
   fastify.route({
@@ -67,11 +63,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
 
         return reply.code(200).send(profileActivityResponse);
       } catch (e: any) {
-        if (JSON.stringify(e).includes(ERROR_INVALID_PAGE))
-          return reply.code(400).send(error(400, ERROR_INVALID_PAGE));
-
-        logError(e);
-        reply.code(500).send(error(500, ERROR_INTERNAL));
+        return handleError(e, reply);
       }
     },
   });
@@ -109,11 +101,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
 
         return reply.code(200).send(getProfileResponse);
       } catch (e: any) {
-        if (JSON.stringify(e).includes(ERROR_INVALID_PAGE))
-          return reply.code(400).send(error(400, ERROR_INVALID_PAGE));
-
-        logError(e);
-        reply.code(500).send(error(500, ERROR_INTERNAL));
+        return handleError(e, reply);
       }
     },
   });
@@ -136,10 +124,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
         const profile = await looksoProfileService.getProfile(address);
         return reply.code(200).send(profile);
       } catch (e: any) {
-        if (JSON.stringify(e).includes(ERROR_NOT_FOUND))
-          return reply.code(404).send(error(404, ERROR_NOT_FOUND));
-        logError(e);
-        return reply.code(500).send(error(500, ERROR_INTERNAL));
+        return handleError(e, reply);
       }
     },
   });
@@ -166,8 +151,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
 
         return reply.code(200).send({ address });
       } catch (e: any) {
-        logError(e);
-        reply.code(500).send(error(500, ERROR_INTERNAL));
+        return handleError(e, reply);
       }
     },
   });
@@ -190,8 +174,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
         const following: number = await queryFollowingCount(address);
         return reply.code(200).send({ following });
       } catch (e: any) {
-        logError(e);
-        reply.code(500).send(error(500, ERROR_INTERNAL));
+        return handleError(e, reply);
       }
     },
   });
@@ -235,10 +218,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
 
         return reply.code(200).send(profileFollowersResponse);
       } catch (e: any) {
-        if (JSON.stringify(e).includes(ERROR_INVALID_PAGE))
-          reply.code(400).send(error(400, ERROR_INVALID_PAGE));
-        logError(e);
-        reply.code(500).send(error(500, ERROR_INTERNAL));
+        return handleError(e, reply);
       }
     },
   });
@@ -261,8 +241,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
         const followers: number = await queryFollowersCount(address);
         return reply.code(200).send({ followers });
       } catch (e: any) {
-        logError(e);
-        reply.code(500).send(error(500, ERROR_INTERNAL));
+        return handleError(e, reply);
       }
     },
   });
@@ -300,11 +279,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
 
         return reply.code(200).send(profileFollowingResponse);
       } catch (e: any) {
-        logError(e);
-
-        if (JSON.stringify(e).includes(ERROR_INVALID_PAGE))
-          return reply.code(400).send(error(400, ERROR_INVALID_PAGE));
-        return reply.code(500).send(error(500, ERROR_INTERNAL));
+        return handleError(e, reply);
       }
     },
   });
@@ -327,8 +302,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
         const assets = await looksoProfileService.getProfileAssets(address);
         return reply.code(200).send(assets);
       } catch (e: any) {
-        logError(e);
-        reply.code(500).send(error(500, ERROR_INTERNAL));
+        return handleError(e, reply);
       }
     },
   });
@@ -360,8 +334,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
         );
         return reply.code(200).send(notifications);
       } catch (e: any) {
-        logError(e);
-        reply.code(500).send(error(500, ERROR_INTERNAL));
+        return handleError(e, reply);
       }
     },
   });
@@ -385,8 +358,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
 
         return reply.code(200).send({ notifications: notificationsCount });
       } catch (e: any) {
-        logError(e);
-        reply.code(500).send(error(500, ERROR_INTERNAL));
+        return handleError(e, reply);
       }
     },
   });
@@ -412,10 +384,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
 
         return reply.code(200).send();
       } catch (e: any) {
-        logError(e);
-        if (JSON.stringify(e).includes(ERROR_INVALID_PAGE))
-          return reply.code(400).send(error(400, ERROR_INVALID_PAGE));
-        reply.code(500).send(error(500, ERROR_INTERNAL));
+        return handleError(e, reply);
       }
     },
   });
@@ -442,8 +411,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
 
         return reply.code(200).send({ jsonUrl: buildJsonUrl(registry, newRegistryUrl) });
       } catch (e: any) {
-        logError(e);
-        reply.code(500).send(error(500, ERROR_INTERNAL));
+        return handleError(e, reply);
       }
     },
   });
@@ -469,8 +437,7 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
 
         return reply.code(200).send();
       } catch (e: any) {
-        logError(e);
-        reply.code(500).send(error(500, ERROR_INTERNAL));
+        return handleError(e, reply);
       }
     },
   });

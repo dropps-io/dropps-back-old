@@ -1,10 +1,11 @@
 import { Transaction } from '../../../models/types/transaction';
 import { executeQuery } from './database';
+import { ERROR_NOT_FOUND } from '../../utils/error-messages';
 
 export async function queryTransaction(hash: string): Promise<Transaction> {
   const res = await executeQuery('SELECT * FROM "transaction" WHERE "hash" = $1', [hash]);
   if (res.rows[0]) return res.rows[0] as Transaction;
-  else throw 'No transaction found';
+  else throw ERROR_NOT_FOUND;
 }
 
 export async function insertTransaction(

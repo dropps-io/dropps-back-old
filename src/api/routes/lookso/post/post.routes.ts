@@ -1,13 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import multer from 'fastify-multer';
 
-import { logError } from '../../../../lib/logger';
-import {
-  error,
-  ERROR_INTERNAL,
-  ERROR_INVALID_PAGE,
-  FILE_TYPE_NOT_SUPPORTED,
-} from '../../../../lib/utils/error-messages';
 import { LSPXXProfilePost } from '../../../../lib/lookso/registry/types/profile-post';
 import { verifyJWT } from '../../../../lib/json-web-token';
 import { queryPost } from '../../../../lib/db/queries/post.table';
@@ -20,6 +13,7 @@ import {
 } from '../../../../models/json/utils.schema';
 import { API_URL } from '../../../../environment/config';
 import { looksoPostService } from './post.service';
+import { handleError } from '../../../utils/handle-error';
 
 interface MulterRequest extends Request {
   file: any;
@@ -49,8 +43,7 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
         const feedPost: FeedPost = (await constructFeed([post], viewOf))[0];
         return reply.code(200).send(feedPost);
       } catch (e: any) {
-        logError(e);
-        reply.code(500).send(error(500, ERROR_INTERNAL));
+        return handleError(e, reply);
       }
     },
   });
@@ -84,12 +77,7 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
         const response = await looksoPostService.getPostLikes(hash, page, sender, viewOf);
         reply.code(200).send(response);
       } catch (e: any) {
-        logError(e);
-
-        if (JSON.stringify(e).includes(ERROR_INVALID_PAGE))
-          return reply.code(400).send(error(400, ERROR_INVALID_PAGE));
-
-        reply.code(500).send(error(500, ERROR_INTERNAL));
+        return handleError(e, reply);
       }
     },
   });
@@ -127,10 +115,7 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
 
         return reply.code(200).send(postCommentsResponse);
       } catch (e: any) {
-        if (JSON.stringify(e).includes(ERROR_INVALID_PAGE))
-          return reply.code(400).send(error(400, ERROR_INVALID_PAGE));
-        logError(e);
-        reply.code(500).send(error(500, ERROR_INTERNAL));
+        return handleError(e, reply);
       }
     },
   });
@@ -159,11 +144,7 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
 
         return reply.code(200).send({ LSPXXProfilePost: post });
       } catch (e: any) {
-        if (JSON.stringify(e).includes(FILE_TYPE_NOT_SUPPORTED))
-          return reply.code(415).send(error(501, FILE_TYPE_NOT_SUPPORTED));
-
-        logError(e);
-        reply.code(500).send(error(500, ERROR_INTERNAL));
+        return handleError(e, reply);
       }
     },
   });
@@ -186,8 +167,7 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
 
         return reply.code(200).send(response);
       } catch (e: any) {
-        logError(e);
-        reply.code(500).send(error(500, ERROR_INTERNAL));
+        return handleError(e, reply);
       }
     },
   });

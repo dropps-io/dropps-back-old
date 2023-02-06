@@ -1,9 +1,8 @@
 import { FastifyInstance } from 'fastify';
 
 import { HASH_SCHEMA_VALIDATION } from '../../../../models/json/utils.schema';
-import { logError } from '../../../../lib/logger';
-import { error, ERROR_INTERNAL, ERROR_NOT_FOUND } from '../../../../lib/utils/error-messages';
 import { looksoTxService } from './tx.service';
+import { handleError } from '../../../utils/handle-error';
 
 export function looksoTxRoutes(fastify: FastifyInstance) {
   fastify.route({
@@ -24,9 +23,7 @@ export function looksoTxRoutes(fastify: FastifyInstance) {
         const txResponse = await looksoTxService.getTransaction(hash);
         return reply.code(200).send(txResponse);
       } catch (e: any) {
-        logError(e);
-        if (e === 'No transaction found') return reply.code(404).send(error(404, ERROR_NOT_FOUND));
-        return reply.code(500).send(error(500, ERROR_INTERNAL));
+        return handleError(e, reply);
       }
     },
   });

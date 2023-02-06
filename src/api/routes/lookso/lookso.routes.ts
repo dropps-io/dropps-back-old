@@ -3,14 +3,9 @@ import { FastifyInstance } from 'fastify';
 import { verifyJWT } from '../../../lib/json-web-token';
 import {
   error,
-  ERROR_INTERNAL,
   ERROR_INVALID_PAGE,
-  ERROR_NOT_FOUND,
-  ERROR_NOT_LSP0,
   PUSH_REGISTRY_REQUIRED,
-  RESOURCE_EXISTS,
 } from '../../../lib/utils/error-messages';
-import { logError } from '../../../lib/logger';
 import { FollowTable } from '../../../models/types/tables/follow-table';
 import { removeFollow } from '../../../lib/db/queries/follow.table';
 import { queryContract } from '../../../lib/db/queries/contract.table';
@@ -45,6 +40,7 @@ import {
 } from '../../../models/json/utils.schema';
 import { looksoTxRoutes } from './transaction/tx.routes';
 import { looksoService } from './lookso.service';
+import { handleError } from '../../utils/handle-error';
 
 export async function looksoRoutes(fastify: FastifyInstance) {
   fastify.route({
@@ -73,17 +69,7 @@ export async function looksoRoutes(fastify: FastifyInstance) {
         const followResponse = await looksoService.follow(follower, following);
         return reply.code(200).send(followResponse);
       } catch (e: any) {
-        logError(e);
-        if (JSON.stringify(e).includes(PUSH_REGISTRY_REQUIRED))
-          return reply.code(409).send(error(409, PUSH_REGISTRY_REQUIRED));
-        if (JSON.stringify(e).includes(ERROR_NOT_LSP0))
-          return reply.code(400).send(error(400, ERROR_NOT_LSP0));
-
-        if (e.code === '23503' && e.detail.includes('present'))
-          return reply.code(409).send(error(404, ERROR_NOT_FOUND));
-        if (e.code === '23505' && e.detail.includes('exists'))
-          return reply.code(409).send(error(409, RESOURCE_EXISTS));
-        return reply.code(500).send(error(500, ERROR_INTERNAL));
+        return handleError(e, reply);
       }
     },
   });
@@ -130,12 +116,7 @@ export async function looksoRoutes(fastify: FastifyInstance) {
           return reply.code(200).send({});
         }
       } catch (e: any) {
-        logError(e);
-        if (e.code === '23503' && e.detail.includes('present'))
-          return reply.code(409).send(error(404, ERROR_NOT_FOUND));
-        if (e.code === '23505' && e.detail.includes('exists'))
-          return reply.code(409).send(error(409, RESOURCE_EXISTS));
-        return reply.code(500).send(error(500, ERROR_INTERNAL));
+        return handleError(e, reply);
       }
     },
   });
@@ -187,12 +168,7 @@ export async function looksoRoutes(fastify: FastifyInstance) {
           return reply.code(200).send({});
         }
       } catch (e: any) {
-        logError(e);
-        if (e.code === '23503' && e.detail.includes('present'))
-          return reply.code(404).send(error(404, ERROR_NOT_FOUND));
-        if (e.code === '23505' && e.detail.includes('exists'))
-          return reply.code(409).send(error(409, RESOURCE_EXISTS));
-        return reply.code(500).send(error(500, ERROR_INTERNAL));
+        return handleError(e, reply);
       }
     },
   });
@@ -250,8 +226,7 @@ export async function looksoRoutes(fastify: FastifyInstance) {
           results: feed,
         });
       } catch (e: any) {
-        logError(e);
-        reply.code(500).send(error(500, ERROR_INTERNAL));
+        return handleError(e, reply);
       }
     },
   });
@@ -286,10 +261,7 @@ export async function looksoRoutes(fastify: FastifyInstance) {
           previous: page > 0 ? queryUrl + (page - 1).toString() : null,
         });
       } catch (e: any) {
-        logError(e);
-        if ((e as string) === ERROR_INVALID_PAGE)
-          return reply.code(400).send(error(400, ERROR_INVALID_PAGE));
-        return reply.code(500).send(error(500, ERROR_INTERNAL));
+        return handleError(e, reply);
       }
     },
   });
