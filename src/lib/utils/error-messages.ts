@@ -31,6 +31,8 @@ export const FILE_TYPE_NOT_SUPPORTED = 'This file type is not supported';
 
 export const ERROR_INVALID_PAGE = 'Invalid page';
 
+export const ERROR_NOT_LSP0 = 'The following address is not an LSP0';
+
 export function error(code: number, message: string): { code: number; message: string } {
   return {
     code,

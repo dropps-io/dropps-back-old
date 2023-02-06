@@ -6,12 +6,13 @@ import {
   ERROR_INTERNAL,
   ERROR_INVALID_PAGE,
   ERROR_NOT_FOUND,
+  ERROR_NOT_LSP0,
   PUSH_REGISTRY_REQUIRED,
   RESOURCE_EXISTS,
 } from '../../../lib/utils/error-messages';
 import { logError } from '../../../lib/logger';
 import { FollowTable } from '../../../models/types/tables/follow-table';
-import { insertFollow, removeFollow } from '../../../lib/db/queries/follow.table';
+import { removeFollow } from '../../../lib/db/queries/follow.table';
 import { queryContract } from '../../../lib/db/queries/contract.table';
 import { Post } from '../../../models/types/post';
 import { queryPost, queryPosts, queryPostsCount } from '../../../lib/db/queries/post.table';
@@ -43,6 +44,7 @@ import {
   POST_TYPE_SCHEMA_VALIDATION,
 } from '../../../models/json/utils.schema';
 import { looksoTxRoutes } from './transaction/tx.routes';
+import { looksoService } from './lookso.service';
 
 export async function looksoRoutes(fastify: FastifyInstance) {
   fastify.route({
@@ -63,32 +65,20 @@ export async function looksoRoutes(fastify: FastifyInstance) {
       },
     },
     handler: async (request, reply) => {
-      const body = request.body as FollowTable;
-      const jwtError = await verifyJWT(request, reply, body.follower);
+      const { follower, following } = request.body as FollowTable;
+      const jwtError = await verifyJWT(request, reply, follower);
       if (jwtError) return jwtError;
 
-      const registryChangesCount = await queryRegistryChangesCountOfAddress(body.follower);
-      if (registryChangesCount >= MAX_OFFCHAIN_REGISTRY_CHANGES)
-        return reply.code(409).send(error(409, PUSH_REGISTRY_REQUIRED));
-
       try {
-        const contract = await queryContract(body.following);
-        if (contract && contract.interfaceCode !== 'LSP0')
-          return reply.code(400).send(error(400, 'The following address is not an LSP0'));
-        await insertFollow(body.follower, body.following);
-        await insertRegistryChange(body.follower, 'follow', 'add', body.following, new Date());
-        await insertNotification(body.following, body.follower, new Date(), 'follow');
-
-        if (registryChangesCount + 1 >= MAX_OFFCHAIN_REGISTRY_CHANGES) {
-          const newRegistry = await applyChangesToRegistry(body.follower);
-          const url = await uploadToArweave(objectToBuffer(newRegistry), 'application/json');
-          const jsonUrl = buildJsonUrl(newRegistry, url);
-          return reply.code(200).send({ jsonUrl });
-        } else {
-          return reply.code(200).send({});
-        }
+        const followResponse = await looksoService.follow(follower, following);
+        return reply.code(200).send(followResponse);
       } catch (e: any) {
         logError(e);
+        if (JSON.stringify(e).includes(PUSH_REGISTRY_REQUIRED))
+          return reply.code(409).send(error(409, PUSH_REGISTRY_REQUIRED));
+        if (JSON.stringify(e).includes(ERROR_NOT_LSP0))
+          return reply.code(400).send(error(400, ERROR_NOT_LSP0));
+
         if (e.code === '23503' && e.detail.includes('present'))
           return reply.code(409).send(error(404, ERROR_NOT_FOUND));
         if (e.code === '23505' && e.detail.includes('exists'))
