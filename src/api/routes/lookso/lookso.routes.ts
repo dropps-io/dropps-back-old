@@ -42,7 +42,7 @@ import {
   PAGE_SCHEMA_VALIDATION,
   POST_TYPE_SCHEMA_VALIDATION,
 } from '../../../models/json/utils.schema';
-import { looksoTxRoutes } from './lookso-tx.route';
+import { looksoTxRoutes } from './transaction/tx.routes';
 
 export async function looksoRoutes(fastify: FastifyInstance) {
   fastify.route({

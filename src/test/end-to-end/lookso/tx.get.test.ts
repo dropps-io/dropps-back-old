@@ -9,7 +9,7 @@ import {insertImage} from "../../../lib/db/queries/image.table";
 import {fastify} from "../../../api/fastify";
 import {insertMethodInterface} from "../../../lib/db/queries/method-interface.table";
 import {insertMethodParameter} from "../../../lib/db/queries/method-parameter.table";
-import {GetTransactionResponse} from "../../../api/routes/lookso/lookso-tx.route";
+import {GetTransactionResponse} from "../../../api/routes/lookso/transaction/tx.model";
 
 export const TxGetTests = () => {
 
