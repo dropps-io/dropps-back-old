@@ -9,9 +9,10 @@ import { authRoutes } from './routes/auth/auth.routes';
 import { LOGGER } from '../environment/config';
 import { looksoRoutes } from './routes/lookso/lookso.routes';
 import { COOKIE_SECRET, JWT_SECRET } from '../environment/endpoints';
+import { onReadyHook } from './hooks/on-ready';
+import { onCloseHook } from './hooks/on-close';
 
 import type { FastifyCookieOptions } from '@fastify/cookie';
-
 export const fastify = fastifyFactory({ logger: LOGGER });
 fastify
   .register(fastifyCors, {
@@ -74,6 +75,8 @@ fastify
     transformStaticCSP: (header) => header,
     exposeRoute: true,
   })
+  .register(onReadyHook)
+  .register(onCloseHook)
   .register(multer.contentParser)
   .register(authRoutes, { prefix: '/auth' })
   .register(looksoRoutes, { prefix: '/lookso' });

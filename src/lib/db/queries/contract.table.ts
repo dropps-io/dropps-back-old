@@ -1,5 +1,5 @@
 import { ContractTable } from '../../../models/types/tables/contract-table';
-import { executeQuery } from './database';
+import { executeQuery } from '../database';
 import { ERROR_NOT_FOUND } from '../../utils/error-messages';
 
 export async function queryContract(address: string): Promise<ContractTable> {

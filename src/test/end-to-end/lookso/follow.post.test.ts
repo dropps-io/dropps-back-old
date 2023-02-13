@@ -3,7 +3,7 @@ import { insertContractInterface } from '../../../lib/db/queries/contract-interf
 import { insertContract } from '../../../lib/db/queries/contract.table';
 import { fastify } from '../../../api/fastify';
 import { MAX_OFFCHAIN_REGISTRY_CHANGES } from '../../../environment/config';
-import { executeQuery } from '../../../lib/db/queries/database';
+import { executeQuery } from '../../../lib/db/database';
 import { queryFollow } from '../../../lib/db/queries/follow.table';
 import { queryNotificationsOfAddress } from '../../../lib/db/queries/notification.table';
 import { queryRegistryChangesOfAddress } from '../../../lib/db/queries/registry-change.table';

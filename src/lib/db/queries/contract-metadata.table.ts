@@ -1,5 +1,5 @@
 import { ContractMetadataTable } from '../../../models/types/tables/contract-metadata-table';
-import { executeQuery } from './database';
+import { executeQuery } from '../database';
 import { ERROR_NOT_FOUND } from '../../utils/error-messages';
 
 export async function queryContractMetadata(address: string): Promise<ContractMetadataTable> {

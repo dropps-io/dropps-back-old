@@ -1,4 +1,4 @@
-import { executeQuery } from './database';
+import { executeQuery } from '../database';
 import { DecodedParameter } from '../../../models/types/decoded-parameter';
 
 export async function queryDecodedFunctionParameters(

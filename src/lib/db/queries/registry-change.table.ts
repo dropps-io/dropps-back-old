@@ -1,5 +1,5 @@
 import { RegistryChangeTable } from '../../../models/types/tables/registry-change-table';
-import { executeQuery } from './database';
+import { executeQuery } from '../database';
 
 export async function queryRegistryChangesOfAddress(
   address: string,

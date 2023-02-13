@@ -1,5 +1,5 @@
 import { TagTable } from '../../../models/types/tables/tag-table';
-import { executeQuery } from './database';
+import { executeQuery } from '../database';
 import { ERROR_NOT_FOUND } from '../../utils/error-messages';
 
 export async function queryTags(address: string): Promise<string[]> {

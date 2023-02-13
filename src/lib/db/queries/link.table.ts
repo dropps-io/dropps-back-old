@@ -1,5 +1,5 @@
 import { LinkTable } from '../../../models/types/tables/link-table';
-import { executeQuery } from './database';
+import { executeQuery } from '../database';
 import { ERROR_NOT_FOUND } from '../../utils/error-messages';
 
 export async function queryLinks(address: string): Promise<LinkTable[]> {

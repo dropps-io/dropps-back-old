@@ -1,5 +1,5 @@
 import { MethodInterfaceTable } from '../../../models/types/tables/method-interface-table';
-import { executeQuery } from './database';
+import { executeQuery } from '../database';
 import { queryMethodParameters } from './method-parameter.table';
 import { SolMethod } from '../../../models/types/sol-method';
 

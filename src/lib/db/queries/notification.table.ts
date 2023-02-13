@@ -1,5 +1,5 @@
 import { NotificationTable } from '../../../models/types/tables/notification-table';
-import { executeQuery } from './database';
+import { executeQuery } from '../database';
 
 export async function queryNotificationsOfAddress(
   address: string,

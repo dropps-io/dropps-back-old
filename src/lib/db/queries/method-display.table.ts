@@ -1,5 +1,5 @@
 import { MethodDisplayTable } from '../../../models/types/tables/method-display-table';
-import { executeQuery } from './database';
+import { executeQuery } from '../database';
 
 export async function queryMethodDisplay(methodId: string): Promise<MethodDisplayTable> {
   const res = await executeQuery('SELECT * FROM "method_display" WHERE "methodId" = $1', [

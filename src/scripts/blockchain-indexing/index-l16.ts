@@ -3,7 +3,7 @@ import Web3 from 'web3';
 import { logError, logMessage } from '../../lib/logger';
 import { sleep } from './utils/sleep';
 import { Log } from '../../models/types/log';
-import { DB } from '../../lib/db/queries/database';
+import { DB } from '../../lib/db/database';
 import { changeIndexingChunkOnLog } from './index-logger';
 import { splitToChunks } from './utils/split-in-chunks';
 import { extractAndIndexBatch } from './extract-and-index';

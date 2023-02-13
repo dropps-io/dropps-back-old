@@ -1,4 +1,4 @@
-import { executeQuery } from './database';
+import { executeQuery } from '../database';
 
 export async function getValueFromConfig(key: string): Promise<string> {
   const res = await executeQuery('SELECT (value) FROM "config" WHERE key=$1', [key]);

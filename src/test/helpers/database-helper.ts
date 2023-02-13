@@ -1,4 +1,4 @@
-import { executeQuery } from '../../lib/db/queries/database';
+import { executeQuery } from '../../lib/db/database';
 
 const clearDBQueries = [
   'delete from "config"',

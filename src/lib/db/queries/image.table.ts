@@ -1,5 +1,5 @@
 import { ImageTable, ImageType } from '../../../models/types/tables/image-table';
-import { executeQuery } from './database';
+import { executeQuery } from '../database';
 import { ERROR_NOT_FOUND } from '../../utils/error-messages';
 
 export async function queryImages(address: string): Promise<ImageTable[]> {

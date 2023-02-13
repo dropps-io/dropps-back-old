@@ -3,7 +3,7 @@ import axios from 'axios';
 import { textMethodSignatureExtraction } from '../../lib/utils/text-signature-extraction';
 import { insertMethodInterface } from '../../lib/db/queries/method-interface.table';
 import { insertMethodParameter } from '../../lib/db/queries/method-parameter.table';
-import { executeQuery } from '../../lib/db/queries/database';
+import { executeQuery } from '../../lib/db/database';
 import { sleep } from '../blockchain-indexing/utils/sleep';
 
 export async function fourBytesDictionaryFetch(_n: number, _next?: string) {

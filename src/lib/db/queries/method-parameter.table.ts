@@ -1,5 +1,5 @@
 import { MethodParameterTable } from '../../../models/types/tables/method-parameter-table';
-import { executeQuery } from './database';
+import { executeQuery } from '../database';
 
 export async function queryMethodParameters(methodId: string): Promise<MethodParameterTable[]> {
   const res = await executeQuery(

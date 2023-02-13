@@ -4,7 +4,7 @@ import { insertContract } from '../../../lib/db/queries/contract.table';
 import { insertPost } from '../../../lib/db/queries/post.table';
 import { fastify } from '../../../api/fastify';
 import { MAX_OFFCHAIN_REGISTRY_CHANGES } from '../../../environment/config';
-import { executeQuery } from '../../../lib/db/queries/database';
+import { executeQuery } from '../../../lib/db/database';
 import { queryPostLike } from '../../../lib/db/queries/like.table';
 import { queryNotificationsOfAddress } from '../../../lib/db/queries/notification.table';
 import { queryRegistryChangesOfAddress } from '../../../lib/db/queries/registry-change.table';

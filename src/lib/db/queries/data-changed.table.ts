@@ -1,5 +1,5 @@
 import { DataChangedTable } from '../../../models/types/tables/data-changed-table';
-import { executeQuery } from './database';
+import { executeQuery } from '../database';
 
 export async function insertDataChanged(
   address: string,
@@ -33,7 +33,7 @@ export async function queryDataKeyValueAtBlockNumber(
     'SELECT * FROM "data_changed" WHERE "address" = $1 AND "key" = $2 AND "blockNumber" = $3',
     [address, key, blockNumber],
   );
-  if (res.rows > 0) return (res.rows[0] as DataChangedTable).value;
+  if (res.rows.length > 0) return (res.rows[0] as DataChangedTable).value;
   else throw 'No value found for this key, address, blockNumber';
 }
 

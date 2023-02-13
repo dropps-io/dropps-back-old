@@ -1,4 +1,4 @@
-import { executeQuery } from './database';
+import { executeQuery } from '../database';
 import { Erc725ySchema } from '../../../models/types/erc725y-schema';
 
 export async function queryErc725ySchema(key: string): Promise<Erc725ySchema> {

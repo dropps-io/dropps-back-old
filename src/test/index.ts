@@ -1,4 +1,4 @@
-import { DB } from '../lib/db/queries/database';
+import { DB } from '../lib/db/database';
 import { clearDB } from './helpers/database-helper';
 
 afterAll(async () => {

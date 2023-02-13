@@ -1,4 +1,4 @@
-import { executeQuery } from './database';
+import { executeQuery } from '../database';
 import { KeyDisplayTable } from '../../../models/types/tables/key-display-table';
 
 export async function queryKeyDisplay(key: string): Promise<KeyDisplayTable> {

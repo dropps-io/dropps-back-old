@@ -1,5 +1,5 @@
 import { Transaction } from '../../../models/types/transaction';
-import { executeQuery } from './database';
+import { executeQuery } from '../database';
 import { ERROR_NOT_FOUND } from '../../utils/error-messages';
 
 export async function queryTransaction(hash: string): Promise<Transaction> {

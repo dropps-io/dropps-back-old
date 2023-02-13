@@ -1,5 +1,5 @@
 import { insertMethodDisplay } from '../../lib/db/queries/method-display.table';
-import { executeQuery } from '../../lib/db/queries/database';
+import { executeQuery } from '../../lib/db/database';
 import { insertKeyDisplay } from '../../lib/db/queries/key-display.table';
 import { insertMethodParameterDisplayType } from '../../lib/db/queries/method-parameter.table';
 import { setErc725ySchemaValueDisplay } from '../../lib/db/queries/erc725y-schema.table';

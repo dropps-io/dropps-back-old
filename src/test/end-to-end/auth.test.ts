@@ -1,6 +1,6 @@
 import { fastify } from '../../api/fastify';
 import { clearDB } from '../helpers/database-helper';
-import { executeQuery } from '../../lib/db/queries/database';
+import { executeQuery } from '../../lib/db/database';
 import { insertContract } from '../../lib/db/queries/contract.table';
 
 describe('auth routes', () => {

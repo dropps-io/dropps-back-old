@@ -1,5 +1,5 @@
 import { Post } from '../../../models/types/post';
-import { executeQuery } from './database';
+import { executeQuery } from '../database';
 
 export async function queryPost(hash: string): Promise<Post> {
   const res = await executeQuery('SELECT * FROM "post" WHERE "hash" = $1', [hash]);

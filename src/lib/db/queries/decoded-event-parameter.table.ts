@@ -1,5 +1,5 @@
 import { DecodedParameter } from '../../../models/types/decoded-parameter';
-import { executeQuery } from './database';
+import { executeQuery } from '../database';
 
 export async function queryDecodedEventParameters(eventId: number): Promise<DecodedParameter[]> {
   const res = await executeQuery('SELECT * FROM "decoded_event_parameter" WHERE "eventId" = $1', [
