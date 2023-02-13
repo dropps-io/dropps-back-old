@@ -267,7 +267,7 @@ const getProfileFollowing = async (
   );
 
   // For each profile being followed, get the profile picture and determine if the viewing profile is following it
-  const profiles = [];
+  const profiles: ProfileBasicInfo[] = [];
   for (const followingProfile of following) {
     const images = await queryImagesByType(followingProfile.address, 'profile');
     const selectedImage = selectImage(images, { minWidthExpected: 50 });

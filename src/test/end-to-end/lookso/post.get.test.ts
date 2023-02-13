@@ -1,6 +1,3 @@
-import { describe } from 'mocha';
-import { expect } from 'chai';
-
 import { clearDB } from '../../helpers/database-helper';
 import { insertContractInterface } from '../../../lib/db/queries/contract-interface.table';
 import { insertContract } from '../../../lib/db/queries/contract.table';
@@ -14,125 +11,123 @@ import { HACKER_MAN_UP, POST_HASH, POST_HASH2, SERIOUS_MAN_UP } from '../../help
 import { insertContractMetadata } from '../../../lib/db/queries/contract-metadata.table';
 import { insertImage } from '../../../lib/db/queries/image.table';
 
-export const PostGETTests = () => {
-  describe('GET lookso/post/:hash', () => {
-    beforeEach(async () => {
-      await clearDB();
-      await insertContractInterface('LSP0', '0xid', 'Universal Profile');
-      await insertContract(HACKER_MAN_UP, 'LSP0');
-      await insertContractMetadata(HACKER_MAN_UP, 'HackerMan', 'HM', 'Description', false, '');
-      await insertImage(HACKER_MAN_UP, 'url', 300, 300, 'profile', '0x00');
-      await insertPost(
-        POST_HASH,
-        HACKER_MAN_UP,
-        new Date('2022-09-27T12:03:31.089Z'),
-        'test',
-        '',
-        null,
-        null,
-        null,
-      );
-    });
-
-    it('should return 200', async () => {
-      const res = await fastify.inject({ method: 'GET', url: `/lookso/post/${POST_HASH}` });
-      expect(res.statusCode).to.equal(200);
-    });
-
-    it('should return the right data', async () => {
-      const res = await fastify.inject({ method: 'GET', url: `/lookso/post/${POST_HASH}` });
-      const post = JSON.parse(res.payload) as FeedPost;
-      expect(post.type).to.equal('post');
-      expect(post.hash).to.equal(POST_HASH);
-      expect(post.author.address).to.equal(HACKER_MAN_UP);
-      expect(post.author.name).to.equal('HackerMan');
-      expect(post.author.image).to.equal('url');
-      expect(post.comments).to.equal(0);
-      expect(post.likes).to.equal(0);
-      expect(post.reposts).to.equal(0);
-    });
-
-    it('should return the right type if event', async () => {
-      await insertContract(SERIOUS_MAN_UP, 'LSP0');
-      await insertTransaction(POST_HASH, HACKER_MAN_UP, SERIOUS_MAN_UP, '', '', 0);
-      const id = await insertEvent(HACKER_MAN_UP, POST_HASH, '', 0, '', '');
-      await insertPost(
-        POST_HASH2,
-        HACKER_MAN_UP,
-        new Date('2022-09-27T12:03:36.089Z'),
-        'test1',
-        '',
-        null,
-        null,
-        id,
-      );
-      const res = await fastify.inject({ method: 'GET', url: `/lookso/post/${POST_HASH2}` });
-      const post = JSON.parse(res.payload) as FeedPost;
-      expect(post.type).to.equal('event');
-    });
-
-    it('should return the right comments amount', async () => {
-      await insertPost(
-        POST_HASH2,
-        HACKER_MAN_UP,
-        new Date('2022-09-27T12:03:31.089Z'),
-        'test',
-        '',
-        POST_HASH,
-        null,
-        null,
-      );
-      const res = await fastify.inject({ method: 'GET', url: `/lookso/post/${POST_HASH}` });
-      const post = JSON.parse(res.payload) as FeedPost;
-      expect(post.comments).to.equal(1);
-    });
-
-    it('should return the right reposts amount', async () => {
-      await insertPost(
-        POST_HASH2,
-        HACKER_MAN_UP,
-        new Date('2022-09-27T12:03:31.089Z'),
-        'test',
-        '',
-        null,
-        POST_HASH,
-        null,
-      );
-      const res = await fastify.inject({ method: 'GET', url: `/lookso/post/${POST_HASH}` });
-      const post = JSON.parse(res.payload) as FeedPost;
-      expect(post.reposts).to.equal(1);
-    });
-
-    it('should return the right likes amount', async () => {
-      await insertContract(SERIOUS_MAN_UP, 'LSP0');
-      await insertLike(SERIOUS_MAN_UP, POST_HASH);
-      const res = await fastify.inject({ method: 'GET', url: `/lookso/post/${POST_HASH}` });
-      const post = JSON.parse(res.payload) as FeedPost;
-      expect(post.likes).to.equal(1);
-    });
-
-    it('should return isLiked if viewOf', async () => {
-      await insertContract(SERIOUS_MAN_UP, 'LSP0');
-      await insertLike(SERIOUS_MAN_UP, POST_HASH);
-      const res = await fastify.inject({
-        method: 'GET',
-        url: `/lookso/post/${POST_HASH}?viewOf=${SERIOUS_MAN_UP}`,
-      });
-      const post = JSON.parse(res.payload) as FeedPost;
-      expect(post.isLiked).to.equal(true);
-    });
-
-    it('should return 400 if invalid viewOf', async () => {
-      const res = await fastify.inject({
-        method: 'GET',
-        url: `/lookso/post/${POST_HASH}?viewOf=${SERIOUS_MAN_UP}q`,
-      });
-      expect(res.statusCode).to.equal(400);
-    });
-
-    it('should return 400 if invalid hash', async () => {
-      const res = await fastify.inject({ method: 'GET', url: `/lookso/post/${POST_HASH}q` });
-      expect(res.statusCode).to.equal(400);
-    });
+describe('GET lookso/post/:hash', () => {
+  beforeEach(async () => {
+    await clearDB();
+    await insertContractInterface('LSP0', '0xid', 'Universal Profile');
+    await insertContract(HACKER_MAN_UP, 'LSP0');
+    await insertContractMetadata(HACKER_MAN_UP, 'HackerMan', 'HM', 'Description', false, '');
+    await insertImage(HACKER_MAN_UP, 'url', 300, 300, 'profile', '0x00');
+    await insertPost(
+      POST_HASH,
+      HACKER_MAN_UP,
+      new Date('2022-09-27T12:03:31.089Z'),
+      'test',
+      '',
+      null,
+      null,
+      null,
+    );
   });
-};
+
+  it('should return 200', async () => {
+    const res = await fastify.inject({ method: 'GET', url: `/lookso/post/${POST_HASH}` });
+    expect(res.statusCode).toEqual(200);
+  });
+
+  it('should return the right data', async () => {
+    const res = await fastify.inject({ method: 'GET', url: `/lookso/post/${POST_HASH}` });
+    const post = JSON.parse(res.payload) as FeedPost;
+    expect(post.type).toEqual('post');
+    expect(post.hash).toEqual(POST_HASH);
+    expect(post.author.address).toEqual(HACKER_MAN_UP);
+    expect(post.author.name).toEqual('HackerMan');
+    expect(post.author.image).toEqual('url');
+    expect(post.comments).toEqual(0);
+    expect(post.likes).toEqual(0);
+    expect(post.reposts).toEqual(0);
+  });
+
+  it('should return the right type if event', async () => {
+    await insertContract(SERIOUS_MAN_UP, 'LSP0');
+    await insertTransaction(POST_HASH, HACKER_MAN_UP, SERIOUS_MAN_UP, '', '', 0);
+    const id = await insertEvent(HACKER_MAN_UP, POST_HASH, '', 0, '', '');
+    await insertPost(
+      POST_HASH2,
+      HACKER_MAN_UP,
+      new Date('2022-09-27T12:03:36.089Z'),
+      'test1',
+      '',
+      null,
+      null,
+      id,
+    );
+    const res = await fastify.inject({ method: 'GET', url: `/lookso/post/${POST_HASH2}` });
+    const post = JSON.parse(res.payload) as FeedPost;
+    expect(post.type).toEqual('event');
+  });
+
+  it('should return the right comments amount', async () => {
+    await insertPost(
+      POST_HASH2,
+      HACKER_MAN_UP,
+      new Date('2022-09-27T12:03:31.089Z'),
+      'test',
+      '',
+      POST_HASH,
+      null,
+      null,
+    );
+    const res = await fastify.inject({ method: 'GET', url: `/lookso/post/${POST_HASH}` });
+    const post = JSON.parse(res.payload) as FeedPost;
+    expect(post.comments).toEqual(1);
+  });
+
+  it('should return the right reposts amount', async () => {
+    await insertPost(
+      POST_HASH2,
+      HACKER_MAN_UP,
+      new Date('2022-09-27T12:03:31.089Z'),
+      'test',
+      '',
+      null,
+      POST_HASH,
+      null,
+    );
+    const res = await fastify.inject({ method: 'GET', url: `/lookso/post/${POST_HASH}` });
+    const post = JSON.parse(res.payload) as FeedPost;
+    expect(post.reposts).toEqual(1);
+  });
+
+  it('should return the right likes amount', async () => {
+    await insertContract(SERIOUS_MAN_UP, 'LSP0');
+    await insertLike(SERIOUS_MAN_UP, POST_HASH);
+    const res = await fastify.inject({ method: 'GET', url: `/lookso/post/${POST_HASH}` });
+    const post = JSON.parse(res.payload) as FeedPost;
+    expect(post.likes).toEqual(1);
+  });
+
+  it('should return isLiked if viewOf', async () => {
+    await insertContract(SERIOUS_MAN_UP, 'LSP0');
+    await insertLike(SERIOUS_MAN_UP, POST_HASH);
+    const res = await fastify.inject({
+      method: 'GET',
+      url: `/lookso/post/${POST_HASH}?viewOf=${SERIOUS_MAN_UP}`,
+    });
+    const post = JSON.parse(res.payload) as FeedPost;
+    expect(post.isLiked).toEqual(true);
+  });
+
+  it('should return 400 if invalid viewOf', async () => {
+    const res = await fastify.inject({
+      method: 'GET',
+      url: `/lookso/post/${POST_HASH}?viewOf=${SERIOUS_MAN_UP}q`,
+    });
+    expect(res.statusCode).toEqual(400);
+  });
+
+  it('should return 400 if invalid hash', async () => {
+    const res = await fastify.inject({ method: 'GET', url: `/lookso/post/${POST_HASH}q` });
+    expect(res.statusCode).toEqual(400);
+  });
+});

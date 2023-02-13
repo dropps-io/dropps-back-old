@@ -2,6 +2,7 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
+    "baseUrl": "./",
     "target": "es2019",
     "moduleResolution": "node",
     "module": "commonjs",
@@ -11,8 +12,17 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "downlevelIteration": true
+    "downlevelIteration": true,
+    "lib": [
+      "es2019",
+      "dom"
+    ],
+    "sourceMap": true,
+    "declaration": true,
+    "noImplicitAny": false,
+    "noImplicitThis": true,
+    "alwaysStrict": true
   },
-//  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
 }
-

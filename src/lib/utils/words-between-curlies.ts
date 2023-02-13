@@ -1,5 +1,5 @@
 export function getWordsBetweenCurlies(str: string) {
-  const results = [],
+  const results: string[] = [],
     re = /{([^}]+)}/g;
   let text;
   while ((text = re.exec(str))) {

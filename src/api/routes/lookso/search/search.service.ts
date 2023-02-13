@@ -12,6 +12,7 @@ import { selectImage } from '../../../../lib/utils/select-image';
 import { queryTransaction } from '../../../../lib/db/queries/transaction.table';
 import { logError } from '../../../../lib/logger';
 import { SearchResults } from './search.model';
+import { ProfileBasicInfo } from '../../../../models/types/profile-basic-info';
 
 // TODO improve this service: remove the pagination from the generic search route, add routes or filters for specific search with pagination (TX, profiles, assets, etc)
 
@@ -30,7 +31,7 @@ const search = async (input: string, page: number): Promise<SearchResults> => {
   if (input.length > 2 && input.length <= 42 && input.slice(0, 2) === '0x') {
     // If the address is not too long
     if (input.length < 42) {
-      const response = [];
+      const response: ProfileBasicInfo[] = [];
       const contractsCount = await searchContractMetadataByAddressCount(input, 'LSP0');
       if (page >= contractsCount / PROFILES_PER_SEARCH) throw ERROR_INVALID_PAGE;
       const contracts = await searchContractMetadataByAddress(
@@ -90,7 +91,7 @@ const search = async (input: string, page: number): Promise<SearchResults> => {
       return { profiles: { count: 0, results: [] }, transactions: { count: 0, results: [] } };
     }
   } else {
-    const response = [];
+    const response: ProfileBasicInfo[] = [];
     const contractsCount = await searchContractMetadataByNameCount(input, 'LSP0');
     if (page >= contractsCount / PROFILES_PER_SEARCH) throw ERROR_INVALID_PAGE;
     const contracts = await searchContractMetadataByName(
