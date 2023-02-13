@@ -1,6 +1,3 @@
-import { describe } from 'mocha';
-import { expect } from 'chai';
-
 import { clearDB } from '../../helpers/database-helper';
 import { insertContractInterface } from '../../../lib/db/queries/contract-interface.table';
 import { insertContract } from '../../../lib/db/queries/contract.table';
@@ -17,220 +14,218 @@ import {
   SERIOUS_MAN_UP,
 } from '../../helpers/constants';
 
-export const FollowPOSTRouteTests = () => {
-  describe('POST lookso/follow', () => {
-    beforeEach(async () => {
-      await clearDB();
-      await insertContractInterface('LSP0', '0xid', 'Universal Profile');
-      await insertContract(HACKER_MAN_UP, 'LSP0');
-      await insertContract(SERIOUS_MAN_UP, 'LSP0');
-    });
-
-    it('should return 400 if incorrect address', async () => {
-      const res = await fastify.inject({
-        method: 'POST',
-        url: '/lookso/follow',
-        payload: {
-          following: SERIOUS_MAN_UP + 'c',
-          follower: HACKER_MAN_UP,
-        },
-        headers: {
-          authorization: 'Bearer ' + HACKER_MAN_JWT,
-        },
-      });
-
-      expect(res.statusCode).to.equal(400);
-    });
-
-    it('should return 409 if already following', async () => {
-      await fastify.inject({
-        method: 'POST',
-        url: '/lookso/follow',
-        payload: {
-          following: SERIOUS_MAN_UP,
-          follower: HACKER_MAN_UP,
-        },
-        headers: {
-          authorization: 'Bearer ' + HACKER_MAN_JWT,
-        },
-      });
-
-      const res = await fastify.inject({
-        method: 'POST',
-        url: '/lookso/follow',
-        payload: {
-          following: SERIOUS_MAN_UP,
-          follower: HACKER_MAN_UP,
-        },
-        headers: {
-          authorization: 'Bearer ' + HACKER_MAN_JWT,
-        },
-      });
-
-      expect(res.statusCode).to.equal(409);
-    });
-
-    it('should return 403 if wrong JWT', async () => {
-      const res = await fastify.inject({
-        method: 'POST',
-        url: '/lookso/follow',
-        payload: {
-          following: SERIOUS_MAN_UP,
-          follower: HACKER_MAN_UP,
-        },
-        headers: {
-          authorization: 'Bearer ' + SERIOUS_MAN_JWT,
-        },
-      });
-
-      expect(res.statusCode).to.equal(403);
-    });
-
-    it('should return 409 if changes count exceed limit', async () => {
-      let query =
-        'INSERT INTO "registry_change" VALUES (\'' +
-        HACKER_MAN_UP +
-        "', 'follow', '" +
-        Math.random().toString() +
-        "', '', '" +
-        new Date().toDateString() +
-        "')";
-      for (let i = 0; i < MAX_OFFCHAIN_REGISTRY_CHANGES - 1; i++)
-        query +=
-          ", ('" +
-          HACKER_MAN_UP +
-          "', 'follow', '" +
-          Math.random().toString() +
-          "', '', '" +
-          new Date().toDateString() +
-          "')";
-      await executeQuery(query);
-
-      const res = await fastify.inject({
-        method: 'POST',
-        url: '/lookso/follow',
-        payload: {
-          following: SERIOUS_MAN_UP,
-          follower: HACKER_MAN_UP,
-        },
-        headers: {
-          authorization: 'Bearer ' + HACKER_MAN_JWT,
-        },
-      });
-
-      expect(res.statusCode).to.equal(409);
-    });
-
-    it('should return registry json url if reach limit of changes', async () => {
-      let query =
-        'INSERT INTO "registry_change" VALUES (\'' +
-        HACKER_MAN_UP +
-        "', 'follow', '" +
-        Math.random().toString() +
-        "', '', '" +
-        new Date().toDateString() +
-        "')";
-      for (let i = 0; i < MAX_OFFCHAIN_REGISTRY_CHANGES - 2; i++)
-        query +=
-          ", ('" +
-          HACKER_MAN_UP +
-          "', 'follow', '" +
-          Math.random().toString() +
-          "', '', '" +
-          new Date().toDateString() +
-          "')";
-      await executeQuery(query);
-
-      const res = await fastify.inject({
-        method: 'POST',
-        url: '/lookso/follow',
-        payload: {
-          following: SERIOUS_MAN_UP,
-          follower: HACKER_MAN_UP,
-        },
-        headers: {
-          authorization: 'Bearer ' + HACKER_MAN_JWT,
-        },
-      });
-
-      expect(res.statusCode).to.equal(200);
-      expect(res.body).exist.not.null;
-    });
-
-    it('should return 200 if correct request', async () => {
-      const res = await fastify.inject({
-        method: 'POST',
-        url: '/lookso/follow',
-        payload: {
-          following: SERIOUS_MAN_UP,
-          follower: HACKER_MAN_UP,
-        },
-        headers: {
-          authorization: 'Bearer ' + HACKER_MAN_JWT,
-        },
-      });
-
-      expect(res.statusCode).to.equal(200);
-    });
-
-    it('should properly update the database', async () => {
-      await fastify.inject({
-        method: 'POST',
-        url: '/lookso/follow',
-        payload: {
-          following: SERIOUS_MAN_UP,
-          follower: HACKER_MAN_UP,
-        },
-        headers: {
-          authorization: 'Bearer ' + HACKER_MAN_JWT,
-        },
-      });
-
-      const res = await queryFollow(HACKER_MAN_UP, SERIOUS_MAN_UP);
-
-      expect(res).to.equal(true);
-    });
-
-    it('should properly create a notification', async () => {
-      await fastify.inject({
-        method: 'POST',
-        url: '/lookso/follow',
-        payload: {
-          following: SERIOUS_MAN_UP,
-          follower: HACKER_MAN_UP,
-        },
-        headers: {
-          authorization: 'Bearer ' + HACKER_MAN_JWT,
-        },
-      });
-
-      const res = await queryNotificationsOfAddress(SERIOUS_MAN_UP, 1, 0);
-
-      expect(res[0].sender).to.equal(HACKER_MAN_UP);
-      expect(res[0].address).to.equal(SERIOUS_MAN_UP);
-      expect(res[0].viewed).to.equal(false);
-      expect(res[0].type).to.equal('follow');
-    });
-
-    it('should properly create a registry change entry', async () => {
-      await fastify.inject({
-        method: 'POST',
-        url: '/lookso/follow',
-        payload: {
-          following: SERIOUS_MAN_UP,
-          follower: HACKER_MAN_UP,
-        },
-        headers: {
-          authorization: 'Bearer ' + HACKER_MAN_JWT,
-        },
-      });
-
-      const res = await queryRegistryChangesOfAddress(HACKER_MAN_UP);
-
-      expect(res[0].address).to.equal(HACKER_MAN_UP);
-      expect(res[0].type).to.equal('follow');
-      expect(res[0].action).to.equal('add');
-      expect(res[0].value).to.equal(SERIOUS_MAN_UP);
-    });
+describe('POST lookso/follow', () => {
+  beforeEach(async () => {
+    await clearDB();
+    await insertContractInterface('LSP0', '0xid', 'Universal Profile');
+    await insertContract(HACKER_MAN_UP, 'LSP0');
+    await insertContract(SERIOUS_MAN_UP, 'LSP0');
   });
-};
+
+  it('should return 400 if incorrect address', async () => {
+    const res = await fastify.inject({
+      method: 'POST',
+      url: '/lookso/follow',
+      payload: {
+        following: SERIOUS_MAN_UP + 'c',
+        follower: HACKER_MAN_UP,
+      },
+      headers: {
+        authorization: 'Bearer ' + HACKER_MAN_JWT,
+      },
+    });
+
+    expect(res.statusCode).toEqual(400);
+  });
+
+  it('should return 409 if already following', async () => {
+    await fastify.inject({
+      method: 'POST',
+      url: '/lookso/follow',
+      payload: {
+        following: SERIOUS_MAN_UP,
+        follower: HACKER_MAN_UP,
+      },
+      headers: {
+        authorization: 'Bearer ' + HACKER_MAN_JWT,
+      },
+    });
+
+    const res = await fastify.inject({
+      method: 'POST',
+      url: '/lookso/follow',
+      payload: {
+        following: SERIOUS_MAN_UP,
+        follower: HACKER_MAN_UP,
+      },
+      headers: {
+        authorization: 'Bearer ' + HACKER_MAN_JWT,
+      },
+    });
+
+    expect(res.statusCode).toEqual(409);
+  });
+
+  it('should return 403 if wrong JWT', async () => {
+    const res = await fastify.inject({
+      method: 'POST',
+      url: '/lookso/follow',
+      payload: {
+        following: SERIOUS_MAN_UP,
+        follower: HACKER_MAN_UP,
+      },
+      headers: {
+        authorization: 'Bearer ' + SERIOUS_MAN_JWT,
+      },
+    });
+
+    expect(res.statusCode).toEqual(403);
+  });
+
+  it('should return 409 if changes count exceed limit', async () => {
+    let query =
+      'INSERT INTO "registry_change" VALUES (\'' +
+      HACKER_MAN_UP +
+      "', 'follow', '" +
+      Math.random().toString() +
+      "', '', '" +
+      new Date().toDateString() +
+      "')";
+    for (let i = 0; i < MAX_OFFCHAIN_REGISTRY_CHANGES - 1; i++)
+      query +=
+        ", ('" +
+        HACKER_MAN_UP +
+        "', 'follow', '" +
+        Math.random().toString() +
+        "', '', '" +
+        new Date().toDateString() +
+        "')";
+    await executeQuery(query);
+
+    const res = await fastify.inject({
+      method: 'POST',
+      url: '/lookso/follow',
+      payload: {
+        following: SERIOUS_MAN_UP,
+        follower: HACKER_MAN_UP,
+      },
+      headers: {
+        authorization: 'Bearer ' + HACKER_MAN_JWT,
+      },
+    });
+
+    expect(res.statusCode).toEqual(409);
+  });
+
+  it('should return registry json url if reach limit of changes', async () => {
+    let query =
+      'INSERT INTO "registry_change" VALUES (\'' +
+      HACKER_MAN_UP +
+      "', 'follow', '" +
+      Math.random().toString() +
+      "', '', '" +
+      new Date().toDateString() +
+      "')";
+    for (let i = 0; i < MAX_OFFCHAIN_REGISTRY_CHANGES - 2; i++)
+      query +=
+        ", ('" +
+        HACKER_MAN_UP +
+        "', 'follow', '" +
+        Math.random().toString() +
+        "', '', '" +
+        new Date().toDateString() +
+        "')";
+    await executeQuery(query);
+
+    const res = await fastify.inject({
+      method: 'POST',
+      url: '/lookso/follow',
+      payload: {
+        following: SERIOUS_MAN_UP,
+        follower: HACKER_MAN_UP,
+      },
+      headers: {
+        authorization: 'Bearer ' + HACKER_MAN_JWT,
+      },
+    });
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toBeDefined();
+  });
+
+  it('should return 200 if correct request', async () => {
+    const res = await fastify.inject({
+      method: 'POST',
+      url: '/lookso/follow',
+      payload: {
+        following: SERIOUS_MAN_UP,
+        follower: HACKER_MAN_UP,
+      },
+      headers: {
+        authorization: 'Bearer ' + HACKER_MAN_JWT,
+      },
+    });
+
+    expect(res.statusCode).toEqual(200);
+  });
+
+  it('should properly update the database', async () => {
+    await fastify.inject({
+      method: 'POST',
+      url: '/lookso/follow',
+      payload: {
+        following: SERIOUS_MAN_UP,
+        follower: HACKER_MAN_UP,
+      },
+      headers: {
+        authorization: 'Bearer ' + HACKER_MAN_JWT,
+      },
+    });
+
+    const res = await queryFollow(HACKER_MAN_UP, SERIOUS_MAN_UP);
+
+    expect(res).toEqual(true);
+  });
+
+  it('should properly create a notification', async () => {
+    await fastify.inject({
+      method: 'POST',
+      url: '/lookso/follow',
+      payload: {
+        following: SERIOUS_MAN_UP,
+        follower: HACKER_MAN_UP,
+      },
+      headers: {
+        authorization: 'Bearer ' + HACKER_MAN_JWT,
+      },
+    });
+
+    const res = await queryNotificationsOfAddress(SERIOUS_MAN_UP, 1, 0);
+
+    expect(res[0].sender).toEqual(HACKER_MAN_UP);
+    expect(res[0].address).toEqual(SERIOUS_MAN_UP);
+    expect(res[0].viewed).toEqual(false);
+    expect(res[0].type).toEqual('follow');
+  });
+
+  it('should properly create a registry change entry', async () => {
+    await fastify.inject({
+      method: 'POST',
+      url: '/lookso/follow',
+      payload: {
+        following: SERIOUS_MAN_UP,
+        follower: HACKER_MAN_UP,
+      },
+      headers: {
+        authorization: 'Bearer ' + HACKER_MAN_JWT,
+      },
+    });
+
+    const res = await queryRegistryChangesOfAddress(HACKER_MAN_UP);
+
+    expect(res[0].address).toEqual(HACKER_MAN_UP);
+    expect(res[0].type).toEqual('follow');
+    expect(res[0].action).toEqual('add');
+    expect(res[0].value).toEqual(SERIOUS_MAN_UP);
+  });
+});
