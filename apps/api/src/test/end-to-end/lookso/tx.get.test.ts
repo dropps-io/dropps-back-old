@@ -2,8 +2,8 @@ import { LightMyRequestResponse } from 'fastify';
 
 import { clearDB } from '../../helpers/database-helper';
 import { insertContract } from '../../../lib/db/queries/contract.table';
-import { extractTransaction } from '../../../scripts/blockchain-indexing/extraction/extract-transaction';
-import { indexTransaction } from '../../../scripts/blockchain-indexing/indexing/index-transaction';
+import { extractTransaction } from '../../../../../indexing/src/extraction/extract-transaction';
+import { indexTransaction } from '../../../../../indexing/src/indexing/index-transaction';
 import { insertContractMetadata } from '../../../lib/db/queries/contract-metadata.table';
 import { insertImage } from '../../../lib/db/queries/image.table';
 import { fastify } from '../../../api/fastify';

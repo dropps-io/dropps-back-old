@@ -11,8 +11,8 @@ import { insertContractMetadata } from '../../../lib/db/queries/contract-metadat
 import { insertImage } from '../../../lib/db/queries/image.table';
 import { API_URL, PROFILES_PER_SEARCH } from '../../../environment/config';
 import { generateRandomAddress } from '../../helpers/generate-mocks';
-import { extractTransaction } from '../../../scripts/blockchain-indexing/extraction/extract-transaction';
-import { indexTransaction } from '../../../scripts/blockchain-indexing/indexing/index-transaction';
+import { extractTransaction } from '../../../../../indexing/src/extraction/extract-transaction';
+import { indexTransaction } from '../../../../../indexing/src/indexing/index-transaction';
 import { web3 } from '../../../lib/web3';
 
 describe('GET lookso/search/:input', () => {

@@ -6,15 +6,15 @@
   "scripts": {
     "build": "npx tsc",
     "watch": "npx tsc --watch",
-    "start:dev": "set NODE_ENV=development&&ts-node apps/api/src/index.ts",
-    "start:staging": "npm run build&&NODE_ENV='staging' node dist/index.js",
-    "start:prod": "npm run build&&NODE_ENV='production' node dist/index.js",
-    "lint": "eslint apps/api/src/**/*",
-    "lint:fix": "eslint --fix apps/api/src/**/*",
+    "api:dev": "set NODE_ENV=development&&ts-node apps/api/src/index.ts",
+    "api:staging": "npm run build&&NODE_ENV='staging' node dist/index.js",
+    "api:prod": "npm run build&&NODE_ENV='production' node dist/index.js",
+    "indexing:dev": "set NODE_ENV=development&&ts-node apps/indexing/src/main.ts",
+    "lint": "eslint apps/**/*",
+    "lint:fix": "eslint --fix apps/**/*",
     "test": "jest --runInBand",
     "test:cov": "jest --runInBand --coverage",
-    "init-db": "ts-node apps/api/src/scripts/db/init",
-    "index-blockchain": "node dist/scripts/blockchain-indexing/main.js -- exit"
+    "init-db": "ts-node scripts/db/init"
   },
   "repository": {
     "type": "git",

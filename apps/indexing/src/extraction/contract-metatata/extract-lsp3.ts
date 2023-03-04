@@ -1,0 +1,47 @@
+import ERC725, { ERC725JSONSchema } from '@erc725/erc725.js';
+import { URLDataWithHash } from '@erc725/erc725.js/build/main/src/types/encodeData/JSONURL';
+import axios from 'axios';
+import LSP3UniversalProfileMetadataJSON from '@erc725/erc725.js/schemas/LSP3UniversalProfileMetadata.json';
+
+import {
+  initialUniversalProfile,
+  LSP3UniversalProfile,
+} from '../../../../api/src/lib/UniversalProfile/models/lsp3-universal-profile.model';
+import { formatUrl } from '../../../../api/src/lib/utils/format-url';
+import { web3 } from '../../../../api/src/lib/web3';
+import { IPFS_GATEWAY } from '../../../../api/src/environment/config';
+import { ContractFullMetadata } from '../../../types/contract-metadata';
+import { reportIndexingScriptError } from '../../index-logger';
+
+//TODO validate json extracted (not type-safe now)
+export async function extractLSP3Data(address: string): Promise<ContractFullMetadata> {
+  const erc725Y = new ERC725(
+    LSP3UniversalProfileMetadataJSON as ERC725JSONSchema[],
+    address,
+    web3.currentProvider,
+    { ipfsGateway: IPFS_GATEWAY },
+  );
+  let lsp3: LSP3UniversalProfile = initialUniversalProfile();
+  let data;
+
+  try {
+    data = await erc725Y.getData('LSP3Profile');
+    if (data.value) {
+      const url = formatUrl((data.value as URLDataWithHash).url);
+      const res = (await axios.get(url)).data;
+      lsp3 = res ? (res as any).LSP3Profile : initialUniversalProfile();
+    }
+  } catch (e: any) {
+    if (!e.toString().includes('Chosen hashFunction'))
+      await reportIndexingScriptError('extractLSP3Data', e, { address, data, lsp3 });
+  }
+
+  return {
+    ...lsp3,
+    isNFT: false,
+    symbol: '',
+    images: [],
+    assets: [],
+    icon: [],
+  };
+}
