@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src",
     "baseUrl": "./",
     "target": "es2019",
     "moduleResolution": "node",
@@ -23,6 +22,8 @@
     "noImplicitThis": true,
     "alwaysStrict": true
   },
-  "include": ["src/**/*"],
+  "include": [
+    "apps/api/src/**/*"
+  ],
   "exclude": ["node_modules"]
 }

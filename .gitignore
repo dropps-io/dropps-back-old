@@ -5,8 +5,8 @@ coverage
 
 .idea
 
-/src/environment/sewing-notebook-service-account.json
-/src/environment/sewing-notebook-service-account-test.json
+/apps/api/src/environment/sewing-notebook-service-account.json
+/apps/api/src/environment/sewing-notebook-service-account-test.json
 /.env
 /.env.test
 /.env.prod
