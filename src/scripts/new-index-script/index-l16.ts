@@ -9,8 +9,9 @@ import {extractAndIndexBatch} from './extract-and-index';
 import {asyncPromiseAll} from './utils/async-promise-all';
 import {getValueFromConfig, setValueOnConfig} from '../../bin/db/config.table';
 import {DEBUG_INDEX_SCRIPT} from './config';
+import {HTTP_RPC} from '../../environment/config';
 
-const web3 = new Web3('https://rpc.l16.lukso.network');
+const web3 = new Web3(HTTP_RPC);
 
 export async function indexL16() {
 	let indexing = 'true';
@@ -46,6 +47,7 @@ export async function indexL16() {
 }
 
 async function getLogs(fromBlock: number, toBlock: number): Promise<Log[]> {
+	// eslint-disable-next-line no-async-promise-executor
 	return new Promise<Log[]> (async (resolve, reject) => {
 		await web3.eth.getPastLogs({fromBlock: fromBlock, toBlock: toBlock
 		}, async (error, logsRes) => {

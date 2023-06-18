@@ -48,8 +48,15 @@ const standardInterfaces = [
 		code: 'LSP0',
 		name: 'Universal Profile',
 	},
+	{
+		id: '0x3e89ad98',
+		code: 'LSP0',
+		name: 'Universal Profile',
+	},
 	{ id: '0xc403d48f', code: 'LSP6', name: 'Key Manager'},
 	{ id: '0xfb437414', code: 'LSP6', name: 'Key Manager' },
+	{ id: '0x06561226', code: 'LSP6', name: 'Key Manager' },
+	{ id: '0x38bb3cdb', code: 'LSP6', name: 'Key Manager' },
 	{
 		id: '0xe33f65c3',
 		code: 'LSP7',
@@ -78,6 +85,7 @@ const standardInterfaces = [
 	{ id: '0xfd4d5c50', code: 'LSP9', name: 'Vault' },
 	{ id: '0x7050cee9', code: 'LSP9', name: 'Vault'},
 	{ id: '0x19331ad1', code: 'LSP9', name: 'Vault'},
+	{ id: '0x28af17e6', code: 'LSP9', name: 'Vault'},
 ];
 
 const readJsonFiles = async (dir: string): Promise<any[]> => {

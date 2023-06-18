@@ -16,11 +16,11 @@
     "coverage": "nyc npm run test",
     "pre-release": "standard-version --prerelease",
     "release": "standard-version",
-    "script": "node dist/scripts/index.js -- exit",
+    "script": "ts-node src/scripts/index",
     "init-db": "ts-node src/scripts/init-db.ts",
     "set-displays": "node dist/scripts/set-displays.js -- exit",
     "refresh-metadata": "node dist/scripts/refresh-all-up-metadata.js -- exit",
-    "index-blockchain": "node dist/scripts/new-index-script/main.js -- exit"
+    "index-blockchain": "ts-node src/scripts/new-index-script/main"
   },
   "repository": {
     "type": "git",
