@@ -20,7 +20,9 @@
     "init-db": "ts-node src/scripts/init-db.ts",
     "set-displays": "node dist/scripts/set-displays.js -- exit",
     "refresh-metadata": "node dist/scripts/refresh-all-up-metadata.js -- exit",
-    "index-blockchain": "ts-node src/scripts/new-index-script/main"
+    "index-blockchain": "ts-node src/scripts/new-index-script/main",
+    "index-blockchain:mainnet": "NODE_ENV='production' ts-node src/scripts/new-index-script/main",
+    "index-blockchain:testnet": "NODE_ENV='staging' ts-node src/scripts/new-index-script/main"
   },
   "repository": {
     "type": "git",

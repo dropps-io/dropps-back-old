@@ -4,6 +4,8 @@ import {insertConfig} from './db-scripts/insert-config';
 
 fillDb().then(() => {
 	setDisplays().then(() => {
-		insertConfig().then();
+		insertConfig().then(() =>
+			console.log('DB initialized')
+		);
 	});
 });

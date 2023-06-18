@@ -12,6 +12,7 @@ import {DEBUG_INDEX_SCRIPT} from './config';
 import {HTTP_RPC} from '../../environment/config';
 
 const web3 = new Web3(HTTP_RPC);
+console.log(HTTP_RPC);
 
 export async function indexL16() {
 	let indexing = 'true';
