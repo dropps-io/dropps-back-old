@@ -3,7 +3,7 @@ import axios from 'axios';
 import {formatUrl} from '../../../bin/utils/format-url';
 import LSP4DigitalAssetJSON from '@erc725/erc725.js/schemas/LSP4DigitalAsset.json';
 import LSP3UniversalProfileMetadataJSON from '@erc725/erc725.js/schemas/LSP3UniversalProfileMetadata.json';
-import {KEY_LSPXXSocialRegistry} from '../../../bin/utils/constants';
+import {KEY_LSP19SocialRegistry} from '../../../bin/utils/constants';
 import {Log} from '../../../models/types/log';
 import {web3} from '../../../bin/web3/web3';
 import {URLDataWithHash} from '@erc725/erc725.js/build/main/src/types/encodeData/JSONURL';
@@ -83,7 +83,7 @@ export async function extractDataFromKey(log: Log, lastBlock: number, key: strin
 		case '0x5ef83ad9559033e6e941db7d7c495acdce616347d28e90c7ce47cbfcfcad3bc5': // LSP3Profile
 			await extractAndIndexLSP3Profile(log, lastBlock, key, erc725Y, value);
 			break;
-		case KEY_LSPXXSocialRegistry:
+		case KEY_LSP19SocialRegistry:
 			await extractAndIndexRegistry(log, lastBlock, value);
 			break;
 		}

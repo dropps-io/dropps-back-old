@@ -6,9 +6,9 @@ export function generateNewRegistry(decentralizedRegistry: SocialRegistry, chang
 	const newRegistry = decentralizedRegistry;
 	changes.forEach(change => {
 		if (change.type === 'like'){
-			if (change.action === 'add' && !decentralizedRegistry.likes.includes(change.value)) newRegistry.likes.push(change.value);
+			if (change.action === 'add' && !decentralizedRegistry.likes.map(like => like.hash).includes(change.value)) newRegistry.likes.push({hash: change.value, url: ''});
 			else if (change.action === 'remove') {
-				const index = newRegistry.likes.indexOf(change.value);
+				const index = newRegistry.likes.map(l => l.hash).indexOf(change.value);
 				if (index > -1) { // only splice array when item is found
 					newRegistry.likes.splice(index, 1); // 2nd parameter means remove one item only
 				}

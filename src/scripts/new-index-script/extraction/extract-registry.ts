@@ -8,7 +8,7 @@ import {IPFS_GATEWAY, POST_VALIDATOR_ADDRESS} from '../../../environment/config'
 import {Log} from '../../../models/types/log';
 import {web3} from '../../../bin/web3/web3';
 import {queryPostHashesOfUser} from '../../../bin/db/post.table';
-import {KEY_LSPXXSocialRegistry} from '../../../bin/utils/constants';
+import {KEY_LSP19SocialRegistry} from '../../../bin/utils/constants';
 import {SocialRegistry} from '../../../bin/lookso/registry/types/social-registry';
 import {ProfilePost} from '../../../bin/lookso/registry/types/profile-post';
 import PostValidatorContract from '../../../assets/artifacts/ValidatorContractArtifact.json';
@@ -24,7 +24,7 @@ export async function extractRegistry(log: Log, _jsonUrl?: string): Promise<Regi
 	let registry: SocialRegistry;
 	try {
 		const profile: UniversalProfileReader = new UniversalProfileReader(log.address, IPFS_GATEWAY, web3);
-		const jsonUrl: string = _jsonUrl ? _jsonUrl : (await profile.getDataUnverified([KEY_LSPXXSocialRegistry]))[0] as string;
+		const jsonUrl: string = _jsonUrl ? _jsonUrl : (await profile.getDataUnverified([KEY_LSP19SocialRegistry]))[0] as string;
 		registry = (await axios.get(formatUrl(decodeJsonUrl(jsonUrl)))).data as SocialRegistry;
 	} catch (e) {
 		await reportIndexingScriptError('extractRegistry', e);
@@ -37,7 +37,7 @@ export async function extractRegistry(log: Log, _jsonUrl?: string): Promise<Regi
 		await reportIndexingScriptError('extractRegistry:Posts', e);
 	}
 	try {
-		response.likes.toAdd = await extractRegistryLikes(log, registry.likes);
+		response.likes.toAdd = await extractRegistryLikes(log, registry.likes.map(like => like.hash));
 	} catch (e) {
 		await reportIndexingScriptError('extractRegistry:Likes', e);
 	}
@@ -64,18 +64,18 @@ async function extractRegistryPosts(log: Log, posts: {hash: string, url: string}
 			if (!postHashes.includes(post.hash)) {
 				const profilePost: ProfilePost = (await axios.get(formatUrl(post.url))).data as ProfilePost;
 
-				const trusted: boolean = POST_VALIDATOR_ADDRESS.includes(profilePost.LSPXXProfilePost.validator);
+				const trusted: boolean = POST_VALIDATOR_ADDRESS.includes(profilePost.LSP19ProfilePost.validator);
 
-				const postValidatorContract: Contract = new web3.eth.Contract(PostValidatorContract.abi as AbiItem[], profilePost.LSPXXProfilePost.validator);
+				const postValidatorContract: Contract = new web3.eth.Contract(PostValidatorContract.abi as AbiItem[], profilePost.LSP19ProfilePost.validator);
 				const postTimestamp: string = await postValidatorContract.methods.getTimestamp(post.hash).call();
 				newPosts.push({
-					hash: profilePost.LSPXXProfilePostHash,
-					author: profilePost.LSPXXProfilePost.author,
+					hash: profilePost.LSP19ProfilePostHash,
+					author: profilePost.LSP19ProfilePost.author,
 					date: new Date(parseInt(postTimestamp) * 1000),
-					text: profilePost.LSPXXProfilePost.message,
-					mediaUrl: profilePost.LSPXXProfilePost.asset ? profilePost.LSPXXProfilePost.asset.fileType + ';' + profilePost.LSPXXProfilePost.asset.url : '',
-					parentHash: profilePost.LSPXXProfilePost.parentHash,
-					childHash: profilePost.LSPXXProfilePost.childHash,
+					text: profilePost.LSP19ProfilePost.message,
+					mediaUrl: profilePost.LSP19ProfilePost.medias && profilePost.LSP19ProfilePost.medias.length > 0 ? profilePost.LSP19ProfilePost.medias[0].fileType + ';' + profilePost.LSP19ProfilePost.medias[0].url : '',
+					parentHash: profilePost.LSP19ProfilePost.parentPost ? profilePost.LSP19ProfilePost.parentPost.hash : undefined,
+					childHash: profilePost.LSP19ProfilePost.childPost ? profilePost.LSP19ProfilePost.childPost.hash : undefined,
 					eventId: undefined,
 					inRegistry: true,
 					transactionHash: log.transactionHash,

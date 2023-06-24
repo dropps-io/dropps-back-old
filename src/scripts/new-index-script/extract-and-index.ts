@@ -10,7 +10,7 @@ import {extractRegistry, RegistryChangesToIndex} from './extraction/extract-regi
 import {queryEventByTh} from '../../bin/db/event.table';
 import {extractAndIndexDataChangedEvent} from './extraction/extract-data-changed';
 import {POST_VALIDATOR_ADDRESS} from '../../environment/config';
-import {KEY_LSPXXSocialRegistry} from '../../bin/utils/constants';
+import {KEY_LSP19SocialRegistry} from '../../bin/utils/constants';
 import {indexEvent} from './indexing/index-event';
 import {indexTransaction} from './indexing/index-transaction';
 import {MethodParameterTable} from '../../models/types/tables/method-parameter-table';
@@ -49,7 +49,7 @@ async function extractAndIndexLog(log: Log, lastBlock: number) {
 			event = await extractLog(log);
 
 			// If (event related to the registry, do not index it as a post (so it does not appear in the feed)
-			if (!(POST_VALIDATOR_ADDRESS.includes(event.params['to']) || (event.params['dataKey'] && event.params['dataKey'] === KEY_LSPXXSocialRegistry))) {
+			if (!(POST_VALIDATOR_ADDRESS.includes(event.params['to']) || (event.params['dataKey'] && event.params['dataKey'] === KEY_LSP19SocialRegistry))) {
 				await indexEvent(log, event.params, event.eventInterface);
 			}
 

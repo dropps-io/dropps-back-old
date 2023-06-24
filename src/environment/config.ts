@@ -9,6 +9,7 @@ export const HTTP_RPC: string = config.get('http_rpc');
 export const PORT: string = config.get('port');
 export const API_URL: string = config.get('api_url');
 export const FRONT_URL: string = config.get('front_url');
+export const CHAIN_ID: number = config.get('chain_id');
 
 export const MAX_OFFCHAIN_REGISTRY_CHANGES = 30;
 export const POSTS_PER_LOAD = 30;

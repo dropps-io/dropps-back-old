@@ -1,5 +1,5 @@
 import {UniversalProfileReader} from '../../../UniversalProfile/UniversalProfileReader.class';
-import {KEY_LSPXXSocialRegistry} from '../../../utils/constants';
+import {KEY_LSP19SocialRegistry} from '../../../utils/constants';
 import {web3} from '../../../web3/web3';
 import {SocialRegistry} from '../types/social-registry';
 import axios from 'axios';
@@ -11,7 +11,7 @@ import {queryFollowing} from '../../../db/follow.table';
 
 export async function getProfileRegistry(address: string): Promise<SocialRegistry> {
 	const universalProfile = new UniversalProfileReader(address, IPFS_GATEWAY, web3);
-	const unverifiedData = await universalProfile.getDataUnverified([KEY_LSPXXSocialRegistry]);
+	const unverifiedData = await universalProfile.getDataUnverified([KEY_LSP19SocialRegistry]);
 	const jsonUrl: string = unverifiedData[0] as string;
 	try {
 		const registry = (await axios.get(formatUrl(decodeJsonUrl(jsonUrl)))).data as any;
@@ -27,7 +27,7 @@ export async function getProfileRegistry(address: string): Promise<SocialRegistr
 			// TODO also fetch the posts (to do so we need to save the posts URLs when we fetch them)
 			const likes = await querySenderLikes(address);
 			const following = await queryFollowing(address);
-			return {posts: [], likes: likes, follows: following};
+			return {posts: [], likes: likes.map(like => {return {url: '', hash: like};}), follows: following};
 		}
 		else throw error;
 	}

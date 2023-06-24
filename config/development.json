@@ -7,5 +7,6 @@
   "http_rpc": "https://rpc.testnet.lukso.network",
   "port": "3030",
   "api_url": "http://localhost:3030",
-  "front_url": "http://localhost:3000"
+  "front_url": "http://localhost:3000",
+  "chain_id": 4201
 }

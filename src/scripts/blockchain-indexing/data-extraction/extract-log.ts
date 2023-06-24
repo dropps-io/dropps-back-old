@@ -15,7 +15,7 @@ import {extractDataFromKey} from './extract-key-data';
 import {indexDataChanged} from '../data-indexing/index-data-changed';
 import {logError} from '../../../bin/logger';
 import {POST_VALIDATOR_ADDRESS} from '../../../environment/config';
-import {KEY_LSPXXSocialRegistry} from '../../../bin/utils/constants';
+import {KEY_LSP19SocialRegistry} from '../../../bin/utils/constants';
 
 export async function extractDataFromLog(log: Log) {
 	await extractContract(log.address);
@@ -43,7 +43,7 @@ async function extractEvent(log: Log): Promise<void> {
 		const eventInterface: SolMethod = await queryMethodInterfaceWithParameters(log.topics[0].slice(0, 10));
 		const decodedParameters = !eventInterface.name ? {} : web3.eth.abi.decodeLog(eventInterface.parameters, log.data, log.topics.filter((x, i) => i !== 0));
 
-		if (!(POST_VALIDATOR_ADDRESS.includes(decodedParameters['to']) || (decodedParameters['dataKey'] && decodedParameters['dataKey'] === KEY_LSPXXSocialRegistry))) {
+		if (!(POST_VALIDATOR_ADDRESS.includes(decodedParameters['to']) || (decodedParameters['dataKey'] && decodedParameters['dataKey'] === KEY_LSP19SocialRegistry))) {
 			await indexEvent(log, decodedParameters, eventInterface);
 		}
 

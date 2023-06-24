@@ -7,5 +7,6 @@
   "http_rpc": "https://rpc.mainnet.lukso.network",
   "port": "3030",
   "api_url": "https://api.lookso.io",
-  "front_url": "https://lookso.io"
+  "front_url": "https://lookso.io",
+  "chain_id": 42
 }

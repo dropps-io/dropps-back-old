@@ -3,7 +3,7 @@ import {queryImagesByType} from '../../../bin/db/image.table';
 import {selectImage} from '../../../bin/utils/select-image';
 import {logError} from '../../../bin/logger';
 import {error, ERROR_INTERNAL, ERROR_INVALID_PAGE, FILE_TYPE_NOT_SUPPORTED} from '../../../bin/utils/error-messages';
-import {LSPXXProfilePost, ProfilePost} from '../../../bin/lookso/registry/types/profile-post';
+import {LSP19ProfilePost, ProfilePost} from '../../../bin/lookso/registry/types/profile-post';
 import {verifyJWT} from '../../../bin/json-web-token';
 import sharp from 'sharp';
 import {arrayBufferKeccak256Hash, objectToBuffer, objectToKeccak256Hash} from '../../../bin/utils/file-converters';
@@ -172,9 +172,9 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
       summary: 'Upload a media to arweave.',
     },
     handler: async (request, reply) => {
-      const body = request.body as { lspXXProfilePost: string};
+      const body = request.body as { lsp19ProfilePost: string};
       const documentFile: any = (request as unknown as MulterRequest).file;
-      const post: LSPXXProfilePost = JSON.parse(body.lspXXProfilePost) as LSPXXProfilePost;
+      const post: LSP19ProfilePost = JSON.parse(body.lsp19ProfilePost) as LSP19ProfilePost;
       const jwtError = await verifyJWT(request, reply, post.author);
       if (jwtError) return jwtError;
 
@@ -189,15 +189,15 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
       }
 
       const fileUrl = await upload(buffer, fileType);
-      post.asset = {
+      post.medias = [{
         fileType: fileType,
         hash: '0x' + arrayBufferKeccak256Hash(buffer),
         hashFunction: 'keccak256(bytes)',
         url: fileUrl
-      };
+      }];
 
       try {
-        return reply.code(200).send({LSPXXProfilePost: post});
+        return reply.code(200).send({LSP19ProfilePost: post});
         /* eslint-disable */
       } catch (e: any) {
         logError(e);
@@ -215,24 +215,24 @@ export function looksoPostRoutes(fastify: FastifyInstance) {
       summary: 'Upload a post to arweave.'
     },
     handler: async (request, reply) => {
-      const body = request.body as { lspXXProfilePost: LSPXXProfilePost };
-      const jwtError = await verifyJWT(request, reply, body.lspXXProfilePost.author);
+      const body = request.body as { lsp19ProfilePost: LSP19ProfilePost };
+      const jwtError = await verifyJWT(request, reply, body.lsp19ProfilePost.author);
       if (jwtError) return jwtError;
 
       try {
         const post: ProfilePost = {
-          LSPXXProfilePost: body.lspXXProfilePost,
-          LSPXXProfilePostHash: '0x' + objectToKeccak256Hash(body.lspXXProfilePost),
+          LSP19ProfilePost: body.lsp19ProfilePost,
+          LSP19ProfilePostHash: '0x' + objectToKeccak256Hash(body.lsp19ProfilePost),
         }
 
         const postUrl = await upload(objectToBuffer(post), 'application/json');
 
-        const registry = await applyChangesToRegistry(body.lspXXProfilePost.author);
-        registry.posts.push({url: postUrl, hash: post.LSPXXProfilePostHash});
+        const registry = await applyChangesToRegistry(body.lsp19ProfilePost.author);
+        registry.posts.push({url: postUrl, hash: post.LSP19ProfilePostHash});
 
         const newRegistryUrl = await upload(objectToBuffer(registry), 'application/json');
 
-        return reply.code(200).send({jsonUrl: buildJsonUrl(registry, newRegistryUrl), postHash: post.LSPXXProfilePostHash});
+        return reply.code(200).send({jsonUrl: buildJsonUrl(registry, newRegistryUrl), postHash: post.LSP19ProfilePostHash});
         /* eslint-disable */
       } catch (e: any) {
         logError(e);

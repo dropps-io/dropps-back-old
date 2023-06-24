@@ -6,7 +6,7 @@ import {updateLSP3Profile} from '../data-indexing/contract-metadata/update-lsp3'
 import LSP4DigitalAssetJSON from '@erc725/erc725.js/schemas/LSP4DigitalAsset.json';
 import LSP3UniversalProfileMetadataJSON from '@erc725/erc725.js/schemas/LSP3UniversalProfileMetadata.json';
 import {indexUpdateName, indexUpdateSymbol} from '../data-indexing/contract-metadata/index-update';
-import {KEY_LSPXXSocialRegistry} from '../../../bin/utils/constants';
+import {KEY_LSP19SocialRegistry} from '../../../bin/utils/constants';
 import {extractRegistry} from './registry/extract-registry';
 import {Log} from '../../../models/types/log';
 import {web3} from '../../../bin/web3/web3';
@@ -61,7 +61,7 @@ export async function extractDataFromKey(log: Log, key: string, value?: string) 
 				updateLSP3Profile(log.address, (res as any).LSP3Profile as LSP3UniversalProfile);
 			}
 			break;
-		case KEY_LSPXXSocialRegistry:
+		case KEY_LSP19SocialRegistry:
 			if (value) {
 				// TODO Implement
 			} else {

@@ -1,4 +1,4 @@
-export const KEY_LSPXXSocialRegistry = '0x661d289e41fcd282d8f4b9c0af12c8506d995e5e9e685415517ab5bc8b908247';
+export const KEY_LSP19SocialRegistry = '0xaa093cc8e40d9473239c9fefe0f7e73ad8b9fb1bfca176dcaf5a8af4eacfb1f4';
 
 export const TYPEID_LSP7_TOKENSRECIPIENT = '0xdbe2c314e1aee2970c72666f2ebe8933a8575263ea71e5ff6a9178e95d47a26f';
 export const TYPEID_LSP7_TOKENSSENDER = '0x40b8bec57d7b5ff0dbd9e9acd0a47dfeb0101e1a203766f5ccab00445fbf39e9';

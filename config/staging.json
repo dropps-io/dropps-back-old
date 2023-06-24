@@ -3,9 +3,10 @@
   "logger": true,
   "jwt_validity_time": 6,
   "max_image_size": 1000,
-  "post_validator_address": ["0xCF3f83D711844E72947172Ebe8EadAF92900B146"],
+  "post_validator_address": ["0x36106732682098cddF063aF879F98ebe5f329c41"],
   "http_rpc": "https://rpc.testnet.lukso.network",
   "port": "3031",
   "api_url": "https://api.staging.lookso.io",
-  "front_url": "https://staging.lookso.io"
+  "front_url": "https://staging.lookso.io",
+  "chain_id": 4201
 }

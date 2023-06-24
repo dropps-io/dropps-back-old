@@ -3,7 +3,7 @@ import {error, ERROR_ADR_INVALID, ERROR_INCORRECT_SIGNED_NONCE, ERROR_INTERNAL, 
 import {insertNonce, queryNonce, updateNonce} from '../../bin/db/nonces.table';
 import {generateAddressWithSignature} from '../../bin/web3/auth';
 import {FastifyInstance} from 'fastify';
-import {FRONT_URL, IPFS_GATEWAY, JWT_VALIDITY_TIME} from '../../environment/config';
+import {CHAIN_ID, FRONT_URL, IPFS_GATEWAY, JWT_VALIDITY_TIME} from '../../environment/config';
 import {logError} from '../../bin/logger';
 import {UniversalProfileReader} from '../../bin/UniversalProfile/UniversalProfileReader.class';
 import {web3} from '../../bin/web3/web3';
@@ -16,7 +16,7 @@ function createSiweMessage(address: string, issuedAt: string, path: string, nonc
 		statement: 'Welcome to LOOKSO!',
 		uri: FRONT_URL + path,
 		version: '1',
-		chainId: 2828, // For LUKSO L16
+		chainId: CHAIN_ID,
 		nonce,
 		issuedAt
 	})).prepareMessage();

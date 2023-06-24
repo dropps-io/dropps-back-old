@@ -6,7 +6,7 @@
 // import {fastify} from "../../../lib/fastify";
 // import {expect} from "chai";
 //
-// import {LSPXXProfilePost} from "../../../bin/lookso/registry/types/profile-post";
+// import {LSP19ProfilePost} from "../../../bin/lookso/registry/types/profile-post";
 // import {POST_VALIDATOR_ADDRESS} from "../../../environment/config";
 // import {Blob} from "buffer";
 // const FormData = require('form-data');
@@ -15,7 +15,7 @@
 //
 //   describe('POST lookso/post/asset', () => {
 //
-//     const post: LSPXXProfilePost = {
+//     const post: LSP19ProfilePost = {
 //       version: '0.1.1',
 //       author: HACKER_MAN_UP,
 //       validator: POST_VALIDATOR_ADDRESS[0],
@@ -32,7 +32,7 @@
 //
 //     // const asset = new File([""], "filename", { type: 'image/jpeg' });
 //     const formData = new FormData();
-//     formData.append('lspXXProfilePost', JSON.stringify(post));
+//     formData.append('lsp19ProfilePost', JSON.stringify(post));
 //     formData.append('asset', JSON.stringify(fakeF));
 //
 //     beforeEach(async () => {
@@ -56,7 +56,7 @@
 //         headers: {
 //           authorization: 'Bearer ' + HACKER_MAN_JWT
 //         }});
-//       const resPost: LSPXXProfilePost = JSON.parse(res.payload).LSPXXProfilePost;
+//       const resPost: LSP19ProfilePost = JSON.parse(res.payload).LSP19ProfilePost;
 //       expect(resPost.asset?.fileType).to.equal('image/webp');
 //       expect(resPost.author).to.equal(post.author);
 //       expect(resPost.nonce).to.equal(post.nonce);
@@ -70,7 +70,7 @@
 //     it('should return 501 if not supported file type', async () => {
 //       // const video = new File([""], "filename", { type: 'video/mp4' });
 //       const formDataVideo = new FormData();
-//       formDataVideo.append('lspXXProfilePost', JSON.stringify(post));
+//       formDataVideo.append('lsp19ProfilePost', JSON.stringify(post));
 //       formDataVideo.append('asset', fakeF);
 //
 //       const res = await fastify.inject({

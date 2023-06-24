@@ -21,8 +21,8 @@
     "set-displays": "node dist/scripts/set-displays.js -- exit",
     "refresh-metadata": "node dist/scripts/refresh-all-up-metadata.js -- exit",
     "index-blockchain": "ts-node src/scripts/new-index-script/main",
-    "index-blockchain:mainnet": "NODE_ENV='production' ts-node src/scripts/new-index-script/main",
-    "index-blockchain:testnet": "NODE_ENV='staging' ts-node src/scripts/new-index-script/main"
+    "index-blockchain:mainnet": "SET NODE_ENV='production' &&ts-node src/scripts/new-index-script/main",
+    "index-blockchain:testnet": "SET NODE_ENV=staging&&ts-node src/scripts/new-index-script/main"
   },
   "repository": {
     "type": "git",
@@ -51,7 +51,7 @@
   },
   "dependencies": {
     "@bundlr-network/client": "^0.8.1",
-    "@erc725/erc725.js": "^0.15.0",
+    "@erc725/erc725.js": "^0.17.2",
     "@fastify/cookie": "^8.3.0",
     "@fastify/cors": "^8.1.0",
     "@fastify/jwt": "^6.3.2",

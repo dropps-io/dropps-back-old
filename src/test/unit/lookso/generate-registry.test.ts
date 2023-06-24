@@ -13,7 +13,7 @@ export const GenerateRegistryTest = () => {
 
   const basicRegistry: SocialRegistry = {
     posts: [],
-    likes: ['post'],
+    likes: [{hash: 'post', url: 'url'}],
     follows: ['bob']
   }
 
