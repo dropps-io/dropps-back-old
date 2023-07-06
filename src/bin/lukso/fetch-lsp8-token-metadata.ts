@@ -34,7 +34,7 @@ enum LSP8_TOKEN_ID_TYPE {
  * @throws {Error} - If an error occurs while fetching the token metadata, the error is logged and the function returns an empty object.
  */
 export const fetchLsp8TokenInfo = async (assetAddress: string, tokenId: string, tokenIdType: string): Promise<Token> => {
-	const decodedTokenId = decodeLsp8TokenId(tokenId, tokenIdType as unknown as LSP8_TOKEN_ID_TYPE);
+	const decodedTokenId = decodeLsp8TokenId(tokenId, tokenIdType);
 	let tokenMetadata;
 	try {
 		tokenMetadata = await fetchLsp8TokenMetadata(assetAddress, tokenId, tokenIdType as unknown as LSP8_TOKEN_ID_TYPE);
@@ -121,10 +121,10 @@ const getLsp8TokenMetadataKey = (tokenIdType: number, legacy?: boolean): string 
 	else return `${keyNamePrefix}:<bytes32>`;
 };
 
-export const decodeLsp8TokenId = (tokenId: string, tokenIdType?: LSP8_TOKEN_ID_TYPE): string => {
+export const decodeLsp8TokenId = (tokenId: string, tokenIdType?: string): string => {
 	if (!tokenIdType) return tokenId;
 
-	switch (tokenIdType) {
+	switch (parseInt(tokenIdType)) {
 	case LSP8_TOKEN_ID_TYPE.address:
 		return getAddress(tokenId.slice(0, 42));
 	case LSP8_TOKEN_ID_TYPE.uint256:
