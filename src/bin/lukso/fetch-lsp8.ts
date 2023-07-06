@@ -12,6 +12,7 @@ import LSP8IdentifiableDigitalAsset from '@lukso/lsp-smart-contracts/artifacts/L
 import {AssetWithBalance} from '../../models/types/asset';
 import {SOL_STANDARD} from '../../models/enums/sol-standard';
 import {Token} from '../../models/types/token';
+import {erc725yGetData} from '../utils/erc725y-get-data';
 
 /**
  * Fetches all the tokens owned by a user for a given LSP8 contract, along with contract metadata, tokenIdType and image of the contract
@@ -23,8 +24,7 @@ import {Token} from '../../models/types/token';
 export const fetchLsp8WithOwnedTokens = async (profileAddress: string, assetAddress: string): Promise<AssetWithBalance> => {
 	const contractMetadata = await queryContractMetadata(assetAddress);
 	const lsp8contract = new web3.eth.Contract(LSP8IdentifiableDigitalAsset.abi as AbiItem[], assetAddress);
-	const erc725 = new ERC725(LSP8IdentifiableDigitalAssetSchema as ERC725JSONSchema[], assetAddress, web3.currentProvider);
-	const tokenIdType: string = (await erc725.fetchData('LSP8TokenIdType')).value as string || '0';
+	const tokenIdType: string =  parseInt(((await erc725yGetData(assetAddress, '0x715f248956de7ce65e94d9d836bfead479f7e70d69b718d47bfe7b00e05b4fe4')) || '0x0').slice(2), 16).toString() || '0';
 	const tokens = await lsp8contract.methods.tokenIdsOf(profileAddress).call();
 	const promises: Promise<Token>[] = [];
 	for (const token of tokens) {
