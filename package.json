@@ -62,6 +62,7 @@
     "config": "^3.3.7",
     "dotenv": "^16.0.0",
     "ethereumjs-util": "^7.1.4",
+    "ethers": "^6.6.2",
     "fastify": "^4.6.0",
     "fastify-multer": "^2.0.3",
     "jsonwebtoken": "^8.5.1",

@@ -30,6 +30,7 @@ import {fetchLsp7WithBalance} from '../../../bin/lukso/fetch-lsp7';
 import {fetchLsp8WithOwnedTokens} from '../../../bin/lukso/fetch-lsp8';
 import {NotificationWithSenderDetails} from '../../../models/types/notification';
 import {AssetWithBalance} from '../../../models/types/asset';
+import {tryIdentifyingContract} from '../../../scripts/blockchain-indexing/utils/contract-identification';
 
 
 export function looksoProfileRoutes(fastify: FastifyInstance) {
@@ -382,8 +383,8 @@ export function looksoProfileRoutes(fastify: FastifyInstance) {
         const promises: Promise<AssetWithBalance>[] = [];
 
         for (const asset of assets) {
-          const contract = await queryContract(asset);
-          switch (contract.interfaceCode) {
+          const contract = await tryIdentifyingContract(asset);
+          switch (contract?.code) {
             case 'LSP7':
               promises.push(fetchLsp7WithBalance(address, asset));
               break;

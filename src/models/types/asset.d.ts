@@ -7,7 +7,7 @@ export interface Asset {
   name: string,
   image: string,
   type: SOL_STANDARD,
-  tokenIdType?: TOKEN_ID_TYPE,
+  tokenIdType?: string,
   tokens?: Token[],
 }
 

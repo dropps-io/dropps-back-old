@@ -24,7 +24,7 @@ export const fetchLsp8WithOwnedTokens = async (profileAddress: string, assetAddr
 	const contractMetadata = await queryContractMetadata(assetAddress);
 	const lsp8contract = new web3.eth.Contract(LSP8IdentifiableDigitalAsset.abi as AbiItem[], assetAddress);
 	const erc725 = new ERC725(LSP8IdentifiableDigitalAssetSchema as ERC725JSONSchema[], assetAddress, web3.currentProvider);
-	const tokenIdType: TOKEN_ID_TYPE = (await erc725.fetchData('LSP8TokenIdType')).value as TOKEN_ID_TYPE || '0';
+	const tokenIdType: string = (await erc725.fetchData('LSP8TokenIdType')).value as string || '0';
 	const tokens = await lsp8contract.methods.tokenIdsOf(profileAddress).call();
 	const promises: Promise<Token>[] = [];
 	for (const token of tokens) {
